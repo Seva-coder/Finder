@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/internal_map__id"
+        android:title="@string/show_on_int_map" />
+    <item android:id="@+id/external_map_id"
+        android:title="@string/show_ext_map" />
+    <item android:id="@+id/info_id"
+        android:title="@string/show_info" />
+    <item android:id="@+id/del_marker_id"
+        android:title="@string/del_point" />
+
+</menu>

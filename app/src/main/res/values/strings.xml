@@ -1,0 +1,60 @@
+<resources>
+    <string name="app_name">Finder</string>
+    <string name="text_description">Добавить новый номер для запросов:</string>
+    <string name="remember_int_on">Добавить</string>
+    <string name="set_button_text">Настройки</string>
+    <string name="added_numbers_list">Список добаленных номеров:</string>
+    <string name="title_activity_settings">Настройки</string>
+    <string name="phone_is_empty">поле пустое, введите номер</string>
+    <string name="phone_already_recorded">номер уже был записан!</string>
+    <string name="number_saved">Номер сохранён!</string>
+
+    <!-- Strings related to Settings -->
+
+    <string name="pref_gps_name">Запрос GPS</string>
+    <string name="gps_default_command">gps_search</string>
+    <string name="gps_description">Команда для получения координат по GPS</string>
+    <string name="wifi_default_command">wifi_search</string>
+    <string name="pref_wifi_name">Запрос через WIFI</string>
+    <string name="wifi_description">Команда для получения координат по WIFI</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="api_error">Ошибка работы google API</string>
+    <string name="parsing_error">ошибка парсинга JSON-ответа API</string>
+    <string name="no_map_app">К сожалению у вас нечем открыть карту, установите какое-нибудь гео-приложение</string>
+    <string name="btn_hist_text">История</string>
+    <string name="history_description">Истрия поисков:</string>
+    <string name="show_info">Вся инфа по точке текстом</string>
+    <string name="point_data">Данные по точке (можно выделить):</string>
+    <string name="battery">Аккумулятор:\u0020</string>
+    <string name="latitude">Широта:\u0020</string>
+    <string name="longitude">Долгота:\u0020</string>
+    <string name="accuracy">Точность:\u0020</string>
+    <string name="meters">\u0020м</string>
+    <string name="altitude">Высота:\u0020</string>
+    <string name="speed">Скорость:\u0020</string>
+    <string name="km_per_hour">\u0020км/ч</string>
+    <string name="course">Курс:\u0020</string>
+    <string name="degree">°</string>
+    <string name="delete_warning">Удалить точку из истории? (действие необратимо!)</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="no_internet_warning">Интернет отключён, всё равно отправить запрос? (без интернета wifi-запрос придётся повторно открывать из списка SMS-сообщений после появления сети)</string>
+    <string name="no_rights_for_sms">Нет прав, запрос не отправлен!</string>
+    <string name="request_has_been_send">Запрос отправлен!</string>
+    <string name="sms_messages">SMS сообщения:</string>
+    <string name="sms_open">Откр. SMS</string>
+    <string name="wifi_sms_processing">wifi-запрос обрабатывается</string>
+    <string name="gps_sms_processing">gps-запрос обрабатывается</string>
+    <string name="not_valid_sms">Не удалось обработать SMS, возможно это не координаты</string>
+    <string name="no_sms_accsess">Ошибка доступа к SMS</string>
+    <string name="insert_sms_text">Вставьте сюда текст из SMS для определения координат:</string>
+    <string name="parse_sms">Определить местоположение</string>
+    <string name="no_sms_rights">Нет прав чтения SMS-сообщений!</string>
+    <string name="show_on_int_map">Показать на встроенной карте</string>
+    <string name="show_ext_map">Открыть сторонним приложением</string>
+    <string name="del_point">Удалить точку из истории</string>
+    <string name="gps_not_enabled">GPS выключен на другом устройстве, попробуете wifi-запрос</string>
+    <string name="no_coord_bad_signal">Координаты не определены, возможно полохие условия приёма</string>
+    <string name="request_sent">Запрос отправлен, ждите ответ...</string>
+
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/wifi_id"
+        android:title="Wifi-запрос" />
+    <item android:id="@+id/gps_id"
+        android:title="GPS-запрос" />
+    <item android:id="@+id/del_id"
+        android:title="Удалить номер" />
+
+</menu>

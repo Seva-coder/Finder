@@ -1,0 +1,9 @@
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+/src/main/res/values/keys.xml
+/src/main/res/values/google_maps_api.xml

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        style="@android:style/TextAppearance.DeviceDefault"
+        android:id="@+id/textViewPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:layout_alignParentTop="true"
+        android:text="Номер телефона (нужен для раздела истории):"/>
+
+    <EditText
+        android:id="@+id/editTextPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textViewPhone"
+        android:inputType="text"/>
+
+    <TextView
+        android:id="@+id/copySmsTextView"
+        style="@android:style/TextAppearance.DeviceDefault"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editTextPhone"
+        android:padding="5dp"
+        android:text="@string/insert_sms_text" />
+
+    <EditText
+        android:id="@+id/textSms"
+        android:layout_below="@+id/copySmsTextView"
+        android:layout_above="@+id/button_find"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:gravity="top"
+        android:inputType="textMultiLine" />
+
+    <Button
+        android:id="@+id/button_find"
+        android:text="@string/parse_sms"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:onClick="sms_process"/>
+</RelativeLayout>

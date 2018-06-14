@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/label1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_alignParentStart="true"
+        android:text="@string/text_description"
+        style="@android:style/TextAppearance.Medium"/>
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@id/button"
+        android:layout_below="@+id/label1"
+        android:inputType="phone" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/editText"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="30dp"
+        android:onClick="rem_btn_clicked"
+        android:text="@string/remember_int_on"/>
+
+    <LinearLayout
+        android:id="@+id/btn_block"
+        android:orientation="horizontal"
+        android:layout_below="@id/button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp">
+        <Button
+            android:id="@+id/btn_settings"
+            android:layout_width="0px"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="@string/set_button_text"
+            android:onClick="set_btn_clicked"/>
+
+        <Button
+            android:id="@+id/btn_history"
+            android:layout_width="0px"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_hist_text"
+            android:onClick="hist_btn_clicked"/>
+
+        <Button
+            android:id="@+id/btn_sms"
+            android:layout_width="0px"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:text="@string/sms_open"
+            android:onClick="sms_btn_clicked"/>
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/textProgress"
+        style="@android:style/TextAppearance.Medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_block"
+        android:visibility="gone"
+        android:layout_centerHorizontal="true"
+        android:text="@string/request_sent"/>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:visibility="gone"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textProgress"/>
+
+    <TextView
+        android:id="@+id/numbers"
+        style="@android:style/TextAppearance.DeviceDefault.Small"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_below="@id/progress"
+        android:text="@string/added_numbers_list" />
+
+    <ListView
+        android:id="@+id/lvMain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/numbers"/>
+
+</RelativeLayout>

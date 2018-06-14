@@ -1,0 +1,25 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+    <EditTextPreference
+        android:defaultValue="@string/wifi_default_command"
+        android:inputType="text"
+        android:key="wifi"
+        android:title="@string/pref_wifi_name"
+        android:summary="@string/wifi_description"/>
+
+    <EditTextPreference
+        android:defaultValue="@string/gps_default_command"
+        android:inputType="text"
+        android:key="gps"
+        android:title="@string/pref_gps_name"
+        android:summary="@string/gps_description"/>
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:title="Автоматически открывать карту"
+        android:key="auto_map"
+        android:summary="При поступлении ответного SMS встроенная карта будет открыта сразу же" />
+
+</PreferenceScreen>
