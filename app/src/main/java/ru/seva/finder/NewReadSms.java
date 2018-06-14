@@ -16,7 +16,6 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -79,6 +78,7 @@ public class NewReadSms extends AppCompatActivity {
                     query.moveToFirst();
                     String phone = query.getString(query.getColumnIndex("ADDRESS"));
                     String message = query.getString(query.getColumnIndex("BODY"));
+                    query.close();
                     if (SmsReceiver.checkWifiSms(message)) {
                         //это сообщение с wifi-сетями
                         Intent new_message_intent = new Intent(NewReadSms.this, NewGoogleGeo.class);  //intent-сервис с запросом к google-api
@@ -102,7 +102,6 @@ public class NewReadSms extends AppCompatActivity {
                 } catch (NullPointerException e) {
                     Toast.makeText(NewReadSms.this, R.string.no_sms_accsess, Toast.LENGTH_LONG).show();
                 }
-                query.close();
             }
         });
     }
