@@ -3,7 +3,10 @@
     <string name="text_description">Добавить новый номер для запросов:</string>
     <string name="remember_int_on">Добавить</string>
     <string name="set_button_text">Настройки</string>
-    <string name="added_numbers_list">Список добаленных номеров:</string>
+    <string name="request_numbs">Номера для запросов</string>
+    <string name="answer_numbs">Доверенные номера</string>
+    <string name="phones_for_queries">Номера для запросов (для ПОЛУЧЕНИЯ их координат):</string>
+    <string name="confidant_phones">Доверенные номера (программа будет ОТВЕЧАТЬ на их запросы):</string>
     <string name="title_activity_settings">Настройки</string>
     <string name="phone_is_empty">поле пустое, введите номер</string>
     <string name="phone_already_recorded">номер уже был записан!</string>
@@ -13,10 +16,10 @@
 
     <string name="pref_gps_name">Запрос GPS</string>
     <string name="gps_default_command">gps_search</string>
-    <string name="gps_description">Команда для получения координат по GPS</string>
+    <string name="gps_description">Команда для получения координат по GPS (и ответа)</string>
     <string name="wifi_default_command">wifi_search</string>
     <string name="pref_wifi_name">Запрос через WIFI</string>
-    <string name="wifi_description">Команда для получения координат по WIFI</string>
+    <string name="wifi_description">Команда для получения координат по WIFI (и ответа)</string>
     <string name="title_activity_maps">Map</string>
     <string name="api_error">Ошибка работы google API</string>
     <string name="parsing_error">ошибка парсинга JSON-ответа API</string>
@@ -56,5 +59,7 @@
     <string name="gps_not_enabled">GPS выключен на другом устройстве, попробуете wifi-запрос</string>
     <string name="no_coord_bad_signal">Координаты не определены, возможно полохие условия приёма</string>
     <string name="request_sent">Запрос отправлен, ждите ответ...</string>
+    <string name="delete_text">Удалить номер</string>
+
 
 </resources>

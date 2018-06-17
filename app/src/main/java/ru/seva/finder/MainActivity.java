@@ -22,6 +22,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -31,6 +34,7 @@ import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.json.JSONException;
@@ -42,11 +46,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-
 public class MainActivity extends AppCompatActivity {
     Button remember_btn;
     EditText text;
-    ListView list;
+    ListView list, list_receive;
+    TabHost tabHost;
 
     public static final String PHONES_TABLE = "phones";
     public static final String PHONES_COL = "phone";
@@ -54,10 +58,10 @@ public class MainActivity extends AppCompatActivity {
     BroadcastReceiver br = new SmsReceiver();
     SharedPreferences sPref;
 
-    Cursor cursor;
+    Cursor cursor, cursor_answ;
     dBase baseConnect;
     SQLiteDatabase db;
-    SimpleCursorAdapter adapter;
+    SimpleCursorAdapter adapter, adapter_answ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +70,9 @@ public class MainActivity extends AppCompatActivity {
 
         remember_btn = (Button) findViewById(R.id.button);
         text = (EditText) findViewById(R.id.editText);
-        list = (ListView) findViewById(R.id.lvMain);
+        list = (ListView) findViewById(R.id.lvSendTo);
+        list_receive = (ListView) findViewById(R.id.lvReceiveFrom);
+
         sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         //подрубаемся к базе
@@ -93,12 +99,78 @@ public class MainActivity extends AppCompatActivity {
                 showSendMenu(view, id);
             }
         });
+
+
+        cursor_answ = db.query("phones_to_answer", null, null, null, null, null, null);
+        int[] toViews2 = {android.R.id.text1};
+        adapter_answ = new SimpleCursorAdapter(this,
+                android.R.layout.simple_list_item_1,
+                cursor_answ,
+                fromColons,
+                toViews2,
+                0);  //колонка телефонов называется так же
+        list_receive.setAdapter(adapter_answ);
+        registerForContextMenu(list_receive);
+
+
+        //неплохо было бы всё в XML переписать
+        tabHost = findViewById(R.id.tabHost);
+        tabHost.setup();
+        TabHost.TabSpec tabspec = tabHost.newTabSpec("tag1");  //тэг нам ненужен, но он нужен конструктору
+        tabspec.setContent(R.id.tab_out);
+        tabspec.setIndicator(getString(R.string.request_numbs));
+        tabHost.addTab(tabspec);
+
+        tabspec = tabHost.newTabSpec("tag2");
+        tabspec.setContent(R.id.tab_in);
+        tabspec.setIndicator(getString(R.string.answer_numbs));
+        tabHost.addTab(tabspec);
+
+        //починка бага андроида https://issuetracker.google.com/issues/36907655
+
+        tabHost.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {
+                tabHost.getViewTreeObserver().removeOnTouchModeChangeListener(tabHost);
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+
+            }
+        });
+
+        text.requestFocus();
         //зарегаем ресивер результата здесь (просто тут проще)
         LocalBroadcastManager.getInstance(this).registerReceiver(wifi_receiver, new IntentFilter("wifi-result"));
         LocalBroadcastManager.getInstance(this).registerReceiver(gps_receiver, new IntentFilter("gps-result"));
         LocalBroadcastManager.getInstance(this).registerReceiver(PGbar, new IntentFilter("disable_bar"));
     }
 
+
+    //реализация всплывающей менюхи
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.context_menu_del, menu);
+    }
+
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.delete:
+                db.delete("phones_to_answer", "_id = ?", new String[] {Long.toString(info.id)});
+                //обновление списка
+                updateAnswList();
+                return true;
+            default:
+                super.onContextItemSelected(item);  //хз зачем, но по мануалу
+        }
+        return true;  //без этого хака не компилит
+    }
 
 
     private BroadcastReceiver wifi_receiver = new BroadcastReceiver() {
@@ -368,8 +440,16 @@ public class MainActivity extends AppCompatActivity {
         String phone_number = text.getText().toString();
         cv.put(PHONES_COL, phone_number);
 
+        String table;  //выбор таблицы для записи
+        if (tabHost.getCurrentTab() == 0) {
+            table = "phones";
+        } else {
+            table = "phones_to_answer";
+        }
+
+
         //проверка номера на повторное вхождение
-        Cursor cursor_check = db.query(PHONES_TABLE,
+        Cursor cursor_check = db.query(table,
                 new String[] {PHONES_COL},
                 PHONES_COL + "=?",
                 new String[] {phone_number},
@@ -380,11 +460,17 @@ public class MainActivity extends AppCompatActivity {
         } else if (phone_number.isEmpty()) {
             Toast.makeText(MainActivity.this, R.string.phone_is_empty, Toast.LENGTH_SHORT).show();
         } else {
-            db.insert(PHONES_TABLE, null, cv);
+            db.insert(table, null, cv);
             Toast.makeText(MainActivity.this, R.string.number_saved, Toast.LENGTH_SHORT).show();
         }
         text.setText("");
-        updateList();
+        cursor_check.close();
+
+        if (tabHost.getCurrentTab() == 0) {
+            updateList();
+        } else {
+            updateAnswList();
+        }
     }
 
     public void sms_btn_clicked(View view) {
@@ -403,5 +489,11 @@ public class MainActivity extends AppCompatActivity {
         cursor = db.query(PHONES_TABLE, null, null, null, null, null, null);
         adapter.swapCursor(cursor);
         adapter.notifyDataSetChanged();
+    }
+
+    public void updateAnswList() {
+        cursor = db.query("phones_to_answer", null, null, null, null, null, null);
+        adapter_answ.swapCursor(cursor);
+        adapter_answ.notifyDataSetChanged();
     }
 }

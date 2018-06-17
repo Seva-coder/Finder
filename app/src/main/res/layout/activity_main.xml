@@ -87,19 +87,83 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/textProgress"/>
 
+    <TabHost
+        android:id="@+id/tabHost"
+        android:layout_below="@id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </TabWidget>
+
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <LinearLayout
+                    android:id="@+id/tab_out"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        style="@android:style/TextAppearance.DeviceDefault.Small"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:text="@string/phones_for_queries" />
+
+                    <ListView
+                        android:id="@+id/lvSendTo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tab_in"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        style="@android:style/TextAppearance.DeviceDefault.Small"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:text="@string/confidant_phones" />
+
+                    <ListView
+                        android:id="@+id/lvReceiveFrom"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+
+            </FrameLayout>
+        </LinearLayout>
+
+    </TabHost>
+<!--
     <TextView
         android:id="@+id/numbers"
         style="@android:style/TextAppearance.DeviceDefault.Small"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
-        android:layout_below="@id/progress"
+        android:layout_below="@android:id/tabhost"
         android:text="@string/added_numbers_list" />
+
 
     <ListView
         android:id="@+id/lvMain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/numbers"/>
+        android:layout_below="@android:id/tabhost"/>
+        !-->
 
 </RelativeLayout>

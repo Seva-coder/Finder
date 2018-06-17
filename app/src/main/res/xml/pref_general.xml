@@ -2,24 +2,88 @@
 
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
-    <EditTextPreference
-        android:defaultValue="@string/wifi_default_command"
-        android:inputType="text"
-        android:key="wifi"
-        android:title="@string/pref_wifi_name"
-        android:summary="@string/wifi_description"/>
+    <PreferenceCategory
+        android:title="Команды для запроса/ответа">
+        <EditTextPreference
+            android:defaultValue="@string/wifi_default_command"
+            android:inputType="text"
+            android:key="wifi"
+            android:title="@string/pref_wifi_name"
+            android:summary="@string/wifi_description"/>
 
-    <EditTextPreference
-        android:defaultValue="@string/gps_default_command"
-        android:inputType="text"
-        android:key="gps"
-        android:title="@string/pref_gps_name"
-        android:summary="@string/gps_description"/>
+        <EditTextPreference
+            android:defaultValue="@string/gps_default_command"
+            android:inputType="text"
+            android:key="gps"
+            android:title="@string/pref_gps_name"
+            android:summary="@string/gps_description"/>
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:title="Автоматически открывать карту"
+            android:key="auto_map"
+            android:summary="При поступлении ответного SMS встроенная карта будет открыта сразу же" />
+    </PreferenceCategory>
 
     <CheckBoxPreference
-        android:defaultValue="true"
-        android:title="Автоматически открывать карту"
-        android:key="auto_map"
-        android:summary="При поступлении ответного SMS встроенная карта будет открыта сразу же" />
+        android:title="Отвечать на запросы"
+        android:summary="Без этой опции работает только для ОТПРАВКИ запросов"
+        android:defaultValue="false"
+        android:key="answer"/>
+
+    <PreferenceCategory
+        android:title="Параметры поиска">
+        <EditTextPreference
+            android:title="Количество сканов WiFi"
+            android:inputType="number"
+            android:key="cycles"
+            android:defaultValue="3"
+            android:summary="Сканировать несколько раз для обнаружния боольшего количества сетей"
+            android:dependency="answer"/>
+
+        <EditTextPreference
+            android:title="Пауза между сканированиями"
+            android:inputType="number"
+            android:key="timeout"
+            android:defaultValue="7"
+            android:summary="в секундах"
+            android:dependency="answer"/>
+
+        <EditTextPreference
+            android:title="Количество MAC в SMS"
+            android:inputType="number"
+            android:key="mac_numb"
+            android:defaultValue="10"
+            android:summary="Максимальное количество mac'ов в сообщении"
+            android:dependency="answer"/>
+
+        <EditTextPreference
+            android:title="Время работы GPS"
+            android:inputType="number"
+            android:key="gps_time"
+            android:defaultValue="12"
+            android:summary="Максимальное время использоваия GPS в минутах, для предотвращения разряда батареи"
+            android:dependency="answer"/>
+
+        <EditTextPreference
+            android:title="Желаемая точность GPS, в метрах"
+            android:inputType="number"
+            android:key="gps_accuracy"
+            android:defaultValue="12"
+            android:summary="Первые значения координат неточны, прога подождёт до требуемого значения либо отправит по таймеру"
+            android:dependency="answer"/>
+    </PreferenceCategory>
+
+    <CheckBoxPreference
+        android:title="Удадённое добавление номера"
+        android:summary="Возможность удалённо записать в доверенные номер, командой через SMS"
+        android:defaultValue="false"
+        android:key="remote_active"/>
+    <EditTextPreference
+        android:title="Команда удалённого добавления"
+        android:inputType="number"
+        android:key="remote"
+        android:dependency="remote_active"/>
+
 
 </PreferenceScreen>
