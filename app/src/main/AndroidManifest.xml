@@ -64,6 +64,27 @@
         <activity android:name=".HistoryActivity" />
         <activity android:name=".OldReadSms" />
         <activity android:name=".NewReadSms"/>
-    </application>
 
+        <receiver
+            android:name=".SmsReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter android:priority="999">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".GpsSearch"
+            android:enabled="true"
+            android:exported="false" />
+        <service
+            android:name=".RemoteAdding"
+            android:exported="false" />
+        <service
+            android:name=".WifiSearch"
+            android:enabled="true"
+            android:exported="false" />
+    </application>
 </manifest>

@@ -72,6 +72,13 @@
             android:defaultValue="12"
             android:summary="Первые значения координат неточны, прога подождёт до требуемого значения либо отправит по таймеру"
             android:dependency="answer"/>
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:title="Выключать звук при входящем SMS запрсе"
+            android:key="sound"
+            android:summary="При поступлении запроса координат звук будет временно отключен"
+            android:dependency="answer"/>
     </PreferenceCategory>
 
     <CheckBoxPreference

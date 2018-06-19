@@ -3,7 +3,9 @@ package ru.seva.finder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsMessage;
 import android.widget.Toast;
@@ -18,6 +20,9 @@ public class SmsReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        SharedPreferences sPref;
+        sPref = PreferenceManager.getDefaultSharedPreferences(context);
 
         /* блок выключения звука
         AudioManager aMan = (AudioManager) context.getSystemService(context.AUDIO_SERVICE);
@@ -49,6 +54,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 text.append(message);
             }
 
+            //проверка на возможный ответ
             Intent stop_bar = new Intent("disable_bar");
             String message = text.toString();
             if (checkWifiSms(message)) {
@@ -56,12 +62,12 @@ public class SmsReceiver extends BroadcastReceiver {
                 new_message_intent.putExtra("phone", phone);
                 new_message_intent.putExtra("message", message);
                 context.startService(new_message_intent);
-                LocalBroadcastManager.getInstance(context).sendBroadcast(stop_bar);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(stop_bar);  //и здесь перенести запись в базу в сервис!!!
             } else if (checkGpsSms(message)) {
                 Intent gps_intent = new Intent("gps-result");
                 gps_intent.putExtra("message", message);
                 gps_intent.putExtra("phone", phone);
-                LocalBroadcastManager.getInstance(context).sendBroadcast(gps_intent);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(gps_intent);  //сделать запись в базу не из MAIN!!!!
                 LocalBroadcastManager.getInstance(context).sendBroadcast(stop_bar);
             } else if (message.equals("gps not enabled")) {
                 Toast.makeText(context, R.string.gps_not_enabled, Toast.LENGTH_LONG).show();
@@ -70,6 +76,30 @@ public class SmsReceiver extends BroadcastReceiver {
                 Toast.makeText(context, R.string.no_coord_bad_signal, Toast.LENGTH_LONG).show();
                 LocalBroadcastManager.getInstance(context).sendBroadcast(stop_bar);
             }
+
+
+            //проверка на возможный запрос наших координат
+            //в SMS пришла команда на wifi при этом настройки активны
+            if (message.equals(sPref.getString("wifi", context.getString(R.string.wifi_default_command))) && sPref.getBoolean("answer", false)) {
+                Intent wifi_intent = new Intent(context, WifiSearch.class);
+                wifi_intent.putExtra("phone_number", phone);
+                context.startService(wifi_intent);
+            }
+
+            //в SMS пришла команда на GPS при этом настройки активны
+            if (message.equals(sPref.getString("gps", context.getString(R.string.wifi_default_command))) && sPref.getBoolean("answer", false)) {
+                Intent gps_intent = new Intent(context, GpsSearch.class);
+                gps_intent.putExtra("phone_number", phone);
+                context.startService(gps_intent);
+            }
+
+            //в SMS пришла команда на remote_add при этом настройки активны
+            if (message.equals(sPref.getString("remote", "NO_DEFAULT_VALUE")) && sPref.getBoolean("remote_active", false)) {
+                Intent remote_intent = new Intent(context, RemoteAdding.class);
+                remote_intent.putExtra("phone_number", phone);
+                context.startService(remote_intent);
+            }
+
             text = new StringBuilder("");  //иначе новый текст складывается с предудущим
         }
     }
