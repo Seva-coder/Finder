@@ -15,8 +15,6 @@ public class RemoteAdding extends IntentService {
 
     dBase baseConnect;
     SQLiteDatabase db;
-    public static final String PHONES_TABLE = "phones";
-    public static final String PHONES_COL = "phone";
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -27,17 +25,17 @@ public class RemoteAdding extends IntentService {
         db = baseConnect.getWritableDatabase();
 
         //проверка на вхождение
-        Cursor cursor_check = db.query(PHONES_TABLE,
-                new String[] {PHONES_COL},
-                PHONES_COL + "=?",
+        Cursor cursor_check = db.query(dBase.PHONES_TABLE_IN,
+                new String[] {dBase.PHONES_COL},
+                dBase.PHONES_COL + "=?",
                 new String[] {phone_number},
                 null, null, null);
 
         if (!cursor_check.moveToFirst()) {
             //номера в базе ещё нет
             ContentValues cv = new ContentValues();
-            cv.put(PHONES_COL, phone_number);
-            db.insert(PHONES_TABLE, null, cv);
+            cv.put(dBase.PHONES_COL, phone_number);
+            db.insert(dBase.PHONES_TABLE_IN, null, cv);
         }
 
         cursor_check.close();

@@ -88,7 +88,7 @@
         android:key="remote_active"/>
     <EditTextPreference
         android:title="Команда удалённого добавления"
-        android:inputType="number"
+        android:inputType="text"
         android:key="remote"
         android:dependency="remote_active"/>
 

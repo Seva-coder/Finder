@@ -10,7 +10,7 @@ public class dBase extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "phones_db";
     public static final String PHONES_TABLE_OUT = "phones";
     public static final String PHONES_TABLE_IN = "phones_to_answer";
-    public static final String PHONES_COL = "phone";
+    public static final String PHONES_COL = "phone";  //одинаковая для обоих таблиц
 
 
     public dBase(Context context) {

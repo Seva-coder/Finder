@@ -11,14 +11,18 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
 import android.telephony.CellInfoWcdma;
+import android.telephony.NeighboringCellInfo;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,23 +46,26 @@ public class WifiSearch extends Service {
     public static final String PHONES_TABLE = "phones";
     public static final String PHONES_COL = "phone";
     public static final String SEARCH_CYCLES = "cycles";
-    public static final int SEARCH_CYCLES_DEFAULT = 3;
+    public static final String SEARCH_CYCLES_DEFAULT = "3";
     public static final String WIFI_TIMEOUT = "timeout";
-    public static final int WIFI_TIMEOUT_DEFAULT = 7;
+    public static final String WIFI_TIMEOUT_DEFAULT = "7";
     public static final String MACS_NUMBER = "mac_numb";
-    public static final int MACS_NUMBER_DEFAULT = 10;
+    public static final String MACS_NUMBER_DEFAULT = "10";
 
     ArrayList<String> phones = new ArrayList<>();
 
 
     @Override
     public void onCreate() {
-
+        wifi = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+        sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     }
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String phone_number = intent.getStringExtra("phone_number");
+        Log.d("wifi", phone_number);
 
         baseConnect = new dBase(this);
         db = baseConnect.getReadableDatabase();
@@ -80,7 +87,7 @@ public class WifiSearch extends Service {
                 wifiReceiver = new scan_ready();
                 registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
                 Searcher s = new Searcher();
-                s.start();
+                s.start();  //отдельный поток, тк юзает паузы
             }
 
         } else {
@@ -104,7 +111,7 @@ public class WifiSearch extends Service {
             for (ScanResult wifi_net : wifi_list) {
                 if (!macs.contains(wifi_net.BSSID.replace(":", ""))) {
                     macs.add(wifi_net.BSSID.replace(":", ""));
-                    macs.add("" + wifi_net.level);
+                    macs.add(String.valueOf(wifi_net.level));
                 }
             }
         }
@@ -117,7 +124,7 @@ public class WifiSearch extends Service {
         int count = 0;
 
         public void run() {
-            wifi = (WifiManager) getApplicationContext().getSystemService(WifiManager.class);
+
             if (wifi.isWifiEnabled()) {
                 wifiWasEnabled = true;
             } else {
@@ -125,12 +132,11 @@ public class WifiSearch extends Service {
                 wifi.setWifiEnabled(true);
             }
 
-            sPref = getSharedPreferences(getString(R.string.preferences_file), MODE_PRIVATE);
             //циклическое сканирование
-            for(int i = 0; i < sPref.getInt(SEARCH_CYCLES, SEARCH_CYCLES_DEFAULT); i++) {
+            for(int i = 0; i < Integer.valueOf(sPref.getString(SEARCH_CYCLES, SEARCH_CYCLES_DEFAULT)); i++) {
                 wifi.startScan();
                 try {
-                    Thread.sleep(1000 * sPref.getInt(WIFI_TIMEOUT, WIFI_TIMEOUT_DEFAULT));
+                    Thread.sleep(1000 * Integer.valueOf(sPref.getString(WIFI_TIMEOUT, WIFI_TIMEOUT_DEFAULT)));
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
@@ -141,31 +147,56 @@ public class WifiSearch extends Service {
                 wifi.setWifiEnabled(false);
             }
 
-            TelephonyManager tm = (TelephonyManager) getApplicationContext().getSystemService(TelephonyManager.class);
+            TelephonyManager tm = (TelephonyManager) getApplicationContext().getSystemService(TELEPHONY_SERVICE);
 
             try {
                 List<CellInfo> net_info = tm.getAllCellInfo();  //права проверены в main activity
                 for (CellInfo info : net_info) {
                     if (info.isRegistered()) {
                         if (info instanceof CellInfoWcdma) {
-                            String mcc = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getMcc());
-                            String mnc = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getMnc());
-                            String lac = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getLac());
-                            String cid = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getCid());
-                            sms_answer.append("wcdma\nMCC");
-                            sms_answer.append(mcc);
-                            sms_answer.append("\nMNC");
-                            sms_answer.append(mnc);
-                            sms_answer.append("\nLAC");
-                            sms_answer.append(lac);
-                            sms_answer.append("\nCID");
-                            sms_answer.append(cid);
-                            sms_answer.append("\n");
+
+                            if (Build.VERSION.SDK_INT >= 18) {
+                                String mcc = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getMcc());
+                                String mnc = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getMnc());
+                                String lac = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getLac());
+                                String cid = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getCid());
+                                sms_answer.append("wcdma\nMCC");
+                                sms_answer.append(mcc);
+                                sms_answer.append("\nMNC");
+                                sms_answer.append(mnc);
+                                sms_answer.append("\nLAC");
+                                sms_answer.append(lac);
+                                sms_answer.append("\nCID");
+                                sms_answer.append(cid);
+                                sms_answer.append("\n");
+                            } else {
+                                //олдовыми методами
+                                String mcc_mnc = tm.getNetworkOperator();
+                                if (!mcc_mnc.isEmpty()) {
+                                    String mcc = mcc_mnc.substring(0, 3);
+                                    String mnc = mcc_mnc.substring(3);
+                                    //непонятно что если две SIM'ки с разными операторами!!!
+                                    List<NeighboringCellInfo> net_list = tm.getNeighboringCellInfo();
+                                    for (NeighboringCellInfo net : net_list) {
+                                        String lac = String.valueOf(net.getLac());
+                                        String cid = String.valueOf(net.getCid());
+                                        sms_answer.append("wcdma\nMCC");
+                                        sms_answer.append(mcc);
+                                        sms_answer.append("\nMNC");
+                                        sms_answer.append(mnc);
+                                        sms_answer.append("\nLAC");
+                                        sms_answer.append(lac);
+                                        sms_answer.append("\nCID");
+                                        sms_answer.append(cid);
+                                        sms_answer.append("\n");
+                                    }
+                                }
+                            }
                         }
                         if (info instanceof CellInfoLte) {
                             String mcc = String.valueOf(((CellInfoLte) info).getCellIdentity().getMcc());
                             String mnc = String.valueOf(((CellInfoLte) info).getCellIdentity().getMnc());
-                            String tac = String.valueOf(((CellInfoLte) info).getCellIdentity().getTac());  //для LTE вроде LAC=0
+                            String tac = String.valueOf(((CellInfoLte) info).getCellIdentity().getTac());  //для google api LTE вроде LAC=0
                             String cid = String.valueOf(((CellInfoLte) info).getCellIdentity().getCi());
                             sms_answer.append("lte\nMCC");
                             sms_answer.append(mcc);
@@ -198,7 +229,7 @@ public class WifiSearch extends Service {
                             String lon = String.valueOf(((CellInfoCdma) info).getCellIdentity().getLongitude());
                             String netId = String.valueOf(((CellInfoCdma) info).getCellIdentity().getNetworkId());
                             String sysId = String.valueOf(((CellInfoCdma) info).getCellIdentity().getSystemId());
-                            //ДОПИСАТЬ MCC!!!!
+                            //ДОПИСАТЬ MCC!!!! но в принципе и без него есть широта/долгота
                             sms_answer.append("cdma\nMNC");
                             sms_answer.append(sysId);
                             sms_answer.append("\nLAC");
@@ -213,21 +244,34 @@ public class WifiSearch extends Service {
                         }
                     }
                 }
+
+                IntentFilter bat_filt= new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+                Intent battery = getApplicationContext().registerReceiver(null, bat_filt);
+                int level = battery.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+                int scale = battery.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+                float batteryPct = level / (float)scale;
+                String batLevel = String.valueOf(Math.round(batteryPct));
+                sms_answer.append("bat:");
+                sms_answer.append(batLevel);
+                sms_answer.append("%\n");
             }
             catch (NullPointerException|SecurityException e) {
-                //всё из-за getAllCellInfo
+                //всё из-за getAllCellInfo и getIntExtra
             }
 
+            /*
             //добавим заряд батареи
             BatteryManager bm = (BatteryManager) getSystemService(BatteryManager.class);
             int batLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
             sms_answer.append("bat:");
             sms_answer.append(String.valueOf(batLevel));
             sms_answer.append("%\n");
+            */
 
 
             for (String item : macs) {
-                if (count < 2 * sPref.getInt(MACS_NUMBER, MACS_NUMBER_DEFAULT)) {
+                // x2 так так 1 мак = 2 строчки (+уровень сигнала)
+                if (count < 2 * Integer.valueOf(sPref.getString(MACS_NUMBER, MACS_NUMBER_DEFAULT))) {
                     sms_answer.append(item);
                     sms_answer.append("\n");
                     count += 1;
@@ -246,6 +290,8 @@ public class WifiSearch extends Service {
         for (String number : phones) {
             sManager.sendMultipartTextMessage(number, null, parts, null,null);
         }
+
+        //Log.d("answ", answer.toString());
     }
 
 

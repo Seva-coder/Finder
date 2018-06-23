@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String PHONES_TABLE = "phones";
     public static final String PHONES_COL = "phone";
     public boolean smsReceiverEnabled = false;
-    BroadcastReceiver br = new SmsReceiver();
+
     SharedPreferences sPref;
 
     Cursor cursor, cursor_answ;
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         int[] toViews = {android.R.id.text1};
         cursor = db.query(PHONES_TABLE, null, null, null, null, null, null);
 
-        //создаём адаптер
+        //создаём адаптер списка запросов
         adapter = new SimpleCursorAdapter(this,
                 android.R.layout.simple_list_item_1,
                 cursor,
@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         tabspec.setIndicator(getString(R.string.answer_numbs));
         tabHost.addTab(tabspec);
 
-        //починка бага андроида https://issuetracker.google.com/issues/36907655
+        //починка бага андроида с "фокусом" https://issuetracker.google.com/issues/36907655
 
         tabHost.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
             @Override
@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
             DateFormat df = new SimpleDateFormat("MMM d, HH:mm");
             date = df.format(Calendar.getInstance().getTime());
             write_to_hist(phone, lat, lon, acc, date, null, altitude, speed, direction);
-
+            Log.d("receiver", "now open");
             sPref = PreferenceManager.getDefaultSharedPreferences(context);
             if (sPref.getBoolean("auto_map", true)) {  //карта вылетит только в случае настройки
                 Intent start_map = new Intent(context, MapsActivity.class);
@@ -329,9 +329,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(wifi_receiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(gps_receiver);
-        if (smsReceiverEnabled) {
-            getApplicationContext().unregisterReceiver(br);
-        }
+
         cursor.close();
         db.close();
     }
@@ -348,10 +346,6 @@ public class MainActivity extends AppCompatActivity {
                         (ContextCompat.checkSelfPermission(v.getContext(), Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED)) {
                     sManager.sendTextMessage(phone, null, sPref.getString(key, def_text), null, null);
                     Toast.makeText(v.getContext(), R.string.request_has_been_send, Toast.LENGTH_LONG).show();
-                    if (!smsReceiverEnabled) {
-                        getApplicationContext().registerReceiver(br, new IntentFilter("android.provider.Telephony.SMS_RECEIVED"));
-                        smsReceiverEnabled = true;
-                    }
                 } else {
                     Toast.makeText(v.getContext(), R.string.no_rights_for_sms, Toast.LENGTH_LONG).show();
                 }

@@ -10,11 +10,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.telephony.SmsManager;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -29,10 +31,10 @@ public class GpsSearch extends Service {
     //наверно некоторые имеет смысл сделать через string
     public static final String PHONES_TABLE = "phones_to_answer";
     public static final String PHONES_COL = "phone";
-    public static final String GPS_ACCURANCY = "gps_accurancy";
-    public static final int GPS_ACCURANCY_DEFAULT = 10;
+    public static final String GPS_ACCURACY = "gps_accurancy";
+    public static final String GPS_ACCURACY_DEFAULT = "10";
     public static final String GPS_TIME = "gps_time";
-    public static final int GPS_TIME_DEFAULT = 12;  //здесь в минутах
+    public static final String GPS_TIME_DEFAULT = "12";  //здесь в минутах
 
     Handler h;  //stopper, котрый будет работать в основном потоке, вроде как быстр, и не подвесит приложение
     StringBuilder sms_answer = new StringBuilder("");
@@ -50,14 +52,14 @@ public class GpsSearch extends Service {
     public void onCreate() {
         h = new Handler();
         sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        h.postDelayed(stopper, sPref.getInt(GPS_TIME, GPS_TIME_DEFAULT) * 60000);  //остановка поиска GPS в случае если он не может получить координаты в течение опр. времени
+        h.postDelayed(stopper, Integer.valueOf(sPref.getString(GPS_TIME, GPS_TIME_DEFAULT)) * 60000);  //остановка поиска GPS в случае если он не может получить координаты в течение опр. времени
         locMan = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
     }
 
     LocationListener locListen = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            if (location.hasAccuracy() && (location.getAccuracy() < sPref.getInt(GPS_ACCURANCY, GPS_ACCURANCY_DEFAULT))) {
+            if (location.hasAccuracy() && (location.getAccuracy() < Float.valueOf(sPref.getString(GPS_ACCURACY, GPS_ACCURACY_DEFAULT)))) {
                 locMan.removeUpdates(locListen);  //после первого же нормального определения - выкл
                 sms_answer.append("lat:");
                 sms_answer.append(String.valueOf(location.getLatitude()));
@@ -128,16 +130,24 @@ public class GpsSearch extends Service {
                 phones.add(phone_number);
             }
 
-            if ((getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
-                    locMan.isProviderEnabled(LocationManager.GPS_PROVIDER) &&
-                    startId == 1) {
+            //проверка прав на новых API
+            if (Build.VERSION.SDK_INT >= 23 && (getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
+                    locMan.isProviderEnabled(LocationManager.GPS_PROVIDER) && startId == 1) {
                 locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListen);  //стартуем!
             }
-            if ((getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) ||
+
+            //на старом можно включить и так (если работает gps)
+            if (Build.VERSION.SDK_INT < 23 && locMan.isProviderEnabled(LocationManager.GPS_PROVIDER) && startId == 1) {
+                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListen);  //стартуем!
+            }
+
+            //на новом API нет прав либо на любоой API gps выключен
+            if ((Build.VERSION.SDK_INT >=23 && getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) ||
                     !locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 sms_answer.append("gps not enabled");
                 start_send();
             }
+
         } else {
             if (phones.size() == 0) {  //если НИКОГО в списке рассылки НЕ было, остановливаемся
                 h.removeCallbacks(stopper);
@@ -185,10 +195,12 @@ public class GpsSearch extends Service {
 
 
     void start_send() {   //рассылка всем запросившим
+        Log.d("send", "1");
         SmsManager sManager = SmsManager.getDefault();
         ArrayList<String> parts = sManager.divideMessage(sms_answer.toString());
         for (String number : phones) {
             sManager.sendMultipartTextMessage(number, null, parts, null,null);
+            Log.d("send", "2");
         }
         stopSelf();
     }

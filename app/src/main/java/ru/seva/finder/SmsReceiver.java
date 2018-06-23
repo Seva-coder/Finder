@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsMessage;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.regex.Matcher;
@@ -68,6 +69,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 gps_intent.putExtra("message", message);
                 gps_intent.putExtra("phone", phone);
                 LocalBroadcastManager.getInstance(context).sendBroadcast(gps_intent);  //сделать запись в базу не из MAIN!!!!
+                Log.d("receive", "1");
                 LocalBroadcastManager.getInstance(context).sendBroadcast(stop_bar);
             } else if (message.equals("gps not enabled")) {
                 Toast.makeText(context, R.string.gps_not_enabled, Toast.LENGTH_LONG).show();
