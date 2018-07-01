@@ -54,8 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String PHONES_TABLE = "phones";
     public static final String PHONES_COL = "phone";
-    public boolean smsReceiverEnabled = false;
-
+    public static boolean activityRunning = false;  //у нас будет только один инстанс, поэтому вроде норм
     SharedPreferences sPref;
 
     Cursor cursor, cursor_answ;
@@ -72,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         text = (EditText) findViewById(R.id.editText);
         list = (ListView) findViewById(R.id.lvSendTo);
         list_receive = (ListView) findViewById(R.id.lvReceiveFrom);
+        activityRunning = true;
 
         sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
         text.requestFocus();
         //зарегаем ресивер результата здесь (просто тут проще)
-        LocalBroadcastManager.getInstance(this).registerReceiver(wifi_receiver, new IntentFilter("wifi-result"));
+
         LocalBroadcastManager.getInstance(this).registerReceiver(gps_receiver, new IntentFilter("gps-result"));
         LocalBroadcastManager.getInstance(this).registerReceiver(PGbar, new IntentFilter("disable_bar"));
     }
@@ -171,46 +171,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;  //без этого хака не компилит
     }
-
-
-    private BroadcastReceiver wifi_receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            try {
-                JSONObject response = new JSONObject(intent.getStringExtra("result"));
-                if (response.has("location")) {
-                    Double lat = response.getJSONObject("location").getDouble("lat");
-                    Double lon = response.getJSONObject("location").getDouble("lng");
-                    Integer acc = null;
-                    if (response.has("accuracy")) {
-                        acc = response.getInt("accuracy");
-                    }
-
-                    String phone = intent.getStringExtra("phone");
-                    DateFormat df = new SimpleDateFormat("MMM d, HH:mm");
-                    String date = df.format(Calendar.getInstance().getTime());
-                    write_to_hist(phone, lat, lon, acc, date, intent.getStringExtra("bat"), null, null, null);
-
-                    sPref = PreferenceManager.getDefaultSharedPreferences(context);
-                    if (sPref.getBoolean("auto_map", true)) {  //карта вылетит только в случае настройки
-                        Intent start_map = new Intent(context, MapsActivity.class);
-                        start_map.putExtra("lat", lat);
-                        start_map.putExtra("lon", lon);
-                        start_map.putExtra("zoom", 15);
-                        if (acc != null) {
-                            start_map.putExtra("accuracy", String.valueOf(acc) + getString(R.string.meters));
-                        }
-                        startActivity(start_map);
-                    }
-                } else {
-                    Toast.makeText(MainActivity.this, R.string.api_error, Toast.LENGTH_LONG).show();
-                }
-            } catch (JSONException e) {
-                Toast.makeText(MainActivity.this, R.string.parsing_error, Toast.LENGTH_LONG).show();
-            }
-
-        }
-    };
 
 
     private BroadcastReceiver gps_receiver = new BroadcastReceiver() {
@@ -256,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
 
             DateFormat df = new SimpleDateFormat("MMM d, HH:mm");
             date = df.format(Calendar.getInstance().getTime());
-            write_to_hist(phone, lat, lon, acc, date, null, altitude, speed, direction);
+            write_to_hist(db, phone, lat, lon, acc, date, null, altitude, speed, direction);
             Log.d("receiver", "now open");
             sPref = PreferenceManager.getDefaultSharedPreferences(context);
             if (sPref.getBoolean("auto_map", true)) {  //карта вылетит только в случае настройки
@@ -282,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private void write_to_hist(String phone, Double lat, Double lon, @Nullable Integer accuracy,
+    static void write_to_hist(SQLiteDatabase base, String phone, Double lat, Double lon, @Nullable Integer accuracy,
                                String date, @Nullable String bat, @Nullable Double altitude,
                                @Nullable Float speed, @Nullable Float direction) {
         ContentValues cv = new ContentValues();
@@ -321,15 +281,14 @@ public class MainActivity extends AppCompatActivity {
             cv.put("direction", direction);
         }
 
-        db.insert("history", null, cv);
+        base.insert("history", null, cv);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(wifi_receiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(gps_receiver);
-
+        activityRunning = false;
         cursor.close();
         db.close();
     }

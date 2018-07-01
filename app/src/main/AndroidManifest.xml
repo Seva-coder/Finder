@@ -15,8 +15,8 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-        <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-        <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -66,7 +66,7 @@
 
         <activity android:name=".HistoryActivity" />
         <activity android:name=".OldReadSms" />
-        <activity android:name=".NewReadSms"/>
+        <activity android:name=".NewReadSms" />
 
         <receiver
             android:name=".SmsReceiver"
@@ -89,5 +89,9 @@
             android:name=".WifiSearch"
             android:enabled="true"
             android:exported="false" />
+        <service
+            android:name=".GpsCoordsReceived"
+            android:exported="false"></service>
     </application>
+
 </manifest>

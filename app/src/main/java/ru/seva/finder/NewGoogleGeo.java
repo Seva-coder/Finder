@@ -1,8 +1,14 @@
 package ru.seva.finder;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,6 +17,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.net.ssl.HttpsURLConnection;
@@ -111,14 +120,79 @@ public class NewGoogleGeo extends IntentService {
             }
         }
 
-        Intent geo_intent = new Intent("wifi-result");
-        geo_intent.putExtra("result", sb.toString());
-        geo_intent.putExtra("phone", phone);  //кочуем дальше)
+        String api_answer = sb.toString();
+
         Pattern bat = Pattern.compile("bat:(\\d+)%");
         Matcher bat_matcher = bat.matcher(textMessage);
+        String bat_value = null;
         if (bat_matcher.find()) {
-            geo_intent.putExtra("bat", bat_matcher.group(1));
+            bat_value = bat_matcher.group(1);
         }
-        LocalBroadcastManager.getInstance(this).sendBroadcast(geo_intent);
+
+        SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        int id = sPref.getInt("notification_id", 0);
+
+        //запись в базу теперь здесь
+        try {
+            JSONObject response = new JSONObject(api_answer);
+            if (response.has("location")) {
+                Double lat = response.getJSONObject("location").getDouble("lat");
+                Double lon = response.getJSONObject("location").getDouble("lng");
+                Integer acc = null;
+                if (response.has("accuracy")) {
+                    acc = response.getInt("accuracy");
+                }
+
+                dBase baseConnect = new dBase(getApplicationContext());
+                SQLiteDatabase db = baseConnect.getWritableDatabase();
+
+                DateFormat df = new SimpleDateFormat("MMM d, HH:mm");
+                String date = df.format(Calendar.getInstance().getTime());
+                MainActivity.write_to_hist(db, phone, lat, lon, acc, date, bat_value, null, null, null);
+
+                if (MainActivity.activityRunning && sPref.getBoolean("auto_map", false)) {  //карта вылетит только в случае настройки и открытого приложения
+                    Intent start_map = new Intent(getApplicationContext(), MapsActivity.class);
+                    start_map.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    start_map.putExtra("lat", lat);
+                    start_map.putExtra("lon", lon);
+                    start_map.putExtra("zoom", 15);
+                    if (acc != null) {
+                        start_map.putExtra("accuracy", String.valueOf(acc) + getString(R.string.meters));
+                    }
+                    startActivity(start_map);
+                } else {
+                    Intent intentRes = new Intent(getApplicationContext(), HistoryActivity.class);
+                    PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, intentRes, PendingIntent.FLAG_UPDATE_CURRENT);
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setContentTitle(getString(R.string.message_with_coord))
+                            .setContentText(getString(R.string.coords_received) + phone)
+                            .setAutoCancel(true)
+                            .setContentIntent(pendIntent);  //подумать над channel id  и ИКОНКОЙ!
+                    Notification notification = builder.build();
+                    NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    nManage.notify(id, notification);
+                }
+            } else {
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle(getString(R.string.error_getting_coordinats))
+                        .setContentText(getString(R.string.api_error))
+                        .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
+                Notification notification = builder.build();
+                NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                nManage.notify(id, notification);
+            }
+        } catch (JSONException e) {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(getString(R.string.error_getting_coordinats))
+                    .setContentText(getString(R.string.parsing_error))
+                    .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
+            Notification notification = builder.build();
+            NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            nManage.notify(id, notification);
+        }
+        sPref.edit().putInt("notification_id", id+1).commit();  //это и так новый поток
     }
 }

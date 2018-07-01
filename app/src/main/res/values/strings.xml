@@ -60,6 +60,9 @@
     <string name="no_coord_bad_signal">Координаты не определены, возможно полохие условия приёма</string>
     <string name="request_sent">Запрос отправлен, ждите ответ...</string>
     <string name="delete_text">Удалить номер</string>
+    <string name="error_getting_coordinats">Не удалось определить координаты</string>
+    <string name="message_with_coord">Сообщение с координатами</string>
+    <string name="coords_received">Обнаружены координаты\u0020</string>
 
 
 </resources>

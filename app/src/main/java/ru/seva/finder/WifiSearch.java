@@ -287,11 +287,15 @@ public class WifiSearch extends Service {
     void start_send(StringBuilder answer) {   //рассылка всем запросившим
         SmsManager sManager = SmsManager.getDefault();
         ArrayList<String> parts = sManager.divideMessage(answer.toString());
-        for (String number : phones) {
-            sManager.sendMultipartTextMessage(number, null, parts, null,null);
+        if (parts.size() != 0) {
+            for (String number : phones) {
+                sManager.sendMultipartTextMessage(number, null, parts, null,null);
+            }
+        } else {
+            for (String number : phones) {
+                sManager.sendTextMessage(number, null, "net info unavailable", null,null);
+            }
         }
-
-        //Log.d("answ", answer.toString());
     }
 
 
