@@ -68,6 +68,10 @@
     <string name="wifi_processed">Обработан Wifi-запрос!</string>
     <string name="remote_adding">Удалённое добавление номера!</string>
     <string name="was_added">\u0020добавлен в доверенные</string>
+    <string name="menu_gps_send">Отправить данные GPS</string>
+    <string name="menu_wifi_send">Отправить данные сетей</string>
+    <string name="coordinates_will_be_sent">Координнаты (по GPS) будут отправлены на номер\u0020</string>
+    <string name="nets_will_be_sent">Данные сетей будут отправлены на номер\u0020</string>
 
 
 </resources>

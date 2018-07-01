@@ -22,7 +22,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -37,13 +36,6 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.json.JSONException;
-import org.json.JSONObject;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -52,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
     ListView list, list_receive;
     TabHost tabHost;
 
-    public static final String PHONES_TABLE = "phones";
     public static final String PHONES_COL = "phone";
     public static boolean activityRunning = false;  //у нас будет только один инстанс, поэтому вроде норм
     SharedPreferences sPref;
@@ -81,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         String[] fromColons = {PHONES_COL};
         int[] toViews = {android.R.id.text1};
-        cursor = db.query(PHONES_TABLE, null, null, null, null, null, null);
+        cursor = db.query(dBase.PHONES_TABLE_OUT, null, null, null, null, null, null);
 
         //создаём адаптер списка запросов
         adapter = new SimpleCursorAdapter(this,
@@ -90,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
                 fromColons,
                 toViews,
                 0);
-
 
         list.setAdapter(adapter);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -101,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        cursor_answ = db.query("phones_to_answer", null, null, null, null, null, null);
+        cursor_answ = db.query(dBase.PHONES_TABLE_IN, null, null, null, null, null, null);
         int[] toViews2 = {android.R.id.text1};
         adapter_answ = new SimpleCursorAdapter(this,
                 android.R.layout.simple_list_item_1,
@@ -110,7 +100,13 @@ public class MainActivity extends AppCompatActivity {
                 toViews2,
                 0);  //колонка телефонов называется так же
         list_receive.setAdapter(adapter_answ);
-        registerForContextMenu(list_receive);
+        list_receive.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                click_on_trusted(view, id);
+            }
+        });
+        //registerForContextMenu(list_receive);
 
 
         //неплохо было бы всё в XML переписать
@@ -141,96 +137,48 @@ public class MainActivity extends AppCompatActivity {
         });
 
         text.requestFocus();
-        //зарегаем ресивер результата здесь (просто тут проще)
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(gps_receiver, new IntentFilter("gps-result"));
+        //ресивер остановки прогресс-бара
         LocalBroadcastManager.getInstance(this).registerReceiver(PGbar, new IntentFilter("disable_bar"));
     }
 
-
-    //реализация всплывающей менюхи
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.context_menu_del, menu);
-    }
-
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()) {
-            case R.id.delete:
-                db.delete("phones_to_answer", "_id = ?", new String[] {Long.toString(info.id)});
-                //обновление списка
-                updateAnswList();
-                return true;
-            default:
-                super.onContextItemSelected(item);  //хз зачем, но по мануалу
-        }
-        return true;  //без этого хака не компилит
-    }
-
-
-    private BroadcastReceiver gps_receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String date;
-            Double lat=0d, lon=0d, altitude = null;
-            Float speed = null, direction = null;
-            Integer acc = null;
-
-            String message = intent.getStringExtra("message");
-            String phone = intent.getStringExtra("phone");
-            Pattern lat_lon = Pattern.compile("^lat:(-?\\d+\\.\\d+) lon:(-?\\d+\\.\\d+)");
-            Matcher m_lat_lon = lat_lon.matcher(message);
-            if (m_lat_lon.find()) {
-                lat = Double.valueOf(m_lat_lon.group(1));  //инициализируется, инфа-сотка - проверено в ресивере
-                lon = Double.valueOf(m_lat_lon.group(2));
-            }
-
-            Pattern alt = Pattern.compile("alt:(\\d+\\.?\\d*)");
-            Matcher m_alt = alt.matcher(message);
-            if (m_alt.find()) {
-                altitude = Double.valueOf(m_alt.group(1));
-            }
-
-            Pattern spd = Pattern.compile("vel:(\\d+\\.?\\d*)");
-            Matcher m_spd = spd.matcher(message);
-            if (m_spd.find()) {
-                speed = Float.valueOf(m_spd.group(1));
-            }
-
-            Pattern dir = Pattern.compile("az:(\\d+\\.?\\d*)");
-            Matcher m_dir = dir.matcher(message);
-            if (m_dir.find()) {
-                direction = Float.valueOf(m_dir.group(1));
-            }
-
-            Pattern ac = Pattern.compile("acc:(\\d+)");
-            Matcher m_acc = ac.matcher(message);
-            if (m_acc.find()) {
-                acc = Integer.valueOf(m_acc.group(1));
-            }
-
-            DateFormat df = new SimpleDateFormat("MMM d, HH:mm");
-            date = df.format(Calendar.getInstance().getTime());
-            write_to_hist(db, phone, lat, lon, acc, date, null, altitude, speed, direction);
-            Log.d("receiver", "now open");
-            sPref = PreferenceManager.getDefaultSharedPreferences(context);
-            if (sPref.getBoolean("auto_map", true)) {  //карта вылетит только в случае настройки
-                Intent start_map = new Intent(context, MapsActivity.class);
-                start_map.putExtra("lat", lat);
-                start_map.putExtra("lon", lon);
-                start_map.putExtra("zoom", 15);
-                if (acc != null) {
-                    start_map.putExtra("accuracy", String.valueOf(acc) + getString(R.string.meters));
+    //описание работы меню списка доверенных номеров
+    private void click_on_trusted(final View v, final long id) {
+        PopupMenu menu = new PopupMenu(this, v);
+        menu.inflate(R.menu.context_menu_trusted);
+        menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Cursor query = db.query(dBase.PHONES_TABLE_IN, new String[] {dBase.PHONES_COL},
+                        "_id = ?", new String[] {Long.toString(id)},
+                        null, null, null);
+                query.moveToFirst();
+                String phone = query.getString(query.getColumnIndex(dBase.PHONES_COL));
+                query.close();
+                switch(item.getItemId()) {
+                    case R.id.gps_send:
+                        Intent gps_intent = new Intent(getApplicationContext(), GpsSearch.class);
+                        gps_intent.putExtra("phone_number", phone);
+                        getApplicationContext().startService(gps_intent);
+                        Toast.makeText(v.getContext(), getString(R.string.coordinates_will_be_sent) + phone, Toast.LENGTH_LONG).show();
+                        return true;
+                    case R.id.wifi_send:
+                        Intent wifi_intent = new Intent(getApplicationContext(), WifiSearch.class);
+                        wifi_intent.putExtra("phone_number", phone);
+                        getApplicationContext().startService(wifi_intent);
+                        Toast.makeText(v.getContext(), getString(R.string.nets_will_be_sent) + phone, Toast.LENGTH_LONG).show();
+                        return true;
+                    case R.id.delete:
+                        db.delete(dBase.PHONES_TABLE_IN, "_id = ?", new String[] {Long.toString(id)});
+                        updateAnswList();
+                        return true;
+                    default:
+                        return false;
                 }
-                startActivity(start_map);
             }
-        }
-    };
+        });
+        menu.show();
+    }
 
     private BroadcastReceiver PGbar = new BroadcastReceiver() {
         @Override
@@ -287,7 +235,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(gps_receiver);
         activityRunning = false;
         cursor.close();
         db.close();
@@ -312,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                Cursor query = db.query(PHONES_TABLE, new String[] {PHONES_COL},
+                Cursor query = db.query(dBase.PHONES_TABLE_OUT, new String[] {PHONES_COL},
                         "_id = ?", new String[] {Long.toString(num_id)},
                         null, null, null);
                 query.moveToFirst();
@@ -365,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
                         return true;
 
                     case R.id.del_id:
-                        db.delete(PHONES_TABLE, "_id = ?", new String[] {Long.toString(num_id)});
+                        db.delete(dBase.PHONES_TABLE_OUT, "_id = ?", new String[] {Long.toString(num_id)});
                         //обновление списка
                         updateList();
                         query.close();
@@ -399,7 +346,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             table = "phones_to_answer";
         }
-
 
         //проверка номера на повторное вхождение
         Cursor cursor_check = db.query(table,
@@ -435,17 +381,16 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, OldReadSms.class);
             startActivity(intent);
         }
-
     }
 
     public void updateList() {
-        cursor = db.query(PHONES_TABLE, null, null, null, null, null, null);
+        cursor = db.query(dBase.PHONES_TABLE_OUT, null, null, null, null, null, null);
         adapter.swapCursor(cursor);
         adapter.notifyDataSetChanged();
     }
 
     public void updateAnswList() {
-        cursor = db.query("phones_to_answer", null, null, null, null, null, null);
+        cursor = db.query(dBase.PHONES_TABLE_IN, null, null, null, null, null, null);
         adapter_answ.swapCursor(cursor);
         adapter_answ.notifyDataSetChanged();
     }

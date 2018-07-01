@@ -142,28 +142,7 @@
                         android:layout_height="wrap_content"/>
 
                 </LinearLayout>
-
-
             </FrameLayout>
         </LinearLayout>
-
     </TabHost>
-<!--
-    <TextView
-        android:id="@+id/numbers"
-        style="@android:style/TextAppearance.DeviceDefault.Small"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_below="@android:id/tabhost"
-        android:text="@string/added_numbers_list" />
-
-
-    <ListView
-        android:id="@+id/lvMain"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@android:id/tabhost"/>
-        !-->
-
 </RelativeLayout>
