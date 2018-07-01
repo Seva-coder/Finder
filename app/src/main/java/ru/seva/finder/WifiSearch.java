@@ -1,5 +1,7 @@
 package ru.seva.finder;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,6 +16,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
@@ -101,6 +104,16 @@ public class WifiSearch extends Service {
         cursor_check.close();
         db.close();
 
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(getString(R.string.wifi_processed))
+                .setContentText(getString(R.string.from) + phone_number)
+                .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
+        Notification notification = builder.build();
+        NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        int id = sPref.getInt("notification_id", 0);
+        nManage.notify(id, notification);
+        sPref.edit().putInt("notification_id", id+1).apply();
         return START_REDELIVER_INTENT;
     }
 
@@ -153,8 +166,7 @@ public class WifiSearch extends Service {
                 List<CellInfo> net_info = tm.getAllCellInfo();  //права проверены в main activity
                 for (CellInfo info : net_info) {
                     if (info.isRegistered()) {
-                        if (info instanceof CellInfoWcdma) {
-
+                        if (info instanceof CellInfoWcdma) {  //непонятный момент - метод 17го API возвращает объект 18го API (CellInfoWcdma)???
                             if (Build.VERSION.SDK_INT >= 18) {
                                 String mcc = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getMcc());
                                 String mnc = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getMnc());

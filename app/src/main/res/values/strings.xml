@@ -63,6 +63,11 @@
     <string name="error_getting_coordinats">Не удалось определить координаты</string>
     <string name="message_with_coord">Сообщение с координатами</string>
     <string name="coords_received">Обнаружены координаты\u0020</string>
+    <string name="gps_processed">Обработан GPS-запрос!</string>
+    <string name="from">от\u0020</string>
+    <string name="wifi_processed">Обработан Wifi-запрос!</string>
+    <string name="remote_adding">Удалённое добавление номера!</string>
+    <string name="was_added">\u0020добавлен в доверенные</string>
 
 
 </resources>

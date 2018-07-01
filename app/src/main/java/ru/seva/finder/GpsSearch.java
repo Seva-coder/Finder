@@ -1,6 +1,8 @@
 package ru.seva.finder;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsManager;
 import android.util.Log;
 
@@ -148,6 +151,16 @@ public class GpsSearch extends Service {
                 start_send();
             }
 
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(getString(R.string.gps_processed))
+                    .setContentText(getString(R.string.from) + phone_number)
+                    .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
+            Notification notification = builder.build();
+            NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            int id = sPref.getInt("notification_id", 0);
+            nManage.notify(id, notification);
+            sPref.edit().putInt("notification_id", id+1).apply();
         } else {
             if (phones.size() == 0) {  //если НИКОГО в списке рассылки НЕ было, остановливаемся
                 h.removeCallbacks(stopper);
