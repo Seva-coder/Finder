@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -19,6 +20,7 @@ public class SmsReceiver extends BroadcastReceiver {
     private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
     StringBuilder text = new StringBuilder("");
 
+
     @Override
     public void onReceive(Context context, Intent intent) {
 
@@ -26,6 +28,7 @@ public class SmsReceiver extends BroadcastReceiver {
         sPref = PreferenceManager.getDefaultSharedPreferences(context);
 
         /* блок выключения звука
+
         AudioManager aMan = (AudioManager) context.getSystemService(context.AUDIO_SERVICE);
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -99,8 +102,17 @@ public class SmsReceiver extends BroadcastReceiver {
 
             //проверка на возможный запрос наших координат
             //в SMS пришла команда на wifi при этом в настройках указанно отвечать
+            AudioManager aMan = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             if (message.equals(sPref.getString("wifi", context.getString(R.string.wifi_default_command))) && sPref.getBoolean("answer", false)) {
                 Intent wifi_intent = new Intent(context, WifiSearch.class);
+                if (sPref.getBoolean("disable_sound", false)) {
+                    if (aMan.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
+                        wifi_intent.putExtra("sound_was_normal", true);
+                    } else {
+                        wifi_intent.putExtra("sound_was_normal", false);  //тк звук мог быть ужк отключен, и мы бы его потом включили
+                    }
+                    aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                }
                 wifi_intent.putExtra("phone_number", phone);
                 context.startService(wifi_intent);
             }
@@ -108,6 +120,14 @@ public class SmsReceiver extends BroadcastReceiver {
             //в SMS пришла команда на GPS при этом в настройках указанно отвечать
             if (message.equals(sPref.getString("gps", context.getString(R.string.wifi_default_command))) && sPref.getBoolean("answer", false)) {
                 Intent gps_intent = new Intent(context, GpsSearch.class);
+                if (sPref.getBoolean("disable_sound", false)) {
+                    if (aMan.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
+                        gps_intent.putExtra("sound_was_normal", true);
+                    } else {
+                        gps_intent.putExtra("sound_was_normal", false);
+                    }
+                    aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                }
                 gps_intent.putExtra("phone_number", phone);
                 context.startService(gps_intent);
             }
@@ -115,6 +135,14 @@ public class SmsReceiver extends BroadcastReceiver {
             //в SMS пришла команда на remote_add при этом опция включена
             if (message.equals(sPref.getString("remote", "NO_DEFAULT_VALUE")) && sPref.getBoolean("remote_active", false)) {
                 Intent remote_intent = new Intent(context, RemoteAdding.class);
+                if (sPref.getBoolean("disable_sound", false)) {
+                    if (aMan.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
+                        remote_intent.putExtra("sound_was_normal", true);
+                    } else {
+                        remote_intent.putExtra("sound_was_normal", false);
+                    }
+                    aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                }
                 remote_intent.putExtra("phone_number", phone);
                 context.startService(remote_intent);
             }

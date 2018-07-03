@@ -4,10 +4,12 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.AudioManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
@@ -57,5 +59,15 @@ public class RemoteAdding extends IntentService {
         int id = sPref.getInt("notification_id", 0);
         nManage.notify(id, notification);
         sPref.edit().putInt("notification_id", id+1).apply();
+
+        if (sPref.getBoolean("disable_sound", false) && intent.getBooleanExtra("sound_was_normal", true)) {
+            try {
+                Thread.sleep(200);  //волшебный таймаут для того, чтобы не было звука
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+            AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
+            aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+        }
     }
 }

@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.AudioManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
@@ -25,7 +26,6 @@ import android.telephony.CellInfoWcdma;
 import android.telephony.NeighboringCellInfo;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,13 +40,13 @@ public class WifiSearch extends Service {
     ArrayList<String> macs = new ArrayList<>();
 
     boolean search_active = false;
+    boolean sound_was_enabled;
 
     dBase baseConnect;
     SQLiteDatabase db;
     WifiManager wifi;
     scan_ready wifiReceiver;
 
-    public static final String PHONES_TABLE = "phones";
     public static final String PHONES_COL = "phone";
     public static final String SEARCH_CYCLES = "cycles";
     public static final String SEARCH_CYCLES_DEFAULT = "3";
@@ -68,13 +68,13 @@ public class WifiSearch extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String phone_number = intent.getStringExtra("phone_number");
-        Log.d("wifi", phone_number);
+        sound_was_enabled = intent.getBooleanExtra("sound_was_normal", true);
 
         baseConnect = new dBase(this);
         db = baseConnect.getReadableDatabase();
 
-        //проверка на вхождение
-        Cursor cursor_check = db.query(PHONES_TABLE,
+        //проверка номера на вхождение
+        Cursor cursor_check = db.query(dBase.PHONES_TABLE_IN,
                 new String[] {PHONES_COL},
                 PHONES_COL + "=?",
                 new String[] {phone_number},
@@ -93,10 +93,24 @@ public class WifiSearch extends Service {
                 s.start();  //отдельный поток, тк юзает паузы
             }
 
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(getString(R.string.wifi_processed))
+                    .setContentText(getString(R.string.from) + phone_number)
+                    .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
+            Notification notification = builder.build();
+            NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            int id = sPref.getInt("notification_id", 0);
+            nManage.notify(id, notification);
+            sPref.edit().putInt("notification_id", id+1).apply();
         } else {
             if(!search_active) {  //в случае если до этого никто не присылал SMS с поиском, офайем этот сервис
                 cursor_check.close();
                 db.close();
+                if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
+                    AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
+                    aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                }
                 stopSelf();
             }
             //иначе продолжаем работу сервиса
@@ -104,16 +118,6 @@ public class WifiSearch extends Service {
         cursor_check.close();
         db.close();
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(getString(R.string.wifi_processed))
-                .setContentText(getString(R.string.from) + phone_number)
-                .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
-        Notification notification = builder.build();
-        NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        int id = sPref.getInt("notification_id", 0);
-        nManage.notify(id, notification);
-        sPref.edit().putInt("notification_id", id+1).apply();
         return START_REDELIVER_INTENT;
     }
 
@@ -271,15 +275,6 @@ public class WifiSearch extends Service {
                 //всё из-за getAllCellInfo и getIntExtra
             }
 
-            /*
-            //добавим заряд батареи
-            BatteryManager bm = (BatteryManager) getSystemService(BatteryManager.class);
-            int batLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
-            sms_answer.append("bat:");
-            sms_answer.append(String.valueOf(batLevel));
-            sms_answer.append("%\n");
-            */
-
 
             for (String item : macs) {
                 // x2 так так 1 мак = 2 строчки (+уровень сигнала)
@@ -307,6 +302,11 @@ public class WifiSearch extends Service {
             for (String number : phones) {
                 sManager.sendTextMessage(number, null, "net info unavailable", null,null);
             }
+        }
+        //вернуть звук, если был включен
+        if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
+            AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
+            aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
         }
     }
 

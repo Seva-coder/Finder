@@ -76,7 +76,7 @@
         <CheckBoxPreference
             android:defaultValue="false"
             android:title="Выключать звук при входящем SMS запрсе"
-            android:key="sound"
+            android:key="disable_sound"
             android:summary="При поступлении запроса координат звук будет временно отключен"
             android:dependency="answer"/>
     </PreferenceCategory>

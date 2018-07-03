@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -12,6 +13,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,6 +48,7 @@ public class GpsSearch extends Service {
     double lastLat, lastLon;  //переменные на случай еслси gps завёлся, но не успел набрал точность до таймера
     float lastSpeed = 0, lastAccuracy;
     boolean lastTrue = false;
+    boolean sound_was_enabled;
 
     public GpsSearch() {
     }
@@ -117,6 +120,7 @@ public class GpsSearch extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String phone_number = intent.getStringExtra("phone_number");
+        sound_was_enabled = intent.getBooleanExtra("sound_was_normal", true);
         baseConnect = new dBase(this);
         db = baseConnect.getReadableDatabase();
 
@@ -167,6 +171,10 @@ public class GpsSearch extends Service {
                 locMan.removeUpdates(locListen);
                 cursor_check.close();
                 db.close();
+                if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
+                    AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
+                    aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                }
                 stopSelf();
             }
         }
@@ -213,7 +221,10 @@ public class GpsSearch extends Service {
         ArrayList<String> parts = sManager.divideMessage(sms_answer.toString());
         for (String number : phones) {
             sManager.sendMultipartTextMessage(number, null, parts, null,null);
-            Log.d("send", "2");
+        }
+        if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
+            AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
+            aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
         }
         stopSelf();
     }
