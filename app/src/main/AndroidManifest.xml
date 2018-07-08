@@ -91,7 +91,9 @@
             android:exported="false" />
         <service
             android:name=".GpsCoordsReceived"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <activity android:name=".HelpActivity"></activity>
     </application>
 
 </manifest>

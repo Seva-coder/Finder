@@ -1,5 +1,6 @@
 package ru.seva.finder;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -8,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.AudioManager;
@@ -245,8 +247,14 @@ public class WifiSearch extends Service {
                             String lon = String.valueOf(((CellInfoCdma) info).getCellIdentity().getLongitude());
                             String netId = String.valueOf(((CellInfoCdma) info).getCellIdentity().getNetworkId());
                             String sysId = String.valueOf(((CellInfoCdma) info).getCellIdentity().getSystemId());
-                            //ДОПИСАТЬ MCC!!!! но в принципе и без него есть широта/долгота
-                            sms_answer.append("cdma\nMNC");
+                            String mcc = "";
+                            if (tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
+                                String mcc_mnc = tm.getSimOperator();
+                                mcc = mcc_mnc.substring(0, 3);
+                            }
+                            sms_answer.append("cdma\nMCC");
+                            sms_answer.append(mcc);  //необходимо тестирование в сети CDMA! неясно, на сколько это надёжно
+                            sms_answer.append("\nMNC");
                             sms_answer.append(sysId);
                             sms_answer.append("\nLAC");
                             sms_answer.append(netId);
@@ -292,17 +300,22 @@ public class WifiSearch extends Service {
     }
 
     void start_send(StringBuilder answer) {   //рассылка всем запросившим
-        SmsManager sManager = SmsManager.getDefault();
-        ArrayList<String> parts = sManager.divideMessage(answer.toString());
-        if (parts.size() != 0) {
-            for (String number : phones) {
-                sManager.sendMultipartTextMessage(number, null, parts, null,null);
-            }
-        } else {
-            for (String number : phones) {
-                sManager.sendTextMessage(number, null, "net info unavailable", null,null);
+        if ((Build.VERSION.SDK_INT >= 23 &&
+                (getApplicationContext().checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED)) ||
+                Build.VERSION.SDK_INT < 23) {
+            SmsManager sManager = SmsManager.getDefault();
+            ArrayList<String> parts = sManager.divideMessage(answer.toString());
+            if (parts.size() != 0) {
+                for (String number : phones) {
+                    sManager.sendMultipartTextMessage(number, null, parts, null,null);
+                }
+            } else {
+                for (String number : phones) {
+                    sManager.sendTextMessage(number, null, "net info unavailable", null,null);
+                }
             }
         }
+
         //вернуть звук, если был включен
         if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
             AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);

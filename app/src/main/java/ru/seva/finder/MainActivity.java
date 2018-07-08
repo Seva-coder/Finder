@@ -11,18 +11,22 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +41,8 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity {
     Button remember_btn;
@@ -44,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
     ListView list, list_receive;
     TabHost tabHost;
 
-    public static final String PHONES_COL = "phone";
     public static boolean activityRunning = false;  //у нас будет только один инстанс, поэтому вроде норм
     SharedPreferences sPref;
 
@@ -52,17 +57,28 @@ public class MainActivity extends AppCompatActivity {
     dBase baseConnect;
     SQLiteDatabase db;
     SimpleCursorAdapter adapter, adapter_answ;
+    String[] allDangPerm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+
         remember_btn = (Button) findViewById(R.id.button);
         text = (EditText) findViewById(R.id.editText);
         list = (ListView) findViewById(R.id.lvSendTo);
         list_receive = (ListView) findViewById(R.id.lvReceiveFrom);
         activityRunning = true;
+        allDangPerm = new String[] {
+                Manifest.permission.SEND_SMS,
+                Manifest.permission.RECEIVE_SMS,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.CHANGE_WIFI_STATE
+        };
 
         sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
@@ -70,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         baseConnect = new dBase(this);
         db = baseConnect.getWritableDatabase();
 
-        String[] fromColons = {PHONES_COL};
+        String[] fromColons = {dBase.PHONES_COL};
         int[] toViews = {android.R.id.text1};
         cursor = db.query(dBase.PHONES_TABLE_OUT, null, null, null, null, null, null);
 
@@ -106,8 +122,6 @@ public class MainActivity extends AppCompatActivity {
                 click_on_trusted(view, id);
             }
         });
-        //registerForContextMenu(list_receive);
-
 
         //неплохо было бы всё в XML переписать
         tabHost = findViewById(R.id.tabHost);
@@ -140,6 +154,62 @@ public class MainActivity extends AppCompatActivity {
 
         //ресивер остановки прогресс-бара
         LocalBroadcastManager.getInstance(this).registerReceiver(PGbar, new IntentFilter("disable_bar"));
+
+        //проверка прав на новых android
+        if (Build.VERSION.SDK_INT >= 23 && hasPermitions()) {
+            remember_btn.setEnabled(true);
+        } else if (Build.VERSION.SDK_INT >= 23 && !hasPermitions()) {
+            ArrayList<String> lacking = new ArrayList<String>();
+            for (String prem : allDangPerm) {
+                if (ContextCompat.checkSelfPermission(this, prem) == PackageManager.PERMISSION_DENIED) {
+                    lacking.add(prem);
+                }
+            }
+            ActivityCompat.requestPermissions(MainActivity.this, lacking.toArray(new String[0]), 1);
+        }
+
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        boolean rules = true;
+
+        for(int rul: grantResults) {
+            rules = rules && (rul == PackageManager.PERMISSION_GRANTED);
+        }
+
+        if (requestCode == 1 && rules) {
+            Toast.makeText(MainActivity.this, R.string.permissions_obtained, Toast.LENGTH_SHORT).show();
+            remember_btn.setEnabled(true);  //разлочить интерфейс
+        } else {
+            Toast.makeText(MainActivity.this, R.string.no_permits_received, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean hasPermitions() {
+        boolean answer = true;
+        for (String perm : allDangPerm) {
+            if (ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_DENIED) {
+                answer = false;
+                break;
+            }
+        }
+        return answer;
+    }
+
+    //создание меню помощи в тулбаре
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.help_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.help_menu_id) {
+            Intent intent = new Intent(this, HelpActivity.class);
+            startActivity(intent);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     //описание работы меню списка доверенных номеров
@@ -159,14 +229,24 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.gps_send:
                         Intent gps_intent = new Intent(getApplicationContext(), GpsSearch.class);
                         gps_intent.putExtra("phone_number", phone);
-                        getApplicationContext().startService(gps_intent);
-                        Toast.makeText(v.getContext(), getString(R.string.coordinates_will_be_sent) + phone, Toast.LENGTH_LONG).show();
+                        LocationManager locMan = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+                        if ((Build.VERSION.SDK_INT >= 23 && hasPermitions() && locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) ||
+                                locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                            getApplicationContext().startService(gps_intent);
+                            Toast.makeText(v.getContext(), getString(R.string.coordinates_will_be_sent) + phone, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(v.getContext(), R.string.no_gps_or_rights, Toast.LENGTH_LONG).show();
+                        }
                         return true;
                     case R.id.wifi_send:
-                        Intent wifi_intent = new Intent(getApplicationContext(), WifiSearch.class);
-                        wifi_intent.putExtra("phone_number", phone);
-                        getApplicationContext().startService(wifi_intent);
-                        Toast.makeText(v.getContext(), getString(R.string.nets_will_be_sent) + phone, Toast.LENGTH_LONG).show();
+                        if ((Build.VERSION.SDK_INT >= 23 && hasPermitions()) || Build.VERSION.SDK_INT < 23) {
+                            Intent wifi_intent = new Intent(getApplicationContext(), WifiSearch.class);
+                            wifi_intent.putExtra("phone_number", phone);
+                            getApplicationContext().startService(wifi_intent);
+                            Toast.makeText(v.getContext(), getString(R.string.nets_will_be_sent) + phone, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(v.getContext(), R.string.no_rights_for_wifi_sending, Toast.LENGTH_LONG).show();
+                        }
                         return true;
                     case R.id.delete:
                         db.delete(dBase.PHONES_TABLE_IN, "_id = ?", new String[] {Long.toString(id)});
@@ -180,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
         menu.show();
     }
 
+    //отключение прогрессбара
     private BroadcastReceiver PGbar = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -248,22 +329,28 @@ public class MainActivity extends AppCompatActivity {
 
             private void sendSmsRequest(String key, String def_text, String phone) {
                 SmsManager sManager = SmsManager.getDefault();
+                TextView label = (TextView) findViewById(R.id.textProgress);
+                ProgressBar bar = (ProgressBar) findViewById(R.id.progress);
                 if ((ContextCompat.checkSelfPermission(v.getContext(), Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) &&
                         (ContextCompat.checkSelfPermission(v.getContext(), Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED)) {
                     sManager.sendTextMessage(phone, null, sPref.getString(key, def_text), null, null);
                     Toast.makeText(v.getContext(), R.string.request_has_been_send, Toast.LENGTH_LONG).show();
+                    label.setVisibility(View.VISIBLE);
+                    bar.setVisibility(View.VISIBLE);
                 } else {
                     Toast.makeText(v.getContext(), R.string.no_rights_for_sms, Toast.LENGTH_LONG).show();
+                    label.setVisibility(View.GONE);
+                    bar.setVisibility(View.GONE);
                 }
             }
 
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                Cursor query = db.query(dBase.PHONES_TABLE_OUT, new String[] {PHONES_COL},
+                Cursor query = db.query(dBase.PHONES_TABLE_OUT, new String[] {dBase.PHONES_COL},
                         "_id = ?", new String[] {Long.toString(num_id)},
                         null, null, null);
                 query.moveToFirst();
-                final String phone = query.getString(query.getColumnIndex(PHONES_COL));
+                final String phone = query.getString(query.getColumnIndex(dBase.PHONES_COL));
                 final TextView label = (TextView) findViewById(R.id.textProgress);
                 final ProgressBar bar = (ProgressBar) findViewById(R.id.progress);
                 switch (item.getItemId()) {
@@ -276,8 +363,6 @@ public class MainActivity extends AppCompatActivity {
                                     case DialogInterface.BUTTON_POSITIVE:
                                         //ваще поифиг, юзверь оповещён что работать ничего не будет, инет не чекаем
                                         sendSmsRequest("wifi", "wifi_search", phone);
-                                        label.setVisibility(View.VISIBLE);
-                                        bar.setVisibility(View.VISIBLE);
                                         break;
                                     case DialogInterface.BUTTON_NEGATIVE:
                                         //ничего не отправляем
@@ -293,8 +378,6 @@ public class MainActivity extends AppCompatActivity {
                         if (network_inf != null && network_inf.isConnected()) {
                             //сеть "активна", отправляем запрос не дёргая юзера
                             sendSmsRequest("wifi", "wifi_search", phone);
-                            label.setVisibility(View.VISIBLE);
-                            bar.setVisibility(View.VISIBLE);
                         } else {
                             //сети нет, но может всё равно отправить?
                             AlertDialog.Builder builder2 = new AlertDialog.Builder(v.getContext());
@@ -307,8 +390,6 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.gps_id:
                         sendSmsRequest("gps", "gps_search", phone);
                         query.close();
-                        label.setVisibility(View.VISIBLE);
-                        bar.setVisibility(View.VISIBLE);
                         return true;
 
                     case R.id.del_id:
@@ -338,7 +419,7 @@ public class MainActivity extends AppCompatActivity {
     public void rem_btn_clicked(View view) {
         ContentValues cv = new ContentValues();
         String phone_number = text.getText().toString();
-        cv.put(PHONES_COL, phone_number);
+        cv.put(dBase.PHONES_COL, phone_number);
 
         String table;  //выбор таблицы для записи
         if (tabHost.getCurrentTab() == 0) {
@@ -349,8 +430,8 @@ public class MainActivity extends AppCompatActivity {
 
         //проверка номера на повторное вхождение
         Cursor cursor_check = db.query(table,
-                new String[] {PHONES_COL},
-                PHONES_COL + "=?",
+                new String[] {dBase.PHONES_COL},
+                dBase.PHONES_COL + "=?",
                 new String[] {phone_number},
                 null, null, null);
 

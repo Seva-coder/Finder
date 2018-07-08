@@ -27,22 +27,6 @@ public class SmsReceiver extends BroadcastReceiver {
         SharedPreferences sPref;
         sPref = PreferenceManager.getDefaultSharedPreferences(context);
 
-        /* блок выключения звука
-
-        AudioManager aMan = (AudioManager) context.getSystemService(context.AUDIO_SERVICE);
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                aMan.adjustStreamVolume(AudioManager.STREAM_NOTIFICATION, AudioManager.ADJUST_MUTE, 0);
-                Toast.makeText(context, "213", Toast.LENGTH_SHORT).show();
-            } else {
-                aMan.setStreamMute(AudioManager.STREAM_NOTIFICATION, true);
-                Toast.makeText(context, "000", Toast.LENGTH_SHORT).show();
-            }
-        } catch (NullPointerException e) {
-            //хз когда это сработает
-        }
-        */
-
         String phone = "";  //на случай отсутствия в sms-ке
         Bundle intentExtras = intent.getExtras();
         String action = intent.getAction();

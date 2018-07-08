@@ -72,6 +72,10 @@
     <string name="menu_wifi_send">Отправить данные сетей</string>
     <string name="coordinates_will_be_sent">Координнаты (по GPS) будут отправлены на номер\u0020</string>
     <string name="nets_will_be_sent">Данные сетей будут отправлены на номер\u0020</string>
+    <string name="no_gps_or_rights">GPS выключен/недостаточно прав! Координаты НЕ будут отправлены!</string>
+    <string name="no_rights_for_wifi_sending">Недостаточно прав, данные НЕ оправлены!</string>
+    <string name="permissions_obtained">разрешения получены</string>
+    <string name="no_permits_received">Нет необходимых разрешений!</string>
 
 
 </resources>

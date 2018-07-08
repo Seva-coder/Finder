@@ -137,6 +137,17 @@ public class GpsSearch extends Service {
                 phones.add(phone_number);
             }
 
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(getString(R.string.gps_processed))
+                    .setContentText(getString(R.string.from) + phone_number)
+                    .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
+            Notification notification = builder.build();
+            NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            int id = sPref.getInt("notification_id", 0);
+            nManage.notify(id, notification);
+            sPref.edit().putInt("notification_id", id+1).apply();
+
             //проверка прав на новых API
             if (Build.VERSION.SDK_INT >= 23 && (getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                     locMan.isProviderEnabled(LocationManager.GPS_PROVIDER) && startId == 1) {
@@ -151,20 +162,15 @@ public class GpsSearch extends Service {
             //на новом API нет прав либо на любоой API gps выключен
             if ((Build.VERSION.SDK_INT >=23 && getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) ||
                     !locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                try {
+                    Thread.sleep(200);  //волшебный таймаут для того, чтобы не было звука
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
                 sms_answer.append("gps not enabled");
                 start_send();
             }
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle(getString(R.string.gps_processed))
-                    .setContentText(getString(R.string.from) + phone_number)
-                    .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
-            Notification notification = builder.build();
-            NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            int id = sPref.getInt("notification_id", 0);
-            nManage.notify(id, notification);
-            sPref.edit().putInt("notification_id", id+1).apply();
         } else {
             if (phones.size() == 0) {  //если НИКОГО в списке рассылки НЕ было, остановливаемся
                 h.removeCallbacks(stopper);
@@ -216,12 +222,16 @@ public class GpsSearch extends Service {
 
 
     void start_send() {   //рассылка всем запросившим
-        Log.d("send", "1");
-        SmsManager sManager = SmsManager.getDefault();
-        ArrayList<String> parts = sManager.divideMessage(sms_answer.toString());
-        for (String number : phones) {
-            sManager.sendMultipartTextMessage(number, null, parts, null,null);
+        if ((Build.VERSION.SDK_INT >= 23 &&
+                (getApplicationContext().checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED)) ||
+                Build.VERSION.SDK_INT < 23) {
+            SmsManager sManager = SmsManager.getDefault();
+            ArrayList<String> parts = sManager.divideMessage(sms_answer.toString());
+            for (String number : phones) {
+                sManager.sendMultipartTextMessage(number, null, parts, null,null);
+            }
         }
+
         if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
             AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
             aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
