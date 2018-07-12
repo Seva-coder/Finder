@@ -19,7 +19,7 @@
     <string name="gps_description">Команда для получения координат по GPS (и ответа)</string>
     <string name="wifi_default_command">wifi_search</string>
     <string name="pref_wifi_name">Запрос через WIFI</string>
-    <string name="wifi_description">Команда для получения координат по WIFI (и ответа)</string>
+    <string name="wifi_description">Команда для получения координат по данным сетей WIFI (и ответа)</string>
     <string name="title_activity_maps">Map</string>
     <string name="api_error">Ошибка работы google API</string>
     <string name="parsing_error">ошибка парсинга JSON-ответа API</string>
@@ -76,6 +76,7 @@
     <string name="no_rights_for_wifi_sending">Недостаточно прав, данные НЕ оправлены!</string>
     <string name="permissions_obtained">разрешения получены</string>
     <string name="no_permits_received">Нет необходимых разрешений!</string>
+    <string name="open_help_start">Открыть локальную справку приложения?</string>
 
 
 </resources>

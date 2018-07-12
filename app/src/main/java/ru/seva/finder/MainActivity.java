@@ -25,9 +25,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
-import android.view.ContextMenu;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -166,8 +164,32 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             ActivityCompat.requestPermissions(MainActivity.this, lacking.toArray(new String[0]), 1);
+        } else if (Build.VERSION.SDK_INT < 23) {
+            //права и так уже все выданы по дефолту
+            remember_btn.setEnabled(true);
         }
 
+        //предложение прочесть справку при первом старте
+        if (sPref.getBoolean("first_start", true)) {
+            sPref.edit().putBoolean("first_start", false).apply();
+            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int witch) {
+                    switch(witch) {
+                        case DialogInterface.BUTTON_POSITIVE:
+                            Intent intent = new Intent(getApplicationContext(), HelpActivity.class);
+                            startActivity(intent);
+                            break;
+                        case DialogInterface.BUTTON_NEGATIVE:
+                            //ничего не отправляем
+                            break;
+                    }
+                }
+            };
+            AlertDialog.Builder builder2 = new AlertDialog.Builder(this);
+            builder2.setMessage(R.string.open_help_start).setPositiveButton(R.string.yes, dialogClickListener)
+                    .setNegativeButton(R.string.no, dialogClickListener).show();
+        }
     }
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {

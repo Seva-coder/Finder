@@ -48,7 +48,7 @@
     <LinearLayout
         android:id="@+id/btn_block"
         android:orientation="horizontal"
-        android:layout_below="@id/button"
+        android:layout_below="@id/editText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp">

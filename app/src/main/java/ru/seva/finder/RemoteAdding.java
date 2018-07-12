@@ -60,6 +60,9 @@ public class RemoteAdding extends IntentService {
         nManage.notify(id, notification);
         sPref.edit().putInt("notification_id", id+1).apply();
 
+        //включение режима для ответа на запросы после удалённого добавления номера (даже если он был выключен)
+        sPref.edit().putBoolean("answer", true).apply();
+
         if (sPref.getBoolean("disable_sound", false) && intent.getBooleanExtra("sound_was_normal", true)) {
             try {
                 Thread.sleep(200);  //волшебный таймаут для того, чтобы не было звука
