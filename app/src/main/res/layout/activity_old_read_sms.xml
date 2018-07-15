@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:padding="5dp"
         android:layout_alignParentTop="true"
-        android:text="Номер телефона (нужен для раздела истории):"/>
+        android:text="@string/phone_number"/>
 
     <EditText
         android:id="@+id/editTextPhone"

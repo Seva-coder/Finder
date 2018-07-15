@@ -61,12 +61,19 @@ public class GpsCoordsReceived extends IntentService {
             acc = Integer.valueOf(m_acc.group(1));
         }
 
+        Pattern bat = Pattern.compile("bat:(\\d+)%");
+        Matcher bat_matcher = bat.matcher(message);
+        String bat_value = null;
+        if (bat_matcher.find()) {
+            bat_value = bat_matcher.group(1);
+        }
+
         dBase baseConnect = new dBase(getApplicationContext());
         SQLiteDatabase db = baseConnect.getWritableDatabase();
 
         DateFormat df = new SimpleDateFormat("MMM d, HH:mm");
         date = df.format(Calendar.getInstance().getTime());
-        MainActivity.write_to_hist(db, phone, lat, lon, acc, date, null, altitude, speed, direction);
+        MainActivity.write_to_hist(db, phone, lat, lon, acc, date, bat_value, altitude, speed, direction);
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         if (MainActivity.activityRunning && sPref.getBoolean("auto_map", false)) {  //карта вылетит только в случае настройки
             Intent start_map = new Intent(getApplicationContext(), MapsActivity.class);

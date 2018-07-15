@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -14,6 +15,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -225,6 +227,17 @@ public class GpsSearch extends Service {
         if ((Build.VERSION.SDK_INT >= 23 &&
                 (getApplicationContext().checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED)) ||
                 Build.VERSION.SDK_INT < 23) {
+            //добавим данные по батарее
+            IntentFilter bat_filt= new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+            Intent battery = getApplicationContext().registerReceiver(null, bat_filt);
+            int level = battery.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            int scale = battery.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+            float batteryPct = level / (float)scale;
+            String batLevel = String.valueOf(Math.round(batteryPct));
+            sms_answer.append(" bat:");
+            sms_answer.append(batLevel);
+            sms_answer.append("%\n");
+
             SmsManager sManager = SmsManager.getDefault();
             ArrayList<String> parts = sManager.divideMessage(sms_answer.toString());
             for (String number : phones) {

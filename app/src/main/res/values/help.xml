@@ -1,33 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="help"><![CDATA[<h1>Справка</h1>
+    <string name="help"><![CDATA[
+<h1>Help</h1>
 
-Приложение предназначено для получения координат смартфона посредством SMS. Оно совмещает в себе две части - одна для отправки SMS с запросом и отображения координат, а вторая для автоматического ответа на поступивший запрос (если включена в настройках). Так же есть возможность отправить свои координаты на какой-либо из доверенных номеров вручную (из вкладки доверенных номеров). <b>"Доверенные номера"</b> - приложение отвечает только на запросы с этих номеров (кроме команды удалённого добавления, если включена). Обратите внимание, что номер должен иметь такой же вид как и на определителе (например, в РФ, вида +71231234567 без пробелов/скобок).<br>
-При запуске на Android 6.0 и более новых приложение проверит наличие необходимых прав (доступ к SMS, местоположению) и запросит их, если не предоставлны. Если какого-либа разрешения не хватает, кнопка добавления номера останется неативной. При добавлении номера он попадает в список активной вкладки.
+The application is designed for remote getting smartphone coordinates via SMS-request. It consists of two parts - first for sending SMS-request and displaying coordinates, and second for automatic response to incoming request (only if this option is enabled). It is also possible to send your coordinates to any number from list of trusted numbers manually (from tab with trusted numbers list). <b>"Trusted numbers"</b> - are phone numbers to which application responds (except remote adding command. If it is enabled, it adds numbers to this list regardless of phone number). Please note that the number must have the same form as on the caller Id (for example in Russia like +71231234567 without spaces/brackets).<br>
+When running on Android 6.0 and later, the application will check at start necessary permissions (access to sms and location). Missing rights will be requested, if you do not grant the lacking permission, button for adding numbers remains inactive. Button "Add" adds new phone number to list of active tab.
 
-<h2><font color="red">Внимание для MIUI!</font></h2>
+<h2><font color="red">Important for MIUI users!</font></h2>
 
-Некоторые ОС от производителей, например MIUI (и возможно некоторые другие) достаточно агрессивны к запуску фоновых процессов. И хоть Finder запускается только когда приходит SMS (остальное время никаких служб не запущено), система может отключать его приёмник широковещательных сообщений (компонент приложенй android), что приводит к <b>неработоспособности</b> - приложение не отвечает на входящие SMS запросы. Для того чтобы этого не происходило необходимо выставить некоторые настройки в системе для этого приложения:
-<br>
-1. Безопасность -> Разрешения -> Автозапуск -> добавить в автозапуск<br>
-2. Батарея -> Экономия энергии -> выставить "нет ограничений" и разрешить местоположение В ФОНЕ<br>
-3. В меню запущенных приложений сдвинуть Finder вниз и нажать Lock.<br>
+Some of OS from different manufacturers, for example MIUI (and maybe some others) try to reduce power consumption very hard and prohibit starting background processes. And although the "Finder" starts only when the SMS received (no services are running at another time), system can disable broadcast receiver (it is a component of Android apps), which leads to <b>non-operability of app</b> - it does not answer to incoming requests. To avoid this situation user should change some Android settings:<br>
+1. Security -> Permissions -> Autostart -> add Finder to autostart<br>
+2. Security -> Battery -> App battery saver -> set "No restrictions" and "Allow" background location for this app<br>
+3. In "recent apps menu" slide Finder an select "Lock"<br>
+4. Security -> Permissions -> Other permissions -> Finder - enable "Start in background" and "Change Wi-Fi connectivity"<br>
+All this should make the system don\'t disable broadcast receiver and allow app reliably respond to requests.
 
-Всё это должно заставить систему не отключать приёменик сообщений и позволить ему надёжно отвечать на команды.
+<h2>Description of settings</h2>
 
-<h2>Описание настроек</h2>
+Settings divided on two groups. First group is responsible for text of SMS-commands. This text using both for sending and checking incoming SMS for commands (only if answer mode is enabled). Texts of searching types should not match. Their default values are <i>wifi_search</i> and <i>gps_search</i>. Text on requesting phone must be the same as on responding phone (commands are <b>case-sensitive!</b>).<br>
 
-Программа содержит две группы настроек. Первая отвечает за текст SMS-команд. Этот текст используется и для отправки, и для проверки SMS на наличие команды (при включенном режиме ответа). Команды типов поиска не должны совпадать. Их значения по умолчанию - wifi_search и gps_search. Естественно, для работы приложения необходимо чтобы на обоих телефонах был одинаковый текст соответствующих команд.<br>
-<b><i>Автоматическое открытие карты</i></b> означает, что при приходе ответного сообщения с координатами или данными сетей, google-карта с результатом будет открыта сразу, если приложение открыто. Но даже в случае, если в момент прихода ответного SMS приложение закрыто, координтаты будут записаны в меню <i>"история"</i> (но см. особенности некоторых систем, например MIUI!).<br>
-В случае, если же SMS по каким-то причинам не обработано (это особенно важно в случае ответа с сетями), можно вручную открыть его с помощью меню <i>"откр. sms"</i>. Обратите внимание, что для определения координат по данным сетей необходимо наличие интернета на запрашивающем телефоне! Используется Google geolocation API. В случае ответа с координатами по GPS интернет не обязателен, но может пригодиться для загрузки карты (при этом есть возможность открыть местоположение во внешнем приложении offline-карт из меню <i>истории</i>, без сети).<br>
-Чекбокс <b><i>"отвечать на запросы"</b></i> активирует вторую группу настроек.<br>
-<b><i>"Количество сканов WiFi"</b></i> - указывает сколько раз будет выполняться сканирование сетей wifi перед отправкой. По умолчанию 3 раза. Если выполнять её один раз, в случае слабого сигнала сетей некоторые из них могут быть не обнаружены.<br>
-<b><i>"Пауза между сканированиями"</b></i> - время между запросами сканирования сетей. Может зависеть от  телефона, по умолчанию 7 секунд.<br>
-<b><i>"Количество MAC в SMS"</b></i> - параметр, ограничивающий количесво mac-адресов в ответном SMS-сообщении. Может пригодиться в случае большого количества сетей, например в мегаполисах. Длинные SMS сообщения разбиваются на несколько допустимых по длине опертором, что при большом количестве сетей может привести к трате средств. По умолчанию 10.<br>
-<b><i>"Время работы GPS"</b></i> - время в минутах, в течение которого приложение будет пытаться определить своё местоположение по GPS. В случае, если же в течение этого времени местположение определить не удалось, приложение остановится и отправит сообщение об ошибке. Таймер сделан в целях предоствращения ограничения разряда аккумулятора (например, в случае нахождения в здании). По умолчанию 20 минут.<br>
-<b><i>"Желаемая точность GPS"</b></i> - при определении местоположения по GPS первые данные как правило неточны, этот параметр позволяет пропустить грубые данные и отправить их, когда точность будет выше. Но даже если она не будет достигнута за <i>"время работы GPS"</i>, имеющееся "грубое" местоположение ВСЁ РАВНО будет отправлено. По умолчанию 12 (метров).<br>
-<b><i>"Выключать звук при входящем SMS запросе"</b></i> - опция позволяет бесшумно принимать сообщения с командами. Может помочь, если телефон был украден. Если звук уже был отключен, то приложение оставит его в выключенном состоянии (иначе вернёт в нормальное, как и было до команды).<br>
-<b><i>"Удалённое добавление номера"</b></i> - при включенной опиции <b>и добавленной команде</b>, позволяет прописать в доверенные номера новый номер (тот, с которого будет отправлена команда удалённого добавления). Даже если режим ответа был отключен, он будет активирован с настройками по умолчанию (или имеющимися до его отключения, если менялись). Это может позволить оперативно начать поиск телефона в случае его потери (отправив запрос с любого имеющегося под рукой телефона).<br>
+<b><i>Open map automatically</i></b> - if enabled and app is running, google map will be opened immediately after SMS with answer received. But even in case of closed app coordinates will be saved in menu  <i>"history"</i> (don\'t forget about features some OS, such as MIUI).<br>
+In case when incoming SMS has not been processed, you can manually open this message in menu <i>"open SMS"</i> (it especially important in data with wifi nets). Please note, that you need Internet access on requesting phone to get coordinates using wifi data. "Google geolocation API" is using for this feature. In case of an answer with coordinates (using GPS) the Internet is not required, but it can be useful for loading map (however, you can open received location in any offline-map from menu <i>"history"</i> without Internet).<br>
+Checkbox <b><i>"respond to requests"</b></i> activates the second group of settings and enables ability of remote getting coordinates.<br>
+<b><i>"Number of scans WiFi"</b></i> - determines how many times searching of wifi nets will be done before sending results. If it will be made only once, some of nets with weak signal may not be detected. Default value 3.<br>
+<b><i>"Pause between scans"</b></i> - time between wifi scan requests. It can depend from phone model, default is 7 seconds.<br>
+<b><i>"Number of MAC in SMS"</b></i> - limit of mac-addresses in response SMS. May be useful in case of large number of networks, for example in cities. Long SMS are divided to some smaller, acceptable by mobile operator. Large number of SMS can lead to a waste of money. Default value is 10.<br>
+<b><i>"GPS work time"</b></i> - during this time app will try locate itself using GPS. In case, when location unavailable, app stops and send error message. The timer is made to prevent the battery discharge, for example when searching in buildings. Default time is 20 minutes.<br>
+<b><i>"Desired GPS accuracy"</b></i> - first gps fixes are not reliable. This setting allows skip inaccurate data and send response, when accuracy is acceptable. But even if accuracy is not reached during "GPS work time", available "inaccurate" location <b>will still be sent</b>. Default value is 12 meters.<br>
+<b><i>"Mute sound for incoming SMS request"</b></i> - setting allows you to silently receive messages with commands, but notifications will be displayed in any case. Can help when phone was stolen. If sound already was muted, it remain muted (otherwise it will return to normal, as it was before the command).<br>
+<b><i>"Remote phone number adding"</b></i> - when setting is enabled <b>and it\'s command assigned</b>, allows to register new trusted number (from which the remote adding command was sent). Even if responding mode is not enabled, after this command it will be enabled with default settings (or last modified settings, before responding mode was disabled). This feature allows start phone searching quickly as possible in case of theft, by sending remote add command from any available phone.<br>
 <p>
-<i>Севастьянов Никита, 2018</i>]]></string>
+<i>Sevastyanov Nikita, 2018</i>
+]]>
+    </string>
 </resources>

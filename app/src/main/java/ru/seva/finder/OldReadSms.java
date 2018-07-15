@@ -32,10 +32,10 @@ public class OldReadSms extends AppCompatActivity {
             finish();
         } else if (SmsReceiver.checkGpsSms(message)) {
             //sms с gps данными
-            Intent gps_intent = new Intent("gps-result");
+            Intent gps_intent = new Intent(this, GpsCoordsReceived.class);
             gps_intent.putExtra("message", message);
             gps_intent.putExtra("phone", phone);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(gps_intent);
+            startService(gps_intent);
             Toast.makeText(this, R.string.gps_sms_processing, Toast.LENGTH_SHORT).show();
             finish();
         } else {

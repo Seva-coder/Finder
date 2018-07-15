@@ -3,7 +3,7 @@
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
     <PreferenceCategory
-        android:title="Команды для запроса/ответа">
+        android:title="@string/command_group_settings">
         <EditTextPreference
             android:defaultValue="@string/wifi_default_command"
             android:inputType="text"
@@ -20,77 +20,76 @@
 
         <CheckBoxPreference
             android:defaultValue="true"
-            android:title="Автоматически открывать карту"
+            android:title="@string/auto_open_map"
             android:key="auto_map"
-            android:summary="При поступлении ответного SMS встроенная карта будет открыта сразу же" />
+            android:summary="@string/auto_map_description" />
     </PreferenceCategory>
 
     <CheckBoxPreference
-        android:title="Отвечать на запросы"
-        android:summary="Без этой опции работает только для ОТПРАВКИ запросов"
+        android:title="@string/answer_to_requests"
+        android:summary="@string/response_descr"
         android:defaultValue="false"
         android:key="answer"/>
 
     <PreferenceCategory
-        android:title="Параметры поиска">
+        android:title="@string/searching_parameters">
         <EditTextPreference
-            android:title="Количество сканов WiFi"
+            android:title="@string/scan_number"
             android:inputType="number"
             android:key="cycles"
             android:defaultValue="3"
-            android:summary="Сканировать несколько раз для обнаружния боольшего количества сетей"
+            android:summary="@string/scan_description"
             android:dependency="answer"/>
 
         <EditTextPreference
-            android:title="Пауза между сканированиями"
+            android:title="@string/scan_pause"
             android:inputType="number"
             android:key="timeout"
             android:defaultValue="7"
-            android:summary="в секундах"
+            android:summary="@string/seconds"
             android:dependency="answer"/>
 
         <EditTextPreference
-            android:title="Количество MAC в SMS"
+            android:title="@string/mac_number"
             android:inputType="number"
             android:key="mac_numb"
             android:defaultValue="10"
-            android:summary="Максимальное количество mac'ов в сообщении"
+            android:summary="@string/mac_number_descr"
             android:dependency="answer"/>
 
         <EditTextPreference
-            android:title="Время работы GPS"
+            android:title="@string/gps_work_time"
             android:inputType="number"
             android:key="gps_time"
             android:defaultValue="12"
-            android:summary="Максимальное время использоваия GPS в минутах, для предотвращения разряда батареи"
+            android:summary="@string/gps_time_descr"
             android:dependency="answer"/>
 
         <EditTextPreference
-            android:title="Желаемая точность GPS, в метрах"
+            android:title="@string/desired_accuracy"
             android:inputType="number"
             android:key="gps_accuracy"
             android:defaultValue="12"
-            android:summary="Первые значения координат неточны, прога подождёт до требуемого значения либо отправит по таймеру"
+            android:summary="@string/accuracy_descr"
             android:dependency="answer"/>
 
         <CheckBoxPreference
             android:defaultValue="false"
-            android:title="Выключать звук при входящем SMS запрсе"
+            android:title="@string/mute"
             android:key="disable_sound"
-            android:summary="При поступлении запроса координат звук будет временно отключен"
+            android:summary="@string/mute_descr"
             android:dependency="answer"/>
     </PreferenceCategory>
 
     <CheckBoxPreference
-        android:title="Удадённое добавление номера"
-        android:summary="Возможность удалённо записать в доверенные номер, командой через SMS"
+        android:title="@string/remote"
+        android:summary="@string/remote_descr"
         android:defaultValue="false"
         android:key="remote_active"/>
     <EditTextPreference
-        android:title="Команда удалённого добавления"
+        android:title="@string/remote_command"
         android:inputType="text"
         android:key="remote"
         android:dependency="remote_active"/>
-
 
 </PreferenceScreen>

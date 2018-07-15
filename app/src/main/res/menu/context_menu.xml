@@ -2,10 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:id="@+id/wifi_id"
-        android:title="Wifi-запрос" />
+        android:title="@string/wifi_request" />
     <item android:id="@+id/gps_id"
-        android:title="GPS-запрос" />
+        android:title="@string/gps_request" />
     <item android:id="@+id/del_id"
-        android:title="Удалить номер" />
+        android:title="@string/del_number" />
 
 </menu>

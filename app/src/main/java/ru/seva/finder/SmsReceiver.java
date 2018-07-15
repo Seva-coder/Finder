@@ -57,7 +57,8 @@ public class SmsReceiver extends BroadcastReceiver {
                 gps_intent.putExtra("message", message);
                 LocalBroadcastManager.getInstance(context).sendBroadcast(stop_bar);
                 context.startService(gps_intent);
-            } else if (message.equals("gps not enabled")) {
+            } else if ((message.length() > 15) && message.substring(0, 15).equals("gps not enabled")) {
+                //0-15 тк там после фразы данные аккумулятора
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(phone)
@@ -69,7 +70,8 @@ public class SmsReceiver extends BroadcastReceiver {
                 nManage.notify(id, notification);
                 sPref.edit().putInt("notification_id", id+1).apply();
                 LocalBroadcastManager.getInstance(context).sendBroadcast(stop_bar);
-            } else if (message.equals("unable get location") || message.equals("net info unavailable")) {
+            } else if (((message.length() > 19) && message.substring(0, 19).equals("unable get location"))
+                    || message.equals("net info unavailable")) {
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(phone)
