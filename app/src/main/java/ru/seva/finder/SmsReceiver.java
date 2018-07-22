@@ -63,7 +63,7 @@ public class SmsReceiver extends BroadcastReceiver {
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(phone)
                         .setContentText(context.getString(R.string.gps_not_enabled))
-                        .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
+                        .setAutoCancel(true);  //подумать над channel id
                 Notification notification = builder.build();
                 NotificationManager nManage = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
                 int id = sPref.getInt("notification_id", 0);
@@ -76,7 +76,7 @@ public class SmsReceiver extends BroadcastReceiver {
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(phone)
                         .setContentText(context.getString(R.string.no_coord_bad_signal))
-                        .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
+                        .setAutoCancel(true);  //подумать над channel id
                 Notification notification = builder.build();
                 NotificationManager nManage = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
                 int id = sPref.getInt("notification_id", 0);

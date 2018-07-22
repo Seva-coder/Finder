@@ -93,7 +93,7 @@ public class GpsCoordsReceived extends IntentService {
                     .setContentTitle(getString(R.string.message_with_coord))
                     .setContentText(getString(R.string.coords_received) + phone)
                     .setAutoCancel(true)
-                    .setContentIntent(pendIntent);  //подумать над channel id  и ИКОНКОЙ!
+                    .setContentIntent(pendIntent);  //подумать над channel id
             Notification notification = builder.build();
             NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             int id = sPref.getInt("notification_id", 0);

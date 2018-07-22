@@ -23,7 +23,6 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsManager;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -38,10 +37,10 @@ public class GpsSearch extends Service {
     //наверно некоторые имеет смысл сделать через string
     public static final String PHONES_TABLE = "phones_to_answer";
     public static final String PHONES_COL = "phone";
-    public static final String GPS_ACCURACY = "gps_accurancy";
-    public static final String GPS_ACCURACY_DEFAULT = "10";
+    public static final String GPS_ACCURACY = "gps_accuracy";
+    public static final String GPS_ACCURACY_DEFAULT = "12";
     public static final String GPS_TIME = "gps_time";
-    public static final String GPS_TIME_DEFAULT = "12";  //здесь в минутах
+    public static final String GPS_TIME_DEFAULT = "20";  //здесь в минутах
 
     Handler h;  //stopper, котрый будет работать в основном потоке, вроде как быстр, и не подвесит приложение
     StringBuilder sms_answer = new StringBuilder("");
@@ -143,7 +142,7 @@ public class GpsSearch extends Service {
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.gps_processed))
                     .setContentText(getString(R.string.from) + phone_number)
-                    .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
+                    .setAutoCancel(true);  //подумать над channel id
             Notification notification = builder.build();
             NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             int id = sPref.getInt("notification_id", 0);
@@ -233,7 +232,7 @@ public class GpsSearch extends Service {
             int level = battery.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
             int scale = battery.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
             float batteryPct = level / (float)scale;
-            String batLevel = String.valueOf(Math.round(batteryPct));
+            String batLevel = String.valueOf(Math.round(batteryPct*100));
             sms_answer.append(" bat:");
             sms_answer.append(batLevel);
             sms_answer.append("%\n");

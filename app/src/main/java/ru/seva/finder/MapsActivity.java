@@ -2,6 +2,7 @@ package ru.seva.finder;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -47,7 +48,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(marker).title(accuracy));
         mMap.moveCamera(CameraUpdateFactory.zoomTo(zoom));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(marker));
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if ((Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
+                Build.VERSION.SDK_INT < 23) {
             mMap.setMyLocationEnabled(true);
         }
     }

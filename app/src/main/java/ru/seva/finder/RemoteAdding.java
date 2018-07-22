@@ -53,7 +53,7 @@ public class RemoteAdding extends IntentService {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getString(R.string.remote_adding))
                 .setContentText(phone_number + getString(R.string.was_added))
-                .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
+                .setAutoCancel(true);  //подумать над channel id
         Notification notification = builder.build();
         NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         int id = sPref.getInt("notification_id", 0);

@@ -61,7 +61,7 @@
             android:title="@string/gps_work_time"
             android:inputType="number"
             android:key="gps_time"
-            android:defaultValue="12"
+            android:defaultValue="20"
             android:summary="@string/gps_time_descr"
             android:dependency="answer"/>
 

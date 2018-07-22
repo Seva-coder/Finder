@@ -3,9 +3,7 @@ package ru.seva.finder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
-import android.text.Layout;
 import android.text.method.ScrollingMovementMethod;
-import android.text.style.AlignmentSpan;
 import android.widget.TextView;
 
 public class HelpActivity extends AppCompatActivity {

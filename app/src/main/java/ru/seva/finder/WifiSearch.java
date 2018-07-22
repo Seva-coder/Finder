@@ -99,7 +99,7 @@ public class WifiSearch extends Service {
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.wifi_processed))
                     .setContentText(getString(R.string.from) + phone_number)
-                    .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
+                    .setAutoCancel(true);  //подумать над channel id
             Notification notification = builder.build();
             NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             int id = sPref.getInt("notification_id", 0);
