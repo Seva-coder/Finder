@@ -89,10 +89,10 @@ public class NewReadSms extends AppCompatActivity {
                         finish();
                     } else if (SmsReceiver.checkGpsSms(message)) {
                         //sms с gps данными
-                        Intent gps_intent = new Intent("gps-result");
-                        gps_intent.putExtra("message", message);
+                        Intent gps_intent = new Intent(NewReadSms.this, GpsCoordsReceived.class);
                         gps_intent.putExtra("phone", phone);
-                        LocalBroadcastManager.getInstance(NewReadSms.this).sendBroadcast(gps_intent);
+                        gps_intent.putExtra("message", message);
+                        startService(gps_intent);
                         Toast.makeText(NewReadSms.this, R.string.gps_sms_processing, Toast.LENGTH_SHORT).show();
                         finish();
                     } else {

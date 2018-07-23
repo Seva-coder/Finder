@@ -274,7 +274,7 @@ public class WifiSearch extends Service {
                 int level = battery.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
                 int scale = battery.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
                 float batteryPct = level / (float)scale;
-                String batLevel = String.valueOf(Math.round(batteryPct));
+                String batLevel = String.valueOf(Math.round(batteryPct*100));
                 sms_answer.append("bat:");
                 sms_answer.append(batLevel);
                 sms_answer.append("%\n");
