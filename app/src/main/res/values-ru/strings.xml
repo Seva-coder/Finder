@@ -73,7 +73,7 @@
     <string name="auto_open_map">Автоматически открывать карту</string>
     <string name="auto_map_description">При поступлении ответного SMS встроенная карта будет открыта сразу же</string>
     <string name="answer_to_requests">Отвечать на запросы</string>
-    <string name="response_descr">Без этой опции работает только для ОТПРАВКИ запросов</string>
+    <string name="response_descr">Без включенной опции можно только отправлять запросы</string>
     <string name="searching_parameters">Параметры поиска</string>
     <string name="scan_number">Количество сканов WiFi</string>
     <string name="scan_description">Сканировать несколько раз для обнаружения боольшего количества сетей</string>
