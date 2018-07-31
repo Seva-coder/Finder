@@ -76,16 +76,16 @@
     <string name="response_descr">Без включенной опции можно только отправлять запросы</string>
     <string name="searching_parameters">Параметры поиска</string>
     <string name="scan_number">Количество сканов WiFi</string>
-    <string name="scan_description">Сканировать несколько раз для обнаружения боольшего количества сетей</string>
+    <string name="scan_description">Сканировать несколько раз для обнаружения большего количества сетей</string>
     <string name="scan_pause">Пауза между сканированиями</string>
     <string name="seconds">в секундах</string>
     <string name="mac_number">Количество MAC в SMS</string>
     <string name="mac_number_descr">Максимальное количество mac\'ов в сообщении</string>
     <string name="gps_work_time">Время работы GPS</string>
-    <string name="gps_time_descr">Максимальное время использоваия GPS в минутах, для предотвращения разряда батареи</string>
+    <string name="gps_time_descr">Максимальное время использования GPS в минутах, для предотвращения разряда батареи</string>
     <string name="desired_accuracy">Желаемая точность GPS, в метрах</string>
     <string name="accuracy_descr">Первые значения координат неточны, прога подождёт до требуемого значения либо отправит по таймеру</string>
-    <string name="mute">Выключать звук при входящем SMS запрсе</string>
+    <string name="mute">Выключать звук при входящем SMS запросе</string>
     <string name="mute_descr">При поступлении запроса координат звук будет временно отключен</string>
     <string name="remote">Удалённое добавление номера</string>
     <string name="remote_descr">Возможность удалённо записать в доверенные номер, командой через SMS</string>
@@ -96,6 +96,5 @@
     <string name="gps_request">GPS-запрос</string>
     <string name="del_number">Удалить номер</string>
     <string name="help_title">Помощь</string>
-
 
 </resources>
