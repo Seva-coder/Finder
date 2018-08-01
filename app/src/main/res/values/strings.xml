@@ -72,7 +72,7 @@
     <string name="no_rights_for_wifi_sending">Not enough permissions, data is not sent!</string>
     <string name="permissions_obtained">permissions - OK</string>
     <string name="no_permits_received">Not enough permissions!</string>
-    <string name="open_help_start">Do you want to open the local application help?</string>
+    <string name="open_help_start">Do you want to open help?</string>
     <string name="command_group_settings">Request/response commands</string>
     <string name="auto_open_map">Open map automatically</string>
     <string name="auto_map_description">Map will be opened immediately after SMS received</string>
@@ -100,5 +100,6 @@
     <string name="gps_request">GPS-request</string>
     <string name="del_number">Delete phone number</string>
     <string name="help_title">Help</string>
+    <string name="check_settings">Check settings! Responding is enabled!</string>
 
 </resources>

@@ -96,5 +96,6 @@
     <string name="gps_request">GPS-запрос</string>
     <string name="del_number">Удалить номер</string>
     <string name="help_title">Помощь</string>
+    <string name="check_settings">Проверьте настройки ответа на команды! Режим ответа включен!</string>
 
 </resources>

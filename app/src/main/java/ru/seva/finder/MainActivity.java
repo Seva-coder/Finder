@@ -448,6 +448,10 @@ public class MainActivity extends AppCompatActivity {
             table = "phones";
         } else {
             table = "phones_to_answer";
+            if (!sPref.getBoolean("answer", false)) {
+                sPref.edit().putBoolean("answer", true).apply();
+                Toast.makeText(MainActivity.this, R.string.check_settings, Toast.LENGTH_LONG).show();
+            }
         }
 
         //проверка номера на повторное вхождение

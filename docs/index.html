@@ -21,6 +21,9 @@
     <li>ACCESS_NETWORK_STATE</li>
     <li>CHANGE_WIFI_STATE</li>
     <li>ACCESS_WIFI_STATE</li>
+    <li>READ_PHONE_STATE</li>
+    <li>WRITE_EXTERNAL_STORAGE</li>
+    <li>READ_EXTERNAL_STORAGE</li>
 </ul>
 
 <h2>Use of Data</h2>
@@ -35,11 +38,13 @@
     <li>ACCESS_NETWORK_STATE - network state is checked before wifi-request will be sent, for warning</li>
     <li>CHANGE_WIFI_STATE - for enabling wifi to scan wifi-nets (during wifi-request)</li>
     <li>ACCESS_WIFI_STATE - for determining wifi state before scanning, to leave it in the same condition</li>
+    <li>READ_PHONE_STATE - for network scanning</li>
+    <li>WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE - for built-in google map</li>
 </ul>
 
 <h2>Transfer Of Data</h2>
 
-<p>The application does not send any information to the developers. The collected data may be sent only to the phone numbers you specify, via SMS.</p>
+<p>The application does not send any information to the developers. The collected data may be sent only to the phone numbers you specify, via SMS. To determine the coordinates using networks data "Google geolocation API" is used.</p>
 
 <h2>Changes To This Privacy Policy</h2>
 <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.</p>
