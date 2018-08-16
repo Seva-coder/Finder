@@ -450,7 +450,10 @@ public class MainActivity extends AppCompatActivity {
             table = "phones_to_answer";
             if (!sPref.getBoolean("answer", false)) {
                 sPref.edit().putBoolean("answer", true).apply();
-                Toast.makeText(MainActivity.this, R.string.check_settings, Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, R.string.check_settings, Toast.LENGTH_SHORT).show();
+            }
+            if (Build.VERSION.SDK_INT >= 23) {
+                Toast.makeText(MainActivity.this, R.string.wifi_gps_warning, Toast.LENGTH_LONG).show();
             }
         }
 

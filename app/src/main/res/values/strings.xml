@@ -101,5 +101,6 @@
     <string name="del_number">Delete phone number</string>
     <string name="help_title">Help</string>
     <string name="check_settings">Check settings! Responding is enabled!</string>
+    <string name="wifi_gps_warning">For locating by WiFi-nets on Android 6 and newer, GPS must be enabled too! Unfortunately, it is feature of new Android versions</string>
 
 </resources>

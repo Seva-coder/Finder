@@ -1,0 +1,7 @@
+v1.0
+- initial release
+
+v1.1
+- unused permissions deleted
+- Android bug/feature with getting wifi-data only with enabled GPS described in help. Added notification about it when number added
+- screenshot of map in play market
