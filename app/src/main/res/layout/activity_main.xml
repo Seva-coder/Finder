@@ -2,81 +2,70 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    style="@style/AppTheme">
+    android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/my_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        style="@style/Toolbar"/>
-
-    <TextView
-        android:layout_below="@+id/my_toolbar"
-        android:id="@+id/label1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_alignParentStart="true"
-        android:text="@string/adding_text"
-        style="@android:style/TextAppearance.Small"/>
-
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_alignParentStart="true"
-        android:layout_toStartOf="@id/button"
-        android:layout_below="@+id/label1"
-        android:inputType="phone" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/editText"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="5dp"
-        android:layout_marginBottom="30dp"
-        android:onClick="rem_btn_clicked"
-        android:text="@string/remember_int_on"
-        android:enabled="false"/>
-
-    <LinearLayout
+    <TableLayout
         android:id="@+id/btn_block"
-        android:orientation="horizontal"
-        android:layout_below="@id/editText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp">
-        <Button
-            android:id="@+id/btn_settings"
-            android:layout_width="0px"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:text="@string/set_button_text"
-            android:onClick="set_btn_clicked"/>
+        android:orientation="vertical"
+        android:stretchColumns="*"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/btn_history"
-            android:layout_width="0px"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_hist_text"
-            android:onClick="hist_btn_clicked"/>
+            <Button
+                android:id="@+id/button"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_margin="2dp"
+                android:onClick="rem_btn_clicked"
+                android:text="@string/remember_int_on"
+                android:enabled="false"
+                android:layout_span="2"/>
 
-        <Button
-            android:id="@+id/btn_sms"
-            android:layout_width="0px"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="5dp"
-            android:text="@string/sms_open"
-            android:onClick="sms_btn_clicked"/>
-    </LinearLayout>
+            <Button
+                android:id="@+id/help_button"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_margin="2dp"
+                android:onClick="help_btn_clicked"
+                android:text="@string/help_title"/>
 
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/btn_settings"
+                android:layout_height="55dp"
+                android:text="@string/set_button_text"
+                android:onClick="set_btn_clicked"
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btn_history"
+                android:layout_height="55dp"
+                android:text="@string/btn_hist_text"
+                android:onClick="hist_btn_clicked"
+                android:layout_margin="2dp"/>
+
+            <Button
+                android:id="@+id/btn_sms"
+                android:layout_height="55dp"
+                android:layout_margin="2dp"
+                android:text="@string/sms_open"
+                android:onClick="sms_btn_clicked"/>
+
+        </TableRow>
+
+    </TableLayout>
 
     <TextView
         android:id="@+id/textProgress"

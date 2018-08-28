@@ -5,3 +5,11 @@ v1.1
 - unused permissions deleted
 - Android bug/feature with getting wifi-data only with enabled GPS described in help. Added notification about it when number added
 - screenshot of map in play market
+
+v1.2
+- added names for contacts
+- eliminated leakage with SQLite
+- fixed critical bug with mobile nets on old Android versions
+- main layout changed to "Tablelayout", toolbar reduced (help now is button)
+- new phone now add via dialog (field of name and number are deleted)
+- some improvements in formatting info about location in history

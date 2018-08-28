@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -74,6 +75,13 @@ public class GpsCoordsReceived extends IntentService {
         DateFormat df = new SimpleDateFormat("MMM d, HH:mm");
         date = df.format(Calendar.getInstance().getTime());
         MainActivity.write_to_hist(db, phone, lat, lon, acc, date, bat_value, altitude, speed, direction);
+        String name;
+        //получаем имя номера (для уведомления), если он известен
+        Cursor name_curs = db.query(dBase.PHONES_TABLE_OUT, new String[] {dBase.NAME_COL},
+                "phone = ?", new String[] {phone},
+                null, null, null);
+        name = (name_curs.moveToFirst()) ? (name_curs.getString(name_curs.getColumnIndex(dBase.NAME_COL))) : (phone);
+        db.close();
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         if (MainActivity.activityRunning && sPref.getBoolean("auto_map", false)) {  //карта вылетит только в случае настройки
             Intent start_map = new Intent(getApplicationContext(), MapsActivity.class);
@@ -91,7 +99,7 @@ public class GpsCoordsReceived extends IntentService {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.message_with_coord))
-                    .setContentText(getString(R.string.coords_received) + phone)
+                    .setContentText(getString(R.string.coords_received, name))
                     .setAutoCancel(true)
                     .setContentIntent(pendIntent);  //подумать над channel id
             Notification notification = builder.build();

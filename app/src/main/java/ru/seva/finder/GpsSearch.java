@@ -138,10 +138,17 @@ public class GpsSearch extends Service {
                 phones.add(phone_number);
             }
 
+            Cursor name_curs = db.query(dBase.PHONES_TABLE_IN, new String[] {dBase.NAME_COL},
+                    "phone = ?", new String[] {phone_number},
+                    null, null, null);
+            String name;
+            name = (name_curs.moveToFirst()) ? (name_curs.getString(name_curs.getColumnIndex(dBase.NAME_COL))) : (phone_number);
+            name_curs.close();
+
             NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.gps_processed))
-                    .setContentText(getString(R.string.from) + phone_number)
+                    .setContentText(getString(R.string.from, name))
                     .setAutoCancel(true);  //подумать над channel id
             Notification notification = builder.build();
             NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

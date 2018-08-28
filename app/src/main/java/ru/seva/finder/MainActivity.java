@@ -23,9 +23,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
-import android.view.Menu;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -44,7 +43,6 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     Button remember_btn;
-    EditText text;
     ListView list, list_receive;
     TabHost tabHost;
 
@@ -62,11 +60,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
-
         remember_btn = (Button) findViewById(R.id.button);
-        text = (EditText) findViewById(R.id.editText);
         list = (ListView) findViewById(R.id.lvSendTo);
         list_receive = (ListView) findViewById(R.id.lvReceiveFrom);
         activityRunning = true;
@@ -84,13 +78,13 @@ public class MainActivity extends AppCompatActivity {
         baseConnect = new dBase(this);
         db = baseConnect.getWritableDatabase();
 
-        String[] fromColons = {dBase.PHONES_COL};
-        int[] toViews = {android.R.id.text1};
+        String[] fromColons = {dBase.NAME_COL, dBase.PHONES_COL};
+        int[] toViews = {android.R.id.text1, android.R.id.text2};
         cursor = db.query(dBase.PHONES_TABLE_OUT, null, null, null, null, null, null);
 
         //создаём адаптер списка запросов
         adapter = new SimpleCursorAdapter(this,
-                android.R.layout.simple_list_item_1,
+                android.R.layout.simple_list_item_2,
                 cursor,
                 fromColons,
                 toViews,
@@ -106,12 +100,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         cursor_answ = db.query(dBase.PHONES_TABLE_IN, null, null, null, null, null, null);
-        int[] toViews2 = {android.R.id.text1};
         adapter_answ = new SimpleCursorAdapter(this,
-                android.R.layout.simple_list_item_1,
+                android.R.layout.simple_list_item_2,
                 cursor_answ,
                 fromColons,
-                toViews2,
+                toViews,  //они совпадают в обоих вкладках
                 0);  //колонка телефонов называется так же
         list_receive.setAdapter(adapter_answ);
         list_receive.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -133,22 +126,6 @@ public class MainActivity extends AppCompatActivity {
         tabspec.setContent(R.id.tab_in);
         tabspec.setIndicator(getString(R.string.answer_numbs));
         tabHost.addTab(tabspec);
-
-        //починка бага андроида с "фокусом" https://issuetracker.google.com/issues/36907655
-
-        tabHost.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-            @Override
-            public void onViewAttachedToWindow(View v) {
-                tabHost.getViewTreeObserver().removeOnTouchModeChangeListener(tabHost);
-            }
-
-            @Override
-            public void onViewDetachedFromWindow(View v) {
-
-            }
-        });
-
-        text.requestFocus();
 
         //ресивер остановки прогресс-бара
         LocalBroadcastManager.getInstance(this).registerReceiver(PGbar, new IntentFilter("disable_bar"));
@@ -218,22 +195,6 @@ public class MainActivity extends AppCompatActivity {
         return answer;
     }
 
-    //создание меню помощи в тулбаре
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.help_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.help_menu_id) {
-            Intent intent = new Intent(this, HelpActivity.class);
-            startActivity(intent);
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     //описание работы меню списка доверенных номеров
     private void click_on_trusted(final View v, final long id) {
         PopupMenu menu = new PopupMenu(this, v);
@@ -255,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
                         if ((Build.VERSION.SDK_INT >= 23 && hasPermitions() && locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) ||
                                 locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                             getApplicationContext().startService(gps_intent);
-                            Toast.makeText(v.getContext(), getString(R.string.coordinates_will_be_sent) + phone, Toast.LENGTH_LONG).show();
+                            Toast.makeText(v.getContext(), getString(R.string.coordinates_will_be_sent, phone), Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(v.getContext(), R.string.no_gps_or_rights, Toast.LENGTH_LONG).show();
                         }
@@ -265,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
                             Intent wifi_intent = new Intent(getApplicationContext(), WifiSearch.class);
                             wifi_intent.putExtra("phone_number", phone);
                             getApplicationContext().startService(wifi_intent);
-                            Toast.makeText(v.getContext(), getString(R.string.nets_will_be_sent) + phone, Toast.LENGTH_LONG).show();
+                            Toast.makeText(v.getContext(), getString(R.string.nets_will_be_sent, phone), Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(v.getContext(), R.string.no_rights_for_wifi_sending, Toast.LENGTH_LONG).show();
                         }
@@ -438,48 +399,73 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void help_btn_clicked(View view) {
+        Intent intent = new Intent(this, HelpActivity.class);
+        startActivity(intent);
+    }
+
     public void rem_btn_clicked(View view) {
-        ContentValues cv = new ContentValues();
-        String phone_number = text.getText().toString();
-        cv.put(dBase.PHONES_COL, phone_number);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        final View v = inflater.inflate(R.layout.add_menu, null);
+        builder.setView(v)
+                .setPositiveButton(R.string.positive_add_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        EditText field_name = (EditText) v.findViewById(R.id.name);
+                        EditText field_phone = (EditText) v.findViewById(R.id.phone);
+                        String number_name = field_name.getText().toString();
+                        String phone_number = field_phone.getText().toString();
+                        ContentValues cv = new ContentValues();
+                        cv.put(dBase.PHONES_COL, phone_number);
+                        cv.put(dBase.NAME_COL, number_name);
 
-        String table;  //выбор таблицы для записи
-        if (tabHost.getCurrentTab() == 0) {
-            table = "phones";
-        } else {
-            table = "phones_to_answer";
-            if (!sPref.getBoolean("answer", false)) {
-                sPref.edit().putBoolean("answer", true).apply();
-                Toast.makeText(MainActivity.this, R.string.check_settings, Toast.LENGTH_SHORT).show();
-            }
-            if (Build.VERSION.SDK_INT >= 23) {
-                Toast.makeText(MainActivity.this, R.string.wifi_gps_warning, Toast.LENGTH_LONG).show();
-            }
-        }
+                        String table;  //выбор таблицы для записи
+                        if (tabHost.getCurrentTab() == 0) {
+                            table = dBase.PHONES_TABLE_OUT;  //"phones";
+                        } else {
+                            table = dBase.PHONES_TABLE_IN;  //"phones_to_answer";
+                            if (!sPref.getBoolean("answer", false)) {
+                                sPref.edit().putBoolean("answer", true).apply();  // включение режима ответа
+                                Toast.makeText(MainActivity.this, R.string.check_settings, Toast.LENGTH_SHORT).show();
+                            }
+                            if (Build.VERSION.SDK_INT >= 23) {
+                                Toast.makeText(MainActivity.this, R.string.wifi_gps_warning, Toast.LENGTH_LONG).show();
+                            }
+                        }
 
-        //проверка номера на повторное вхождение
-        Cursor cursor_check = db.query(table,
-                new String[] {dBase.PHONES_COL},
-                dBase.PHONES_COL + "=?",
-                new String[] {phone_number},
-                null, null, null);
+                        //проверка номера на повторное вхождение
+                        Cursor cursor_check = db.query(table,
+                                new String[] {dBase.PHONES_COL},
+                                dBase.PHONES_COL + "=?",
+                                new String[] {phone_number},
+                                null, null, null);
 
-        if (cursor_check.moveToFirst()) {
-            Toast.makeText(MainActivity.this, R.string.phone_already_recorded, Toast.LENGTH_SHORT).show();
-        } else if (phone_number.isEmpty()) {
-            Toast.makeText(MainActivity.this, R.string.phone_is_empty, Toast.LENGTH_SHORT).show();
-        } else {
-            db.insert(table, null, cv);
-            Toast.makeText(MainActivity.this, R.string.number_saved, Toast.LENGTH_SHORT).show();
-        }
-        text.setText("");
-        cursor_check.close();
+                        if (cursor_check.moveToFirst()) {
+                            Toast.makeText(MainActivity.this, R.string.phone_already_recorded, Toast.LENGTH_SHORT).show();
+                        } else if (phone_number.isEmpty()) {
+                            Toast.makeText(MainActivity.this, R.string.phone_is_empty, Toast.LENGTH_SHORT).show();
+                        } else {
+                            db.insert(table, null, cv);
+                            Toast.makeText(MainActivity.this, R.string.number_saved, Toast.LENGTH_SHORT).show();
+                        }
+                        cursor_check.close();
 
-        if (tabHost.getCurrentTab() == 0) {
-            updateList();
-        } else {
-            updateAnswList();
-        }
+                        if (tabHost.getCurrentTab() == 0) {
+                            updateList();
+                        } else {
+                            updateAnswList();
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.negative_add_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        builder.create();
+        builder.show();
     }
 
     public void sms_btn_clicked(View view) {

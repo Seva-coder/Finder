@@ -1,5 +1,5 @@
 <resources>
-    <string name="remember_int_on">Добавить</string>
+    <string name="remember_int_on">Добавить новый номер</string>
     <string name="set_button_text">Настройки</string>
     <string name="request_numbs">Номера для запросов</string>
     <string name="answer_numbs">Доверенные номера</string>
@@ -21,15 +21,14 @@
     <string name="history_description">История поисков:</string>
     <string name="show_info">Вся инфа по точке текстом</string>
     <string name="point_data">Данные по точке (можно выделить):</string>
-    <string name="battery">Аккумулятор:\u0020</string>
-    <string name="latitude">Широта:\u0020</string>
-    <string name="longitude">Долгота:\u0020</string>
-    <string name="accuracy">Точность:\u0020</string>
+    <string name="battery">Аккумулятор: %1$s%%\n</string>
+    <string name="latitude">Широта: %1$.8f\n</string>
+    <string name="longitude">Долгота: %1$.8f\n</string>
+    <string name="accuracy">Точность: %1$d м\n</string>
     <string name="meters">\u0020м</string>
-    <string name="altitude">Высота:\u0020</string>
-    <string name="speed">Скорость:\u0020</string>
-    <string name="km_per_hour">\u0020км/ч</string>
-    <string name="course">Курс:\u0020</string>
+    <string name="altitude">Высота: %1$.0f м\n</string>
+    <string name="speed">Скорость: %1$.2f км/ч\n</string>
+    <string name="course">Курс: %1$.0f°\n</string>
     <string name="delete_warning">Удалить точку из истории? (действие необратимо!)</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
@@ -54,16 +53,16 @@
     <string name="delete_text">Удалить номер</string>
     <string name="error_getting_coordinats">Не удалось определить координаты</string>
     <string name="message_with_coord">Сообщение с координатами</string>
-    <string name="coords_received">Обнаружены координаты\u0020</string>
+    <string name="coords_received">Обнаружены координаты \"%1$s\"</string>
     <string name="gps_processed">Обработан GPS-запрос!</string>
-    <string name="from">от\u0020</string>
+    <string name="from">от \"%1$s\"</string>
     <string name="wifi_processed">Обработан Wifi-запрос!</string>
     <string name="remote_adding">Удалённое добавление номера!</string>
-    <string name="was_added">\u0020добавлен в доверенные</string>
+    <string name="was_added">%1$s добавлен в доверенные</string>
     <string name="menu_gps_send">Отправить данные GPS</string>
     <string name="menu_wifi_send">Отправить данные сетей</string>
-    <string name="coordinates_will_be_sent">Координнаты (по GPS) будут отправлены на номер\u0020</string>
-    <string name="nets_will_be_sent">Данные сетей будут отправлены на номер\u0020</string>
+    <string name="coordinates_will_be_sent">Координнаты (по GPS) будут отправлены на номер %1$s</string>
+    <string name="nets_will_be_sent">Данные сетей будут отправлены на номер %1$s</string>
     <string name="no_gps_or_rights">GPS выключен/недостаточно прав! Координаты НЕ будут отправлены!</string>
     <string name="no_rights_for_wifi_sending">Недостаточно прав, данные НЕ отправлены!</string>
     <string name="permissions_obtained">разрешения получены</string>
@@ -90,7 +89,7 @@
     <string name="remote">Удалённое добавление номера</string>
     <string name="remote_descr">Возможность удалённо записать в доверенные номер, командой через SMS</string>
     <string name="remote_command">Команда удалённого добавления</string>
-    <string name="adding_text">Добавить новый номер для запросов/ответов:</string>
+    <string name="adding_text">Добавить новый номер и его имя для запросов/ответов:</string>
     <string name="phone_number">Номер телефона (нужен для раздела истории):</string>
     <string name="wifi_request">Wifi-запрос</string>
     <string name="gps_request">GPS-запрос</string>
@@ -98,5 +97,11 @@
     <string name="help_title">Помощь</string>
     <string name="check_settings">Проверьте настройки ответа на команды! Режим ответа включен!</string>
     <string name="wifi_gps_warning">Для определения местоположения по WiFi-сетям на Android 6 и более новых, должен быть включен GPS! К сожалению, это особенность новых версий Андроид</string>
+    <string name="name_hint_text">Имя нового номера</string>
+    <string name="unknown_number">неизвестный номер (%1$s)</string>
+    <string name="name_text">Имя:</string>
+    <string name="phone_text">Новый номер:</string>
+    <string name="positive_add_button">Добавить</string>
+    <string name="negative_add_button">Отмена</string>
 
 </resources>

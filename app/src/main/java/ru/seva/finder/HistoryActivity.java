@@ -36,9 +36,9 @@ public class HistoryActivity extends AppCompatActivity {
         baseConnect = new dBase(this);
         db = baseConnect.getWritableDatabase();
 
-        String[] fromColons = {"phone", "date"};
+        String[] fromColons = {"name", "date"};
         int[] toViews = {android.R.id.text1, android.R.id.text2};
-        cursor = db.query("history", null, null, null, null, null, null);
+        cursor = db.rawQuery("SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone", null);
 
         //создаём адаптер
         adapter = new SimpleCursorAdapter(this,
@@ -48,6 +48,16 @@ public class HistoryActivity extends AppCompatActivity {
                 toViews,
                 0);
 
+        adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {  //замена налету пустого поля неизвестного номера на текст об этом
+            public boolean setViewValue(View view, Cursor cursor, int column) {
+                if (column == cursor.getColumnIndex("name") && cursor.getString(column) == null) {
+                    TextView text = (TextView) view;
+                    text.setText(getString(R.string.unknown_number, cursor.getString(1)));  //col index=1 - history.phone
+                    return true;
+                }
+                return false;
+            }
+        });
 
         list.setAdapter(adapter);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -56,6 +66,12 @@ public class HistoryActivity extends AppCompatActivity {
                 showMenu(view, id);
             }
         });
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+        cursor.close();
+        db.close();
     }
 
 
@@ -67,7 +83,7 @@ public class HistoryActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 Cursor query = db.query("history", null,
                         "_id = ?", new String[] {Long.toString(num_id)},
-                        null, null, null);  //получаем данные из всех колонок
+                        null, null, null);  //получаем данные из всех колонок (возможно стоит перенести отсюда?)
                 query.moveToFirst();
                 Double lat = query.getDouble(query.getColumnIndex("lat"));
                 Double lon = query.getDouble(query.getColumnIndex("lon"));
@@ -84,6 +100,7 @@ public class HistoryActivity extends AppCompatActivity {
                             start_map.putExtra("accuracy", String.valueOf(acc) + getString(R.string.meters));
                         }
                         startActivity(start_map);
+                        query.close();
                         return true;
 
                     case R.id.external_map_id:
@@ -95,6 +112,7 @@ public class HistoryActivity extends AppCompatActivity {
                         } else {
                             Toast.makeText(HistoryActivity.this, R.string.no_map_app, Toast.LENGTH_LONG).show();
                         }
+                        query.close();
                         return true;
 
                     case R.id.info_id:
@@ -103,61 +121,57 @@ public class HistoryActivity extends AppCompatActivity {
                         text.setTextSize(24);
                         text.setPadding(20,5,5,5);
 
+                        String phone = query.getString(query.getColumnIndex("phone"));
+                        Cursor query2 = db.query(dBase.PHONES_TABLE_OUT, new String[] {dBase.NAME_COL},
+                                "phone = ?", new String[] {phone},
+                                null, null, null);  //второй запрос, тк имя в другой таблице
+                        String name;
+                        if (query2.moveToFirst()) {
+                            name = query2.getString(query2.getColumnIndex("name"));
+                        } else {
+                            name = getString(R.string.unknown_number, phone);
+                        }
+                        text.append(name);
+                        text.append("\n");
+                        query2.close();
+
                         String date = query.getString(query.getColumnIndex("date"));
                         text.append(date);
                         text.append("\n");
 
                         String bat = query.getString(query.getColumnIndex("bat"));
                         if (!query.isNull(query.getColumnIndex("bat"))) {
-                            text.append(getString(R.string.battery));
-                            text.append(bat);
-                            text.append("%");
-                            text.append("\n");
+                            text.append(getString(R.string.battery, bat));
                         }
 
-                        text.append(getString(R.string.latitude));
-                        text.append(String.valueOf(lat));
-                        text.append("\n");
-
-                        text.append(getString(R.string.longitude));
-                        text.append(String.valueOf(lon));
-                        text.append("\n");
+                        text.append(getString(R.string.latitude, lat));
+                        text.append(getString(R.string.longitude, lon));
 
                         Integer accuracy = query.getInt(query.getColumnIndex("acc"));
                         if (!query.isNull(query.getColumnIndex("acc"))) {
-                            text.append(getString(R.string.accuracy));
-                            text.append(String.valueOf(accuracy));
-                            text.append(getString(R.string.meters));
-                            text.append("\n");
+                            text.append(getString(R.string.accuracy, accuracy));
                         }
 
                         Double altitude = query.getDouble(query.getColumnIndex("height"));
                         if (!query.isNull(query.getColumnIndex("height"))) {
-                            text.append(getString(R.string.altitude));
-                            text.append(String.valueOf(altitude));
-                            text.append(getString(R.string.meters));
-                            text.append("\n");
+                            text.append(getString(R.string.altitude, altitude));
                         }
 
                         Float speed = query.getFloat(query.getColumnIndex("speed"));
                         if (!query.isNull(query.getColumnIndex("speed"))) {
-                            text.append(getString(R.string.speed));
-                            text.append(String.valueOf(speed));
-                            text.append(getString(R.string.km_per_hour));
-                            text.append("\n");
+                            text.append(getString(R.string.speed, speed));
                         }
 
                         Float direction = query.getFloat(query.getColumnIndex("direction"));
                         if (!query.isNull(query.getColumnIndex("direction"))) {
-                            text.append(getString(R.string.course));
-                            text.append(String.valueOf(direction));
-                            text.append(getString(R.string.degree));
+                            text.append(getString(R.string.course, direction));
                         }
                         AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                         builder.setView(text).setTitle(R.string.point_data).setPositiveButton("OK", null);
 
                         AlertDialog dialog = builder.create();
                         dialog.show();
+                        query.close();
                         return true;
 
                     case R.id.del_marker_id:  //удаление тоски из истории, с предупреждением
@@ -179,8 +193,10 @@ public class HistoryActivity extends AppCompatActivity {
                         AlertDialog.Builder builder2 = new AlertDialog.Builder(v.getContext());
                         builder2.setMessage(R.string.delete_warning).setPositiveButton(R.string.yes, dialogClickListener)
                                 .setNegativeButton(R.string.no, dialogClickListener).show();
+                        query.close();
                         return true;
                     default:
+                        query.close();
                         return false;
                 }
             }
@@ -189,7 +205,7 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     public void updateList() {
-        cursor = db.query("history", null, null, null, null, null, null);
+        cursor = db.rawQuery("SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone", null);  //можно ли без копирования?
         adapter.swapCursor(cursor);
         adapter.notifyDataSetChanged();
     }

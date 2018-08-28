@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -133,6 +134,8 @@ public class NewGoogleGeo extends IntentService {
         int id = sPref.getInt("notification_id", 0);
 
         //запись в базу теперь здесь
+        dBase baseConnect = new dBase(getApplicationContext());
+        SQLiteDatabase db = baseConnect.getWritableDatabase();
         try {
             JSONObject response = new JSONObject(api_answer);
             if (response.has("location")) {
@@ -142,9 +145,6 @@ public class NewGoogleGeo extends IntentService {
                 if (response.has("accuracy")) {
                     acc = response.getInt("accuracy");
                 }
-
-                dBase baseConnect = new dBase(getApplicationContext());
-                SQLiteDatabase db = baseConnect.getWritableDatabase();
 
                 DateFormat df = new SimpleDateFormat("MMM d, HH:mm");
                 String date = df.format(Calendar.getInstance().getTime());
@@ -161,12 +161,20 @@ public class NewGoogleGeo extends IntentService {
                     }
                     startActivity(start_map);
                 } else {
+                    //получаем имя номера, если он известен
+                    Cursor name_curs = db.query(dBase.PHONES_TABLE_OUT, new String[] {dBase.NAME_COL},
+                            "phone = ?", new String[] {phone},
+                            null, null, null);
+                    String name;
+                    name = (name_curs.moveToFirst()) ? (name_curs.getString(name_curs.getColumnIndex(dBase.NAME_COL))) : (phone);
+                    name_curs.close();
+
                     Intent intentRes = new Intent(getApplicationContext(), HistoryActivity.class);
                     PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, intentRes, PendingIntent.FLAG_UPDATE_CURRENT);
                     NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
                             .setSmallIcon(R.mipmap.ic_launcher)
                             .setContentTitle(getString(R.string.message_with_coord))
-                            .setContentText(getString(R.string.coords_received) + phone)
+                            .setContentText(getString(R.string.coords_received, name))
                             .setAutoCancel(true)
                             .setContentIntent(pendIntent);  //подумать над channel id  и ИКОНКОЙ!
                     Notification notification = builder.build();
@@ -193,6 +201,7 @@ public class NewGoogleGeo extends IntentService {
             NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             nManage.notify(id, notification);
         }
+        db.close();
         sPref.edit().putInt("notification_id", id+1).commit();  //это и так новый поток
     }
 }

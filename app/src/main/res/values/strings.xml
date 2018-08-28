@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">Finder</string>
-    <string name="remember_int_on">Add</string>
+    <string name="remember_int_on">Add new phone</string>
     <string name="set_button_text">Settings</string>
     <string name="request_numbs">Numbers for requests</string>
     <string name="answer_numbs">Trusted numbers</string>
@@ -24,16 +24,14 @@
     <string name="history_description">Search history:</string>
     <string name="show_info">All location info</string>
     <string name="point_data">Location data (copyable):</string>
-    <string name="battery">Battery:\u0020</string>
-    <string name="latitude">Latitude:\u0020</string>
-    <string name="longitude">Longitude:\u0020</string>
-    <string name="accuracy">Accuracy:\u0020</string>
+    <string name="battery">Battery: %1$s%%\n</string>
+    <string name="latitude">Latitude: %1$.8f\n</string>
+    <string name="longitude">Longitude: %1$.8f\n</string>
+    <string name="accuracy">Accuracy: %1$d m\n</string>
     <string name="meters">\u0020m</string>
-    <string name="altitude">Altitude:\u0020</string>
-    <string name="speed">Speed:\u0020</string>
-    <string name="km_per_hour">\u0020km/h</string>
-    <string name="course">Bearing:\u0020</string>
-    <string name="degree" translatable="false">°</string>
+    <string name="altitude">Altitude: %1$.0f m\n</string>
+    <string name="speed">Speed: %1$.2f km/h\n</string>
+    <string name="course">Bearing: %1$.0f°\n</string>
     <string name="delete_warning">Delete a location from history?  (irreversibly!)</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
@@ -58,16 +56,16 @@
     <string name="delete_text">Delete phone number</string>
     <string name="error_getting_coordinats">Unable get coordinates</string>
     <string name="message_with_coord">"Message with location "</string>
-    <string name="coords_received">Detected coordinates of\u0020</string>
+    <string name="coords_received">Detected coordinates of \"%1$s\"</string>
     <string name="gps_processed">GPS-request processed!</string>
-    <string name="from">from\u0020</string>
+    <string name="from">from \"%1$s\"</string>
     <string name="wifi_processed">"Wifi-request processed! "</string>
     <string name="remote_adding">Remote phone number adding!</string>
-    <string name="was_added">\u0020added to trusted</string>
+    <string name="was_added">%1$s added to trusted</string>
     <string name="menu_gps_send">Send GPS data</string>
     <string name="menu_wifi_send">Send network data</string>
-    <string name="coordinates_will_be_sent">Coordinates (using GPS) will be sent to\u0020</string>
-    <string name="nets_will_be_sent">Network data will be sent to\u0020</string>
+    <string name="coordinates_will_be_sent">Coordinates (using GPS) will be sent to %1$s</string>
+    <string name="nets_will_be_sent">Network data will be sent to %1$s</string>
     <string name="no_gps_or_rights">GPS disabled/no permissions! Location will not be sent!</string>
     <string name="no_rights_for_wifi_sending">Not enough permissions, data is not sent!</string>
     <string name="permissions_obtained">permissions - OK</string>
@@ -94,7 +92,7 @@
     <string name="remote">Remote adding new phone number</string>
     <string name="remote_descr">Ability to remotely add new number to list of trusted numbers</string>
     <string name="remote_command">Remote adding command</string>
-    <string name="adding_text">Add new phone number for requests/responses:</string>
+    <string name="adding_text">Add new phone number and name for requests/responses:</string>
     <string name="phone_number">Phone number (needed for history):</string>
     <string name="wifi_request">Wifi-request</string>
     <string name="gps_request">GPS-request</string>
@@ -102,5 +100,13 @@
     <string name="help_title">Help</string>
     <string name="check_settings">Check settings! Responding is enabled!</string>
     <string name="wifi_gps_warning">For locating by WiFi-nets on Android 6 and newer, GPS must be enabled too! Unfortunately, it is feature of new Android versions</string>
+    <string name="name_hint_text">Name of new number</string>
+    <string name="name_text">Name:</string>
+    <string name="phone_text">New phone number:</string>
+    <string name="example_number" translatable="false">+71231234567</string>
+    <string name="unknown_number">unknown (%1$s)</string>
+    <string name="positive_add_button">Add</string>
+    <string name="negative_add_button">Cancel</string>
+
 
 </resources>

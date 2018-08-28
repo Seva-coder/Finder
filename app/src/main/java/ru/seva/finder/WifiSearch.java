@@ -25,9 +25,12 @@ import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
 import android.telephony.CellInfoWcdma;
+import android.telephony.CellLocation;
 import android.telephony.NeighboringCellInfo;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
+import android.telephony.cdma.CdmaCellLocation;
+import android.telephony.gsm.GsmCellLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,10 +98,17 @@ public class WifiSearch extends Service {
                 s.start();  //отдельный поток, тк юзает паузы
             }
 
+            Cursor name_curs = db.query(dBase.PHONES_TABLE_IN, new String[] {dBase.NAME_COL},
+                    "phone = ?", new String[] {phone_number},
+                    null, null, null);
+            String name;
+            name = (name_curs.moveToFirst()) ? (name_curs.getString(name_curs.getColumnIndex(dBase.NAME_COL))) : (phone_number);
+            name_curs.close();
+
             NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.wifi_processed))
-                    .setContentText(getString(R.string.from) + phone_number)
+                    .setContentText(getString(R.string.from, name))
                     .setAutoCancel(true);  //подумать над channel id
             Notification notification = builder.build();
             NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -170,15 +180,104 @@ public class WifiSearch extends Service {
 
             try {
                 List<CellInfo> net_info = tm.getAllCellInfo();  //права проверены в main activity
-                for (CellInfo info : net_info) {
-                    if (info.isRegistered()) {
-                        if (info instanceof CellInfoWcdma) {  //непонятный момент - метод 17го API возвращает объект 18го API (CellInfoWcdma)???
-                            if (Build.VERSION.SDK_INT >= 18) {
-                                String mcc = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getMcc());
-                                String mnc = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getMnc());
-                                String lac = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getLac());
-                                String cid = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getCid());
-                                sms_answer.append("wcdma\nMCC");
+                if (net_info == null) {
+                    //случай олдового телефона
+                    CellLocation cell = tm.getCellLocation();
+                    String mcc_mnc = tm.getNetworkOperator();
+                    if (cell instanceof GsmCellLocation && !mcc_mnc.isEmpty()) {
+                        String mcc = mcc_mnc.substring(0, 3);
+                        String mnc = mcc_mnc.substring(3);
+                        String lac = String.valueOf(((GsmCellLocation) cell).getLac());
+                        String cid = String.valueOf(((GsmCellLocation) cell).getCid());
+                        sms_answer.append("gsm\nMCC");
+                        sms_answer.append(mcc);
+                        sms_answer.append("\nMNC");
+                        sms_answer.append(mnc);
+                        sms_answer.append("\nLAC");
+                        sms_answer.append(lac);
+                        sms_answer.append("\nCID");
+                        sms_answer.append(cid);
+                        sms_answer.append("\n");
+                    }
+                    if (cell instanceof CdmaCellLocation && !mcc_mnc.isEmpty()) {
+                        String mcc = mcc_mnc.substring(0, 3);
+                        String sysId = String.valueOf(((CdmaCellLocation) cell).getSystemId());
+                        String netId = String.valueOf(((CdmaCellLocation) cell).getNetworkId());
+                        String baseStId = String.valueOf(((CdmaCellLocation) cell).getBaseStationId());
+                        sms_answer.append("cdma\nMCC");
+                        sms_answer.append(mcc);
+                        sms_answer.append("\nMNC");
+                        sms_answer.append(sysId);  //по мануалу Google geo api
+                        sms_answer.append("\nLAC");
+                        sms_answer.append(netId);  //по мануалу Google geo api
+                        sms_answer.append("\nCID");
+                        sms_answer.append(baseStId);  //по мануалу Google geo api
+                        sms_answer.append("\n");
+                    }
+                } else {
+                    //для новых нормальных девайсов
+                    for (CellInfo info : net_info) {
+                        if (info.isRegistered()) {
+                            if (info instanceof CellInfoWcdma) {  //непонятный момент - метод 17го API возвращает объект 18го API (CellInfoWcdma)???
+                                if (Build.VERSION.SDK_INT >= 18) {
+                                    String mcc = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getMcc());
+                                    String mnc = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getMnc());
+                                    String lac = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getLac());
+                                    String cid = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getCid());
+                                    sms_answer.append("wcdma\nMCC");
+                                    sms_answer.append(mcc);
+                                    sms_answer.append("\nMNC");
+                                    sms_answer.append(mnc);
+                                    sms_answer.append("\nLAC");
+                                    sms_answer.append(lac);
+                                    sms_answer.append("\nCID");
+                                    sms_answer.append(cid);
+                                    sms_answer.append("\n");
+                                } else {
+                                    //олдовыми методами
+                                    String mcc_mnc = tm.getNetworkOperator();
+                                    if (!mcc_mnc.isEmpty()) {
+                                        String mcc = mcc_mnc.substring(0, 3);
+                                        String mnc = mcc_mnc.substring(3);
+                                        //непонятно что если две SIM'ки с разными операторами!!!
+                                        List<NeighboringCellInfo> net_list = tm.getNeighboringCellInfo();
+                                        for (NeighboringCellInfo net : net_list) {
+                                            String lac = String.valueOf(net.getLac());
+                                            String cid = String.valueOf(net.getCid());
+                                            sms_answer.append("wcdma\nMCC");
+                                            sms_answer.append(mcc);
+                                            sms_answer.append("\nMNC");
+                                            sms_answer.append(mnc);
+                                            sms_answer.append("\nLAC");
+                                            sms_answer.append(lac);
+                                            sms_answer.append("\nCID");
+                                            sms_answer.append(cid);
+                                            sms_answer.append("\n");
+                                        }
+                                    }
+                                }
+                            }
+                            if (info instanceof CellInfoLte) {
+                                String mcc = String.valueOf(((CellInfoLte) info).getCellIdentity().getMcc());
+                                String mnc = String.valueOf(((CellInfoLte) info).getCellIdentity().getMnc());
+                                //String tac = String.valueOf(((CellInfoLte) info).getCellIdentity().getTac());  //для google api LTE вроде LAC=0
+                                String cid = String.valueOf(((CellInfoLte) info).getCellIdentity().getCi());
+                                sms_answer.append("lte\nMCC");
+                                sms_answer.append(mcc);
+                                sms_answer.append("\nMNC");
+                                sms_answer.append(mnc);
+                                sms_answer.append("\nLAC");
+                                sms_answer.append("0");
+                                sms_answer.append("\nCID");
+                                sms_answer.append(cid);
+                                sms_answer.append("\n");
+                            }
+                            if (info instanceof CellInfoGsm) {
+                                String mcc = String.valueOf(((CellInfoGsm) info).getCellIdentity().getMcc());
+                                String mnc = String.valueOf(((CellInfoGsm) info).getCellIdentity().getMnc());
+                                String lac = String.valueOf(((CellInfoGsm) info).getCellIdentity().getLac());
+                                String cid = String.valueOf(((CellInfoGsm) info).getCellIdentity().getCid());
+                                sms_answer.append("gsm\nMCC");
                                 sms_answer.append(mcc);
                                 sms_answer.append("\nMNC");
                                 sms_answer.append(mnc);
@@ -187,84 +286,32 @@ public class WifiSearch extends Service {
                                 sms_answer.append("\nCID");
                                 sms_answer.append(cid);
                                 sms_answer.append("\n");
-                            } else {
-                                //олдовыми методами
-                                String mcc_mnc = tm.getNetworkOperator();
-                                if (!mcc_mnc.isEmpty()) {
-                                    String mcc = mcc_mnc.substring(0, 3);
-                                    String mnc = mcc_mnc.substring(3);
-                                    //непонятно что если две SIM'ки с разными операторами!!!
-                                    List<NeighboringCellInfo> net_list = tm.getNeighboringCellInfo();
-                                    for (NeighboringCellInfo net : net_list) {
-                                        String lac = String.valueOf(net.getLac());
-                                        String cid = String.valueOf(net.getCid());
-                                        sms_answer.append("wcdma\nMCC");
-                                        sms_answer.append(mcc);
-                                        sms_answer.append("\nMNC");
-                                        sms_answer.append(mnc);
-                                        sms_answer.append("\nLAC");
-                                        sms_answer.append(lac);
-                                        sms_answer.append("\nCID");
-                                        sms_answer.append(cid);
-                                        sms_answer.append("\n");
-                                    }
+                            }
+                            if (info instanceof CellInfoCdma) {
+                                String baseStation = String.valueOf(((CellInfoCdma) info).getCellIdentity().getBasestationId());
+                                String lat = String.valueOf(((CellInfoCdma) info).getCellIdentity().getLatitude());
+                                String lon = String.valueOf(((CellInfoCdma) info).getCellIdentity().getLongitude());
+                                String netId = String.valueOf(((CellInfoCdma) info).getCellIdentity().getNetworkId());
+                                String sysId = String.valueOf(((CellInfoCdma) info).getCellIdentity().getSystemId());
+                                String mcc = "";
+                                if (tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
+                                    String mcc_mnc = tm.getSimOperator();
+                                    mcc = mcc_mnc.substring(0, 3);
                                 }
+                                sms_answer.append("cdma\nMCC");
+                                sms_answer.append(mcc);  //необходимо тестирование в сети CDMA! неясно, на сколько это надёжно
+                                sms_answer.append("\nMNC");
+                                sms_answer.append(sysId);  //так написано в Google geolocation api
+                                sms_answer.append("\nLAC");
+                                sms_answer.append(netId);
+                                sms_answer.append("\nCID:");
+                                sms_answer.append(baseStation);
+                                sms_answer.append("\nlat");
+                                sms_answer.append(lat);
+                                sms_answer.append("\nlon");
+                                sms_answer.append(lon);
+                                sms_answer.append("\n");
                             }
-                        }
-                        if (info instanceof CellInfoLte) {
-                            String mcc = String.valueOf(((CellInfoLte) info).getCellIdentity().getMcc());
-                            String mnc = String.valueOf(((CellInfoLte) info).getCellIdentity().getMnc());
-                            String tac = String.valueOf(((CellInfoLte) info).getCellIdentity().getTac());  //для google api LTE вроде LAC=0
-                            String cid = String.valueOf(((CellInfoLte) info).getCellIdentity().getCi());
-                            sms_answer.append("lte\nMCC");
-                            sms_answer.append(mcc);
-                            sms_answer.append("\nMNC");
-                            sms_answer.append(mnc);
-                            sms_answer.append("\nLAC");
-                            sms_answer.append("0");
-                            sms_answer.append("\nCID");
-                            sms_answer.append(cid);
-                            sms_answer.append("\n");
-                        }
-                        if (info instanceof CellInfoGsm) {
-                            String mcc = String.valueOf(((CellInfoGsm) info).getCellIdentity().getMcc());
-                            String mnc = String.valueOf(((CellInfoGsm) info).getCellIdentity().getMnc());
-                            String lac = String.valueOf(((CellInfoGsm) info).getCellIdentity().getLac());
-                            String cid = String.valueOf(((CellInfoGsm) info).getCellIdentity().getCid());
-                            sms_answer.append("gsm\nMCC");
-                            sms_answer.append(mcc);
-                            sms_answer.append("\nMNC");
-                            sms_answer.append(mnc);
-                            sms_answer.append("\nLAC");
-                            sms_answer.append(lac);
-                            sms_answer.append("\nCID");
-                            sms_answer.append(cid);
-                            sms_answer.append("\n");
-                        }
-                        if (info instanceof CellInfoCdma) {
-                            String baseStation = String.valueOf(((CellInfoCdma) info).getCellIdentity().getBasestationId());
-                            String lat = String.valueOf(((CellInfoCdma) info).getCellIdentity().getLatitude());
-                            String lon = String.valueOf(((CellInfoCdma) info).getCellIdentity().getLongitude());
-                            String netId = String.valueOf(((CellInfoCdma) info).getCellIdentity().getNetworkId());
-                            String sysId = String.valueOf(((CellInfoCdma) info).getCellIdentity().getSystemId());
-                            String mcc = "";
-                            if (tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
-                                String mcc_mnc = tm.getSimOperator();
-                                mcc = mcc_mnc.substring(0, 3);
-                            }
-                            sms_answer.append("cdma\nMCC");
-                            sms_answer.append(mcc);  //необходимо тестирование в сети CDMA! неясно, на сколько это надёжно
-                            sms_answer.append("\nMNC");
-                            sms_answer.append(sysId);
-                            sms_answer.append("\nLAC");
-                            sms_answer.append(netId);
-                            sms_answer.append("\nCID:");
-                            sms_answer.append(baseStation);
-                            sms_answer.append("\nlat");
-                            sms_answer.append(lat);
-                            sms_answer.append("\nlon");
-                            sms_answer.append(lon);
-                            sms_answer.append("\n");
                         }
                     }
                 }
