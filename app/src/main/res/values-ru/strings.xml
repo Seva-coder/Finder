@@ -1,5 +1,5 @@
 <resources>
-    <string name="remember_int_on">Добавить новый номер</string>
+    <string name="remember_int_on">Добавить номер</string>
     <string name="set_button_text">Настройки</string>
     <string name="request_numbs">Номера для запросов</string>
     <string name="answer_numbs">Доверенные номера</string>
