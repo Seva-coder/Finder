@@ -2,7 +2,7 @@
 <resources>
     <string name="help"><![CDATA[
 <h1>Help</h1>
-<b><i>App version v1.2</i></b><br>
+<b><i>App version v1.3</i></b><br>
 Privacy policy - https://seva-coder.github.io/Finder/index.html<br><br>
 Repository with application sources - https://github.com/Seva-coder/Finder<br><br>
 \tThe application is designed for remote getting smartphone coordinates via SMS-request (and manual sending). It consists of two parts - first for sending SMS-request and displaying coordinates, and second for automatic response to incoming request (only if this option is enabled). It is also possible to send your coordinates to any number from list of trusted numbers manually (from tab with trusted numbers list). <b>Trusted numbers</b> - are phone numbers to which application responds (except remote adding command. If it is enabled, it adds numbers to this list regardless of phone number). Please note that the number must have the same form as on the caller Id (for example in Russia like +71231234567 without spaces/brackets).<br>

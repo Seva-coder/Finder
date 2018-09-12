@@ -24,6 +24,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -69,7 +71,8 @@ public class MainActivity extends AppCompatActivity {
                 Manifest.permission.RECEIVE_SMS,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.CHANGE_WIFI_STATE
+                Manifest.permission.CHANGE_WIFI_STATE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
         };
 
         sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -408,12 +411,13 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         final View v = inflater.inflate(R.layout.add_menu, null);
+        final EditText field_name = (EditText) v.findViewById(R.id.name);
+        final EditText field_phone = (EditText) v.findViewById(R.id.phone);
+
         builder.setView(v)
                 .setPositiveButton(R.string.positive_add_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        EditText field_name = (EditText) v.findViewById(R.id.name);
-                        EditText field_phone = (EditText) v.findViewById(R.id.phone);
                         String number_name = field_name.getText().toString();
                         String phone_number = field_phone.getText().toString();
                         ContentValues cv = new ContentValues();
@@ -443,8 +447,6 @@ public class MainActivity extends AppCompatActivity {
 
                         if (cursor_check.moveToFirst()) {
                             Toast.makeText(MainActivity.this, R.string.phone_already_recorded, Toast.LENGTH_SHORT).show();
-                        } else if (phone_number.isEmpty()) {
-                            Toast.makeText(MainActivity.this, R.string.phone_is_empty, Toast.LENGTH_SHORT).show();
                         } else {
                             db.insert(table, null, cv);
                             Toast.makeText(MainActivity.this, R.string.number_saved, Toast.LENGTH_SHORT).show();
@@ -464,8 +466,31 @@ public class MainActivity extends AppCompatActivity {
                         dialog.cancel();
                     }
                 });
-        builder.create();
-        builder.show();
+
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        //активация кнопки при непустом поле
+        field_phone.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() != 0) {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                } else {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void afterTextChanged (Editable s) {
+
+            }
+        });
     }
 
     public void sms_btn_clicked(View view) {

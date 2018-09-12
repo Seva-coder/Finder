@@ -47,7 +47,7 @@
     <string name="insert_sms_text">Paste here text from SMS to get location:</string>
     <string name="parse_sms">Get location</string>
     <string name="no_sms_rights">SMS permission not granted!</string>
-    <string name="show_on_int_map">Show on built-in google map</string>
+    <string name="show_on_int_map">Show on built-in map</string>
     <string name="show_ext_map">"Open with a third-party application "</string>
     <string name="del_point">Delete a location from history</string>
     <string name="gps_not_enabled">GPS disabled on responding device, try WiFi-request</string>

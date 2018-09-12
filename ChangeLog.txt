@@ -13,3 +13,7 @@ v1.2
 - main layout changed to "Tablelayout", toolbar reduced (help now is button)
 - new phone now add via dialog (field of name and number are deleted)
 - some improvements in formatting info about location in history
+
+v1.3
+- map changed to OpenStreetMap
+- "add" button disabled if phone field is empty

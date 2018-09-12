@@ -1,56 +1,72 @@
 package ru.seva.finder;
 
+
+import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.Manifest;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
+import org.osmdroid.api.IMapController;
+import org.osmdroid.config.Configuration;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.CopyrightOverlay;
+import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.ScaleBarOverlay;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+public class MapsActivity extends AppCompatActivity {
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
-
-    private GoogleMap mMap;
-    private Double lat, lon;
-    private Integer zoom;
-    private String accuracy;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    MapView map = null;
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+
+        Context ctx = getApplicationContext();
+        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
+        Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
+
+        setContentView(R.layout.activity_open_map);
+
+        map = (MapView) findViewById(R.id.map2);
+        map.setTileSource(TileSourceFactory.MAPNIK);
+
+        map.setBuiltInZoomControls(true);
+        map.setMultiTouchControls(true);
+        IMapController mapController = map.getController();
+
+        CopyrightOverlay copyOverlay = new CopyrightOverlay(this);
+        copyOverlay.setAlignRight(true);
+        map.getOverlays().add(copyOverlay);
+
+        ScaleBarOverlay scaleBar= new ScaleBarOverlay(map);
+        scaleBar.setUnitsOfMeasure(ScaleBarOverlay.UnitsOfMeasure.metric);
+        scaleBar.setScaleBarOffset(getResources().getDisplayMetrics().widthPixels/2, 50);
+        scaleBar.setCentred(true);
+        map.getOverlays().add(scaleBar);
+
+
         Intent intent = this.getIntent();
-        lat = intent.getDoubleExtra("lat", 0d);
-        lon = intent.getDoubleExtra("lon", 0d);
-        zoom = intent.getIntExtra("zoom", 15);
-        accuracy = intent.getStringExtra("accuracy");
-        if (accuracy == null) {
-            accuracy = "";
-        }
+        String accuracy = intent.getStringExtra("accuracy");
+        mapController.setZoom(intent.getDoubleExtra("zoom", 15d));
+
+
+        GeoPoint startPoint = new GeoPoint(intent.getDoubleExtra("lat", 0d), intent.getDoubleExtra("lon", 0d));
+        mapController.setCenter(startPoint);
+        Marker startMarker = new Marker(map);
+        startMarker.setPosition(startPoint);
+        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        map.getOverlays().add(startMarker);
+        startMarker.setTitle(accuracy);
+
     }
 
+    public void onResume() {
+        super.onResume();
+        map.onResume(); //needed for compass, my location overlays, v6.0.0 and up
+    }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        LatLng marker = new LatLng(lat, lon);
-        mMap.addMarker(new MarkerOptions().position(marker).title(accuracy));
-        mMap.moveCamera(CameraUpdateFactory.zoomTo(zoom));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(marker));
-        if ((Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
-                Build.VERSION.SDK_INT < 23) {
-            mMap.setMyLocationEnabled(true);
-        }
+    public void onPause() {
+        super.onPause();
+        map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
     }
 }
