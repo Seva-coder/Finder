@@ -68,6 +68,12 @@ public class HistoryActivity extends AppCompatActivity {
         });
     }
 
+
+    protected void onResume() {
+        super.onResume();
+        updateList();
+    }
+
     protected void onDestroy() {
         super.onDestroy();
         cursor.close();
@@ -94,7 +100,7 @@ public class HistoryActivity extends AppCompatActivity {
                         Intent start_map = new Intent(v.getContext(), MapsActivity.class);
                         start_map.putExtra("lat", lat);
                         start_map.putExtra("lon", lon);
-                        start_map.putExtra("zoom", 15);
+                        start_map.putExtra("zoom", 15d);
                         Integer acc = query.getInt(query.getColumnIndex("acc"));
                         if (!query.isNull(query.getColumnIndex("acc"))) {
                             start_map.putExtra("accuracy", String.valueOf(acc) + getString(R.string.meters));

@@ -14,6 +14,9 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.CopyrightOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
+import org.osmdroid.views.overlay.compass.CompassOverlay;
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 public class MapsActivity extends AppCompatActivity {
 
@@ -44,10 +47,19 @@ public class MapsActivity extends AppCompatActivity {
         scaleBar.setCentred(true);
         map.getOverlays().add(scaleBar);
 
+        GpsMyLocationProvider gpsProvider = new GpsMyLocationProvider(this.getBaseContext());
+        MyLocationNewOverlay myLoc = new MyLocationNewOverlay(gpsProvider, map);
+        myLoc.setDrawAccuracyEnabled(true);
+        map.getOverlays().add(myLoc);
+
+        CompassOverlay compasOver = new CompassOverlay(this.getBaseContext(), map);
+        compasOver.enableCompass();
+        map.getOverlays().add(compasOver);
+
 
         Intent intent = this.getIntent();
         String accuracy = intent.getStringExtra("accuracy");
-        mapController.setZoom(intent.getDoubleExtra("zoom", 15d));
+        mapController.setZoom(intent.getDoubleExtra("zoom", 15.0d));
 
 
         GeoPoint startPoint = new GeoPoint(intent.getDoubleExtra("lat", 0d), intent.getDoubleExtra("lon", 0d));

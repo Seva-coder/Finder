@@ -155,7 +155,7 @@ public class NewGoogleGeo extends IntentService {
                     start_map.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     start_map.putExtra("lat", lat);
                     start_map.putExtra("lon", lon);
-                    start_map.putExtra("zoom", 15);
+                    start_map.putExtra("zoom", 15d);
                     if (acc != null) {
                         start_map.putExtra("accuracy", String.valueOf(acc) + getString(R.string.meters));
                     }
