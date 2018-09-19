@@ -48,9 +48,17 @@
             android:name=".NewGoogleGeo"
             android:exported="false" />
 
-        <activity android:name=".HistoryActivity" />
-        <activity android:name=".OldReadSms" />
-        <activity android:name=".NewReadSms" />
+        <activity android:name=".HistoryActivity"
+            android:label="@string/btn_hist_text" />
+
+        <activity android:name=".OldReadSms"
+            android:label="@string/sms_open" />
+
+        <activity android:name=".NewReadSms"
+            android:label="@string/sms_open" />
+
+        <activity android:name=".HelpActivity"
+            android:label="@string/help_title" />
 
         <receiver
             android:name=".SmsReceiver"
@@ -77,7 +85,6 @@
             android:name=".GpsCoordsReceived"
             android:exported="false" />
 
-        <activity android:name=".HelpActivity" />
     </application>
 
 </manifest>
