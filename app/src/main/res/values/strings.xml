@@ -107,6 +107,11 @@
     <string name="unknown_number">unknown (%1$s)</string>
     <string name="positive_add_button">Add</string>
     <string name="negative_add_button">Cancel</string>
+    <string name="sat">Satellite view</string>
+    <string name="sat_descr">Show satellite view instead OSM</string>
+    <string name="map_param">Map parameters</string>
+    <string name="cache_size">Cache size</string>
+    <string name="cache_descr">Size of tile cache saved for offline use, MB</string>
 
 
 </resources>

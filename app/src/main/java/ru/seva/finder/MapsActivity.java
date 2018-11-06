@@ -3,11 +3,13 @@ package ru.seva.finder;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
+import org.osmdroid.tileprovider.tilesource.MapBoxTileSource;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -29,9 +31,21 @@ public class MapsActivity extends AppCompatActivity {
         Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
 
         setContentView(R.layout.activity_open_map);
+        SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         map = (MapView) findViewById(R.id.map2);
-        map.setTileSource(TileSourceFactory.MAPNIK);
+        Configuration.getInstance().setTileFileSystemCacheMaxBytes(1024*1024*Long.parseLong(sPref.getString("cache_size", "5L")));
+        Configuration.getInstance().setTileFileSystemCacheTrimBytes(1024*1024*3L);  // 3 MB minimal default
+
+        if (sPref.getBoolean("satellite", false)) {
+            final MapBoxTileSource tileSource = new MapBoxTileSource();
+            tileSource.retrieveAccessToken(this);
+            tileSource.retrieveMapBoxMapId(this);
+            map.setTileSource(tileSource);
+        } else {
+            map.setTileSource(TileSourceFactory.MAPNIK);
+        }
+
 
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);

@@ -17,3 +17,8 @@ v1.2
 v1.3
 - map changed to OpenStreetMap
 - "add" button disabled if phone field is empty
+
+v1.4
+- number of digits in SMS after comma reduced
+- new satellite map (uses MapBox)
+- cache size setting

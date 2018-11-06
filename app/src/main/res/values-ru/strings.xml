@@ -103,5 +103,10 @@
     <string name="phone_text">Новый номер:</string>
     <string name="positive_add_button">Добавить</string>
     <string name="negative_add_button">Отмена</string>
+    <string name="sat">Спутниковые снимки</string>
+    <string name="sat_descr">Показывать спутниковые снимки на карте вместо OSM</string>
+    <string name="map_param">Настройки карты</string>
+    <string name="cache_size">Размер кэша</string>
+    <string name="cache_descr">Размер кэша карты для использования оффлайн, МБ</string>
 
 </resources>

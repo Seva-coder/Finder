@@ -46,8 +46,8 @@ public class GpsSearch extends Service {
     StringBuilder sms_answer = new StringBuilder("");
     ArrayList<String> phones = new ArrayList<>();
 
-    double lastLat, lastLon;  //переменные на случай еслси gps завёлся, но не успел набрал точность до таймера
-    float lastSpeed = 0, lastAccuracy;
+    String lastLat, lastLon;  //переменные на случай еслси gps завёлся, но не успел набрал точность до таймера
+    String lastSpeed, lastAccuracy;
     boolean lastTrue = false;
     boolean sound_was_enabled;
 
@@ -69,14 +69,14 @@ public class GpsSearch extends Service {
             if (location.hasAccuracy() && (location.getAccuracy() < Float.valueOf(sPref.getString(GPS_ACCURACY, GPS_ACCURACY_DEFAULT)))) {
                 locMan.removeUpdates(locListen);  //после первого же нормального определения - выкл
                 sms_answer.append("lat:");
-                sms_answer.append(String.valueOf(location.getLatitude()));
+                sms_answer.append(String.format(Locale.US, "%.8f",location.getLatitude()));
                 sms_answer.append(" ");
                 sms_answer.append("lon:");
-                sms_answer.append(String.valueOf(location.getLongitude()));
+                sms_answer.append(String.format(Locale.US, "%.8f", location.getLongitude()));
                 sms_answer.append(" ");
                 if (location.hasAltitude()) {
                     sms_answer.append("alt:");
-                    sms_answer.append(String.valueOf(location.getAltitude()));
+                    sms_answer.append(String.format(Locale.US, "%.0f", location.getAltitude()));
                     sms_answer.append(" m ");
                 }
                 if (location.hasSpeed()) {
@@ -86,18 +86,18 @@ public class GpsSearch extends Service {
                 }
                 if (location.hasBearing()) {
                     sms_answer.append("az:");
-                    sms_answer.append(String.valueOf(location.getBearing()));
+                    sms_answer.append(String.format(Locale.US, "%.0f", location.getBearing()));
                     sms_answer.append(" ");
                 }
                 sms_answer.append("acc:");
-                sms_answer.append(String.valueOf(location.getAccuracy()));
+                sms_answer.append(String.format(Locale.US, "%.0f", location.getAccuracy()));
                 start_send();
             } else {
                 lastTrue = true;  //местополежение всё таки было определено, но недостаточно точно. Если что - отрпавим хотя бы это
-                lastLat = location.getLatitude();
-                lastLon = location.getLongitude();
-                lastSpeed = location.getSpeed() * 3.6f;  //default by function = 0 if not available
-                lastAccuracy = location.getAccuracy();  // -//-
+                lastLat = String.format(Locale.US, "%.8f",location.getLatitude());
+                lastLon = String.format(Locale.US, "%.8f", location.getLongitude());
+                lastSpeed = String.format(Locale.US, "%.2f", location.getSpeed() * 3.6f);  //default by function = 0 if not available
+                lastAccuracy = String.format(Locale.US, "%.0f", location.getAccuracy());  // -//-
             }
         }
 
@@ -207,14 +207,14 @@ public class GpsSearch extends Service {
             locMan.removeUpdates(locListen);
             if (lastTrue) {  //отправим хотя бы то что есть
                 sms_answer.append("lat:");
-                sms_answer.append(String.valueOf(lastLat));
+                sms_answer.append(lastLat);
                 sms_answer.append(" lon:");
-                sms_answer.append(String.valueOf(lastLon));
+                sms_answer.append(lastLon);
                 sms_answer.append(" vel:");
-                sms_answer.append(String.valueOf(lastSpeed));
+                sms_answer.append(lastSpeed);
                 sms_answer.append(" km/h");
                 sms_answer.append(" acc:");
-                sms_answer.append(String.valueOf(lastAccuracy));
+                sms_answer.append(lastAccuracy);
             } else {
                 sms_answer.append("unable get location");
             }

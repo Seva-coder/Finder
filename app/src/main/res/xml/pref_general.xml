@@ -19,17 +19,34 @@
             android:summary="@string/gps_description"/>
 
         <CheckBoxPreference
+            android:title="@string/answer_to_requests"
+            android:summary="@string/response_descr"
+            android:defaultValue="false"
+            android:key="answer"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/map_param">
+        <CheckBoxPreference
             android:defaultValue="true"
             android:title="@string/auto_open_map"
             android:key="auto_map"
             android:summary="@string/auto_map_description" />
-    </PreferenceCategory>
 
-    <CheckBoxPreference
-        android:title="@string/answer_to_requests"
-        android:summary="@string/response_descr"
-        android:defaultValue="false"
-        android:key="answer"/>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:title="@string/sat"
+            android:key="satellite"
+            android:summary="@string/sat_descr" />
+
+        <EditTextPreference
+            android:key="cache_size"
+            android:title="@string/cache_size"
+            android:summary="@string/cache_descr"
+            android:numeric="integer"
+            android:defaultValue="5"/>
+
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/searching_parameters">
