@@ -152,7 +152,7 @@ public class GpsSearch extends Service {
                     .setAutoCancel(true);  //подумать над channel id
             Notification notification = builder.build();
             NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            int id = sPref.getInt("notification_id", 0);
+            int id = sPref.getInt("notification_id", 2);
             nManage.notify(id, notification);
             sPref.edit().putInt("notification_id", id+1).apply();
 

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item android:id="@+id/track"
+        android:title="@string/tracking_menu_item" />
     <item android:id="@+id/gps_send"
         android:title="@string/menu_gps_send" />
     <item android:id="@+id/wifi_send"

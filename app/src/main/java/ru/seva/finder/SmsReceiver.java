@@ -66,7 +66,7 @@ public class SmsReceiver extends BroadcastReceiver {
                         .setAutoCancel(true);  //подумать над channel id
                 Notification notification = builder.build();
                 NotificationManager nManage = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
-                int id = sPref.getInt("notification_id", 0);
+                int id = sPref.getInt("notification_id", 2);
                 nManage.notify(id, notification);
                 sPref.edit().putInt("notification_id", id+1).apply();
                 LocalBroadcastManager.getInstance(context).sendBroadcast(stop_bar);
@@ -79,7 +79,7 @@ public class SmsReceiver extends BroadcastReceiver {
                         .setAutoCancel(true);  //подумать над channel id
                 Notification notification = builder.build();
                 NotificationManager nManage = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
-                int id = sPref.getInt("notification_id", 0);
+                int id = sPref.getInt("notification_id", 2);
                 nManage.notify(id, notification);
                 sPref.edit().putInt("notification_id", id+1).apply();
                 LocalBroadcastManager.getInstance(context).sendBroadcast(stop_bar);

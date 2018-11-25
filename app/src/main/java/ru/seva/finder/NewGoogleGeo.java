@@ -131,7 +131,7 @@ public class NewGoogleGeo extends IntentService {
         }
 
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        int id = sPref.getInt("notification_id", 0);
+        int id = sPref.getInt("notification_id", 2);
 
         //запись в базу теперь здесь
         dBase baseConnect = new dBase(getApplicationContext());

@@ -29,9 +29,12 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <meta-data android:name="MAPBOX_MAPID" android:value="mapbox.satellite" />
-        <meta-data android:name="MAPBOX_ACCESS_TOKEN" android:value="pk.eyJ1Ijoic2V2YTIwMTgiLCJhIjoiY2pvMWoycW05MGI2ODNxbndiajg0b2QwdiJ9.yjG4fFhjetuFdalX3Mir0Q" />
+        <meta-data
+            android:name="MAPBOX_MAPID"
+            android:value="mapbox.satellite" />
+        <meta-data
+            android:name="MAPBOX_ACCESS_TOKEN"
+            android:value="pk.eyJ1Ijoic2V2YTIwMTgiLCJhIjoiY2pvMWoycW05MGI2ODNxbndiajg0b2QwdiJ9.yjG4fFhjetuFdalX3Mir0Q" />
 
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -43,7 +46,6 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
-
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
@@ -52,16 +54,17 @@
             android:name=".NewGoogleGeo"
             android:exported="false" />
 
-        <activity android:name=".HistoryActivity"
+        <activity
+            android:name=".HistoryActivity"
             android:label="@string/btn_hist_text" />
-
-        <activity android:name=".OldReadSms"
+        <activity
+            android:name=".OldReadSms"
             android:label="@string/sms_open" />
-
-        <activity android:name=".NewReadSms"
+        <activity
+            android:name=".NewReadSms"
             android:label="@string/sms_open" />
-
-        <activity android:name=".HelpActivity"
+        <activity
+            android:name=".HelpActivity"
             android:label="@string/help_title" />
 
         <receiver
@@ -88,7 +91,10 @@
         <service
             android:name=".GpsCoordsReceived"
             android:exported="false" />
-
+        <service
+            android:name=".Tracking"
+            android:enabled="true"
+            android:exported="false"></service>
     </application>
 
 </manifest>

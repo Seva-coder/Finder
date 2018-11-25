@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,6 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -209,9 +211,114 @@ public class MainActivity extends AppCompatActivity {
                         "_id = ?", new String[] {Long.toString(id)},
                         null, null, null);
                 query.moveToFirst();
-                String phone = query.getString(query.getColumnIndex(dBase.PHONES_COL));
+                final String phone = query.getString(query.getColumnIndex(dBase.PHONES_COL));
                 query.close();
                 switch(item.getItemId()) {
+                    case R.id.track:
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        LayoutInflater inflater = getLayoutInflater();
+                        final View v2 = inflater.inflate(R.layout.tracking_menu, null);
+                        final EditText max_number_edit = (EditText) v2.findViewById(R.id.max_number);
+                        final EditText delay_edit = (EditText) v2.findViewById(R.id.delay);
+                        final EditText coord_numb_edit = (EditText) v2.findViewById(R.id.number_of_coordinates);
+                        final EditText accuracy_edit = (EditText) v2.findViewById(R.id.accuracy);
+
+                        if (sPref.contains("tracking_sms_max_number")) {
+                            max_number_edit.setText(sPref.getString("tracking_sms_max_number", "10"));
+                        }
+
+                        if (sPref.contains("tracking_delay")) {
+                            delay_edit.setText(sPref.getString("tracking_delay", "300"));
+                        }
+
+                        if (sPref.contains("tracking_accuracy")) {
+                            accuracy_edit.setText(sPref.getString("tracking_accuracy", "15"));
+                        }
+
+                        if (sPref.contains("tracking_coord_number")) {
+                            coord_numb_edit.setText(sPref.getString("tracking_coord_number", "4"));
+                        }
+
+                        builder.setView(v2)
+                                .setPositiveButton(R.string.positive_add_button, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        String tracking_sms_max_number, tracking_delay, tracking_coord_number, tracking_accuracy;
+                                        tracking_sms_max_number = max_number_edit.getText().toString();
+                                        tracking_delay = delay_edit.getText().toString();
+                                        tracking_coord_number = coord_numb_edit.getText().toString();
+                                        tracking_accuracy = accuracy_edit.getText().toString();
+                                        //сохраним настройки для повторного заполнения формы
+                                        sPref.edit().putString("tracking_sms_max_number", tracking_sms_max_number).apply();
+                                        sPref.edit().putString("tracking_delay", tracking_delay).apply();
+                                        sPref.edit().putString("tracking_coord_number", tracking_coord_number).apply();
+                                        sPref.edit().putString("tracking_accuracy", tracking_accuracy).apply();
+
+                                        //передача через интент тк быстрее
+                                        Intent intent = new Intent(getApplicationContext(), Tracking.class);
+                                        intent.putExtra("tracking_sms_max_number", tracking_sms_max_number);
+                                        intent.putExtra("tracking_delay", tracking_delay);
+                                        intent.putExtra("tracking_coord_number", tracking_coord_number);
+                                        intent.putExtra("tracking_accuracy", tracking_accuracy);
+                                        intent.putExtra("phone", phone);
+                                        startService(intent);
+
+                                        Toast.makeText(v.getContext(), R.string.tracking_started, Toast.LENGTH_LONG).show();
+                                    }
+                                })
+                                .setNegativeButton(R.string.negative_add_button, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                });
+                        //разрешаем трекинг только на 1 номер
+                        final AlertDialog dialog = builder.create();
+
+                        if (Tracking.tracking_running) {
+                            Toast.makeText(v.getContext(), R.string.tracking_already_running, Toast.LENGTH_LONG).show();
+                        } else {
+                            dialog.show();
+                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                        }
+
+                        final Pattern pat = Pattern.compile("\\d+");
+
+                        //обработчик активатор-деактиватор кнопки старта трекинга
+                        TextWatcher edit_fields = new TextWatcher() {
+                            @Override
+                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                            }
+
+                            @Override
+                            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                String max_number = max_number_edit.getText().toString();
+                                String delay = delay_edit.getText().toString();
+                                String coord_numb = coord_numb_edit.getText().toString();
+                                String accuracy = accuracy_edit.getText().toString();
+                                //активируем когда все поля - чилсла > 0
+                                if (pat.matcher(max_number).find() && pat.matcher(delay).find()
+                                        && pat.matcher(coord_numb).find() && pat.matcher(accuracy).find()
+                                        && Integer.parseInt(max_number) >= 1 && Integer.parseInt(delay) >= 1
+                                        && Integer.parseInt(coord_numb) >= 1 && Integer.parseInt(accuracy) >= 1) {
+                                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                                } else {
+                                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                                }
+                            }
+
+                            @Override
+                            public void afterTextChanged(Editable s) {
+
+                            }
+                        };
+                        max_number_edit.addTextChangedListener(edit_fields);
+                        delay_edit.addTextChangedListener(edit_fields);
+                        coord_numb_edit.addTextChangedListener(edit_fields);
+                        accuracy_edit.addTextChangedListener(edit_fields);
+                        return true;
+
                     case R.id.gps_send:
                         Intent gps_intent = new Intent(getApplicationContext(), GpsSearch.class);
                         gps_intent.putExtra("phone_number", phone);

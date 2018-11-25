@@ -112,6 +112,14 @@
     <string name="map_param">Map parameters</string>
     <string name="cache_size">Cache size</string>
     <string name="cache_descr">Size of tile cache saved for offline use, MB</string>
+    <string name="tracking_menu_item">Start tracking...</string>
+    <string name="max_sms_number">Max number of sent SMS:</string>
+    <string name="sms_delay">Delay between checking coordinates (sec):</string>
+    <string name="coord_in_sms">Number of coordinates in one SMS:</string>
+    <string name="tracking_accuracy">Desired coordinates accuracy, m</string>
+    <string name="tracking_already_running">Tracking already running!</string>
+    <string name="tracking_started">Tracking started!</string>
+    <string name="tracking_on_notify">Tracking is active</string>
 
 
 </resources>

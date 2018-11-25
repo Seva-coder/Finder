@@ -34,8 +34,9 @@ public class MapsActivity extends AppCompatActivity {
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         map = (MapView) findViewById(R.id.map2);
-        Configuration.getInstance().setTileFileSystemCacheMaxBytes(1024*1024*Long.parseLong(sPref.getString("cache_size", "5L")));
-        Configuration.getInstance().setTileFileSystemCacheTrimBytes(1024*1024*3L);  // 3 MB minimal default
+        Configuration.getInstance().setTileFileSystemCacheMaxBytes(1024*1024*Long.parseLong(sPref.getString("cache_size", "5")));
+        Configuration.getInstance().setTileFileSystemCacheTrimBytes(512*1024*Long.parseLong(sPref.getString("cache_size", "5")));  // trim storage to ~50% from max after oversize limit
+
 
         if (sPref.getBoolean("satellite", false)) {
             final MapBoxTileSource tileSource = new MapBoxTileSource();
