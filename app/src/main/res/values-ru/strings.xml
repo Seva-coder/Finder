@@ -110,11 +110,17 @@
     <string name="cache_descr">Размер кэша карты для использования оффлайн, МБ</string>
     <string name="tracking_menu_item">Start tracking...</string>
     <string name="max_sms_number">Max number of sent SMS:</string>
-    <string name="sms_delay">Delay between checking coordinates (sec):</string>
+    <string name="sms_delay">Delay between checking coordinates (\u226520, sec):</string>
     <string name="coord_in_sms">Number of coordinates in one SMS:</string>
     <string name="tracking_accuracy">Desired coordinates accuracy, m</string>
     <string name="tracking_already_running">Tracking already running!</string>
     <string name="tracking_started">Tracking started!</string>
     <string name="tracking_on_notify">Tracking is active</string>
+    <string name="stop_traking">Stop tracking</string>
+    <string name="traking_complet">Tracking is completed!</string>
+    <string name="tracking_stopped_label">Tracking stopped!</string>
+    <string name="sms_sent">SMS sent: %1$d</string>
+    <string name="start_tracking">Start!</string>
+    <string name="remaining_mes">Remaining messages: %1$d</string>
 
 </resources>

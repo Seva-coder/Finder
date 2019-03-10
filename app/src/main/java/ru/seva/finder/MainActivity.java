@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         builder.setView(v2)
-                                .setPositiveButton(R.string.positive_add_button, new DialogInterface.OnClickListener() {
+                                .setPositiveButton(R.string.start_tracking, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         String tracking_sms_max_number, tracking_delay, tracking_coord_number, tracking_accuracy;
@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
                                         tracking_delay = delay_edit.getText().toString();
                                         tracking_coord_number = coord_numb_edit.getText().toString();
                                         tracking_accuracy = accuracy_edit.getText().toString();
-                                        //сохраним настройки для повторного заполнения формы
+                                        //сохраним настройки для повторного заполнения формы (проверка не нужна, тк клава уже цифровая)
                                         sPref.edit().putString("tracking_sms_max_number", tracking_sms_max_number).apply();
                                         sPref.edit().putString("tracking_delay", tracking_delay).apply();
                                         sPref.edit().putString("tracking_coord_number", tracking_coord_number).apply();
@@ -278,8 +278,13 @@ public class MainActivity extends AppCompatActivity {
                         if (Tracking.tracking_running) {
                             Toast.makeText(v.getContext(), R.string.tracking_already_running, Toast.LENGTH_LONG).show();
                         } else {
+                            //показываем, но с неактивной кнопокой, если нет дефолтных настроек (sms_number просто для примера - появятся он все вместе)
                             dialog.show();
-                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                            if (sPref.contains("tracking_sms_max_number")) {
+                                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                            } else {
+                                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                            }
                         }
 
                         final Pattern pat = Pattern.compile("\\d+");
@@ -300,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
                                 //активируем когда все поля - чилсла > 0
                                 if (pat.matcher(max_number).find() && pat.matcher(delay).find()
                                         && pat.matcher(coord_numb).find() && pat.matcher(accuracy).find()
-                                        && Integer.parseInt(max_number) >= 1 && Integer.parseInt(delay) >= 1
+                                        && Integer.parseInt(max_number) >= 1 && Integer.parseInt(delay) >= 20
                                         && Integer.parseInt(coord_numb) >= 1 && Integer.parseInt(accuracy) >= 1) {
                                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                                 } else {

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content">
+
+    <TextView
+        android:id="@+id/sent_text"
+        style="@android:style/TextAppearance.DeviceDefault.Large"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sms_sent"
+        android:layout_marginTop="20dp"
+        android:textAlignment="center"/>
+
+    <TextView
+        android:id="@+id/status_text"
+        style="@android:style/TextAppearance.DeviceDefault.Large"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sent_text"
+        android:text="@string/remaining_mes"
+        android:layout_marginTop="20dp"
+        android:textAlignment="center"/>
+
+    <Button
+        android:id="@+id/stop_tracking"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="7dp"
+        android:layout_below="@+id/status_text"
+        android:text="@string/stop_traking"
+        android:background="@color/colorAccent"
+        android:onClick="stop"/>
+
+    <TextView
+        android:id="@+id/tracking_stopped"
+        style="@android:style/TextAppearance.DeviceDefault.Large"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/stop_tracking"
+        android:text="@string/tracking_stopped_label"
+        android:layout_marginTop="20dp"
+        android:textAlignment="center"
+        android:visibility="gone"
+        android:textColor="#2d9c02"/>
+
+
+</RelativeLayout>
