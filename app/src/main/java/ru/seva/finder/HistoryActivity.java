@@ -14,28 +14,32 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class HistoryActivity extends AppCompatActivity {
 
-    ListView list;
-    Cursor cursor;
+    ListView list_points, list_tracks;
+    Cursor cursor, track_cursor;
     dBase baseConnect;
     SQLiteDatabase db;
-    SimpleCursorAdapter adapter;
+    SimpleCursorAdapter adapter, track_adapter;
+    TabHost tabHost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
 
-        list = (ListView) findViewById(R.id.lvHistory);
+        list_points = (ListView) findViewById(R.id.lvHistory);
+        list_tracks = (ListView) findViewById(R.id.lvTracks);
 
         //подрубаемся к базе
         baseConnect = new dBase(this);
         db = baseConnect.getWritableDatabase();
 
+        //заполнение списка с одиночными точками
         String[] fromColons = {"name", "date"};
         int[] toViews = {android.R.id.text1, android.R.id.text2};
         cursor = db.rawQuery("SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone", null);
@@ -48,19 +52,51 @@ public class HistoryActivity extends AppCompatActivity {
                 toViews,
                 0);
 
-        adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {  //замена налету пустого поля неизвестного номера на текст об этом
+        //заполнение списка с треками
+        track_cursor = db.rawQuery("SELECT tracking_table._id, tracking_table.phone, tracking_table.date AS date, phones.name AS name FROM tracking_table LEFT JOIN phones ON tracking_table.phone=phones.phone GROUP BY track_id ORDER BY tracking_table._id DESC;", null);
+
+        //создаём адаптеры
+        track_adapter = new SimpleCursorAdapter(this,
+                android.R.layout.simple_list_item_2,
+                track_cursor,
+                fromColons,
+                toViews,
+                0);  // fromColons и toViews такие же как и раньше
+
+
+        //биндер для замены пустого имени (null) на "unknown" на лету
+        class Changer implements SimpleCursorAdapter.ViewBinder {
             public boolean setViewValue(View view, Cursor cursor, int column) {
                 if (column == cursor.getColumnIndex("name") && cursor.getString(column) == null) {
                     TextView text = (TextView) view;
-                    text.setText(getString(R.string.unknown_number, cursor.getString(1)));  //col index=1 - history.phone
+                    text.setText(getString(R.string.unknown_number, cursor.getString(1)));  //col index=1 - tracking_table.phone или history.phone
                     return true;
                 }
                 return false;
             }
-        });
+        }
 
-        list.setAdapter(adapter);
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        Changer changer = new Changer();
+        adapter.setViewBinder(changer);
+        track_adapter.setViewBinder(changer);
+
+        list_tracks.setAdapter(track_adapter);
+        list_points.setAdapter(adapter);
+
+        tabHost = findViewById(R.id.tabHostHist);
+        tabHost.setup();
+        TabHost.TabSpec tabspec = tabHost.newTabSpec("tag1");  //тэг нам ненужен, но он нужен конструктору
+        tabspec.setContent(R.id.tab_points);
+        tabspec.setIndicator(getString(R.string.poits_tab));
+        tabHost.addTab(tabspec);
+
+        tabspec = tabHost.newTabSpec("tag2");
+        tabspec.setContent(R.id.tab_tracks);
+        tabspec.setIndicator(getString(R.string.tracks_tab));
+        tabHost.addTab(tabspec);
+
+
+        list_points.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 showMenu(view, id);

@@ -122,5 +122,9 @@
     <string name="sms_sent">SMS sent: %1$d</string>
     <string name="start_tracking">Start!</string>
     <string name="remaining_mes">Remaining messages: %1$d</string>
+    <string name="new_track_data">New tracking data received!</string>
+    <string name="tracks_list">List of tracks:</string>
+    <string name="poits_tab">Points</string>
+    <string name="tracks_tab">Tracks</string>
 
 </resources>

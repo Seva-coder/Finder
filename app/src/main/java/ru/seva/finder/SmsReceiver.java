@@ -57,6 +57,19 @@ public class SmsReceiver extends BroadcastReceiver {
                 gps_intent.putExtra("message", message);
                 LocalBroadcastManager.getInstance(context).sendBroadcast(stop_bar);
                 context.startService(gps_intent);
+            } else if (checkTrackingSms(message)) {
+                Intent track_point = new Intent(context, TrackReceiveService.class);
+                track_point.putExtra("message", message);
+                track_point.putExtra("phone_number", phone);
+                //TODO: добавить открытие окна с треком из уведомления
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle(context.getString(R.string.new_track_data))
+                        .setAutoCancel(true);  //подумать над channel id
+                Notification notification = builder.build();
+                NotificationManager nManage = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+                nManage.notify(1, notification);  // 1st notif - using for tracking (both for sending/receiving)
+                context.startService(track_point);
             } else if ((message.length() > 15) && message.substring(0, 15).equals("gps not enabled")) {
                 //0-15 тк там после фразы данные аккумулятора
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
@@ -148,6 +161,13 @@ public class SmsReceiver extends BroadcastReceiver {
     public static boolean checkGpsSms(String message) {
         Pattern gps_pat = Pattern.compile("^lat:-?\\d+\\.\\d+ lon:-?\\d+\\.\\d+");
         Matcher m = gps_pat.matcher(message);
+        return m.find();
+    }
+
+
+    public static boolean checkTrackingSms(String message) {
+        Pattern tracking_pat = Pattern.compile("^(\\d+\\.\\d+;\\d+\\.\\d+;\\d+\\.\\d+;\\d\\d:\\d\\d\n)+");
+        Matcher m = tracking_pat.matcher(message);
         return m.find();
     }
 

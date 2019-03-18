@@ -96,7 +96,11 @@
             android:enabled="true"
             android:exported="false" />
 
-        <activity android:name=".TrackStatus"></activity>
+        <activity android:name=".TrackStatus" />
+
+        <service
+            android:name=".TrackReceiveService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 
 public class dBase extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 2;  //в весриях 1.0 и 1.1 была версия 1
+    public static final int DATABASE_VERSION = 3;  //в весриях 1.0 и 1.1 была версия 1, c 1.5 - версия ДБ=3
     public static final String DATABASE_NAME = "phones_db";
     public static final String PHONES_TABLE_OUT = "phones";  //таблица номеров для запросов
     public static final String PHONES_TABLE_IN = "phones_to_answer";
@@ -33,6 +33,8 @@ public class dBase extends SQLiteOpenHelper {
                 "CREATE TABLE history (_id integer primary key autoincrement, phone text, lat real, lon real, height real, speed real, direction real, acc integer, date text, bat text)"
         );
 
+        db.execSQL("CREATE TABLE tracking_table (_id integer primary key autoincrement, phone text, track_id integer, lat real, lon real, speed real, date text)");
+
     }
 
     @Override
@@ -41,6 +43,10 @@ public class dBase extends SQLiteOpenHelper {
             // move from version 1 --> 2, adding NAME column
             db.execSQL("ALTER TABLE " + PHONES_TABLE_OUT + " ADD name text DEFAULT \'unknown\'");
             db.execSQL("ALTER TABLE " + PHONES_TABLE_IN + " ADD name text DEFAULT \'unknown\'");
+        }
+        if (newVersion == 3) {
+            // creating tracking table (new feature of 1.5 version)
+            db.execSQL("CREATE TABLE tracking_table (_id integer primary key autoincrement, phone text, track_id integer, lat real, lon real, speed real, date text)");
         }
     }
 }

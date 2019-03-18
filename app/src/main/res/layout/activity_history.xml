@@ -6,16 +6,64 @@
     android:gravity="center|top"
     android:orientation="vertical">
 
-    <TextView
-        style="@android:style/TextAppearance.DeviceDefault.Medium"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/history_description" />
 
-    <ListView
-        android:id="@+id/lvHistory"
+    <TabHost
+        android:id="@+id/tabHostHist"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </TabWidget>
+
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <LinearLayout
+                    android:id="@+id/tab_points"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        style="@android:style/TextAppearance.DeviceDefault.Small"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:text="@string/history_description" />
+
+                    <ListView
+                        android:id="@+id/lvHistory"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tab_tracks"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        style="@android:style/TextAppearance.DeviceDefault.Small"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:text="@string/tracks_list" />
+
+                    <ListView
+                        android:id="@+id/lvTracks"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+            </FrameLayout>
+        </LinearLayout>
+    </TabHost>
 
 
 </LinearLayout>
