@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/track_open_id"
+        android:title="@string/open_track" />
+    <item android:id="@+id/track_exp_id"
+        android:title="@string/exp_track" />
+    <item android:id="@+id/track_del_id"
+        android:title="@string/del_track" />
+
+</menu>

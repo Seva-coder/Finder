@@ -1,13 +1,20 @@
 package ru.seva.finder;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,6 +24,11 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Locale;
 
 public class HistoryActivity extends AppCompatActivity {
 
@@ -65,7 +77,7 @@ public class HistoryActivity extends AppCompatActivity {
 
 
         //биндер для замены пустого имени (null) на "unknown" на лету
-        class Changer implements SimpleCursorAdapter.ViewBinder {
+        class Changer implements SimpleCursorAdapter.ViewBinder {  //TODO: сделать нормальный вид для даты (если получится)
             public boolean setViewValue(View view, Cursor cursor, int column) {
                 if (column == cursor.getColumnIndex("name") && cursor.getString(column) == null) {
                     TextView text = (TextView) view;
@@ -102,6 +114,13 @@ public class HistoryActivity extends AppCompatActivity {
                 showMenu(view, id);
             }
         });
+
+        list_tracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                openTrackMenu(view, id);
+            }
+        });
     }
 
 
@@ -116,7 +135,114 @@ public class HistoryActivity extends AppCompatActivity {
         db.close();
     }
 
+    //обработка менюхи треков
+    public void openTrackMenu(final View v, final long num_id) {
+        PopupMenu menu = new PopupMenu(this, v);
+        menu.inflate(R.menu.history_track_menu);
+        menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Cursor query = db.query("tracking_table", null,
+                        "_id = ?", new String[] {Long.toString(num_id)},
+                        null, null, null);  //получаем данные из всех колонок (возможно стоит перенести отсюда?)
+                query.moveToFirst();
+                final int track_id = query.getInt(2); //номер столбца с номером трека
 
+                switch (item.getItemId()) {
+                    case R.id.track_open_id:
+                        Intent open_map = new Intent(v.getContext(), MapsActivity.class);
+                        open_map.setAction("track");
+                        open_map.putExtra("track_id", track_id);
+                        startActivity(open_map);
+                        query.close();
+                        return true;
+
+                    case R.id.track_exp_id:
+                        if ((Build.VERSION.SDK_INT >= 23 &&
+                                (ContextCompat.checkSelfPermission(getApplicationContext(),
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                                        PackageManager.PERMISSION_GRANTED)) || Build.VERSION.SDK_INT < 23) {
+                            //права проверены, можно записывать
+
+                            String state = Environment.getExternalStorageState();
+                            if (Environment.MEDIA_MOUNTED.equals(state)) {
+                                File path = Environment.getExternalStoragePublicDirectory(
+                                        Environment.DIRECTORY_DOWNLOADS);
+                                Cursor name_cursor = db.rawQuery("SELECT date FROM tracking_table WHERE _id = (SELECT MAX(_id) FROM tracking_table WHERE track_id = ?)", new String[] {String.valueOf(track_id)});
+                                name_cursor.moveToFirst();
+                                String name = name_cursor.getString(0);
+                                name_cursor.close();
+                                File file = new File(path, name + ".gpx");
+                                try {
+                                    FileOutputStream fos = new FileOutputStream(file);
+                                    String gpx_start = "<?xml version=\"1.0\"?>" +
+                                            "<gpx version=\"1.0\"" +
+                                            " creator=\"Finder - https://github.com/Seva-coder/Finder\"" +
+                                            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+                                            " xmlns=\"http://www.topografix.com/GPX/1/0\"" +
+                                            " xsi:schemaLocation=\"http://www.topografix.com/GPX/1/0" +
+                                            " http://www.topografix.com/GPX/1/0/gpx.xsd\"><trk><trkseg>\n";
+                                    fos.write(gpx_start.getBytes());
+
+                                    Cursor track_cursor = db.rawQuery("SELECT lat, lon, speed, date FROM tracking_table WHERE track_id = ?", new String[] {String.valueOf(track_id)});
+                                    while (track_cursor.moveToNext()) {
+                                        Double lat = track_cursor.getDouble(0);
+                                        Double lon = track_cursor.getDouble(1);
+                                        Double speed = track_cursor.getDouble(2) / 3.6;
+                                        String date = track_cursor.getString(3);
+                                        fos.write(String.format(Locale.US, "<trkpt lat=\"%f\" lon=\"%f\"><time>%s</time><speed>%.1f</speed></trkpt>\n", lat, lon, date, speed).getBytes());
+                                    }
+                                    fos.write("</trkseg></trk></gpx>".getBytes());
+                                    track_cursor.close();
+                                    fos.close();
+                                    Toast.makeText(HistoryActivity.this, R.string.track_saved_message, Toast.LENGTH_LONG).show();
+                                } catch (IOException e) {
+                                    Toast.makeText(HistoryActivity.this, "failed to save", Toast.LENGTH_LONG).show();
+                                }
+                            } else {
+                                Toast.makeText(HistoryActivity.this, "Storage not mounted, not saved", Toast.LENGTH_LONG).show();
+                            }
+                        } else {
+                            ActivityCompat.requestPermissions(HistoryActivity.this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE} , 1);
+                            //TODO: релзовать повторную проверку, после действий юзера
+                        }
+                        query.close();
+                        return true;
+
+                    case R.id.track_del_id:
+                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch(which) {
+                                    case DialogInterface.BUTTON_POSITIVE:
+                                        db.delete("tracking_table", "track_id = ?", new String[] {Integer.toString(track_id)});
+                                        //обновление списка
+                                        updateTracksList();
+                                        break;
+                                    case DialogInterface.BUTTON_NEGATIVE:
+                                        //отмена удаления, ничего не делаем
+                                        break;
+                                }
+                            }
+                        };
+                        AlertDialog.Builder builder2 = new AlertDialog.Builder(v.getContext());
+                        builder2.setMessage(R.string.delete_track_warning).setPositiveButton(R.string.yes, dialogClickListener)
+                                .setNegativeButton(R.string.no, dialogClickListener).show();
+
+                        query.close();
+                        return true;
+
+                    default:
+                        query.close();
+                        return false;
+                }
+            }
+        });
+        menu.show();
+    }
+
+
+    //меню обычных точек
     public void showMenu(final View v, final long num_id) {
         PopupMenu menu = new PopupMenu(this, v);
         menu.inflate(R.menu.history_menu);
@@ -141,6 +267,7 @@ public class HistoryActivity extends AppCompatActivity {
                         if (!query.isNull(query.getColumnIndex("acc"))) {
                             start_map.putExtra("accuracy", String.valueOf(acc) + getString(R.string.meters));
                         }
+                        start_map.setAction("point");
                         startActivity(start_map);
                         query.close();
                         return true;
@@ -219,8 +346,8 @@ public class HistoryActivity extends AppCompatActivity {
                     case R.id.del_marker_id:  //удаление тоски из истории, с предупреждением
                         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialog, int witch) {
-                                switch(witch) {
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch(which) {
                                     case DialogInterface.BUTTON_POSITIVE:
                                         db.delete("history", "_id = ?", new String[] {Long.toString(num_id)});
                                         //обновление списка
@@ -250,5 +377,13 @@ public class HistoryActivity extends AppCompatActivity {
         cursor = db.rawQuery("SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone", null);  //можно ли без копирования?
         adapter.swapCursor(cursor);
         adapter.notifyDataSetChanged();
+    }
+
+
+    //TODO: внимание - возможно говнкод! надо бы избежать повтора
+    public void updateTracksList() {
+        track_cursor = db.rawQuery("SELECT tracking_table._id, tracking_table.phone, tracking_table.date AS date, phones.name AS name FROM tracking_table LEFT JOIN phones ON tracking_table.phone=phones.phone GROUP BY track_id ORDER BY tracking_table._id DESC;", null);//можно ли без копирования?
+        track_adapter.swapCursor(track_cursor);
+        track_adapter.notifyDataSetChanged();
     }
 }

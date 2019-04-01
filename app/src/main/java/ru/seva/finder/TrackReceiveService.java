@@ -40,7 +40,7 @@ public class TrackReceiveService extends IntentService {
 
             Date date, curr_date;
             curr_date = new Date();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
             try {
                 date = dateFormat.parse(old_date);
             } catch (ParseException e) {
@@ -82,7 +82,7 @@ public class TrackReceiveService extends IntentService {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         String date = df.format(Calendar.getInstance().getTime());
 
-        cv.put("date", String.format("%s %s", date, time));  //стыковка времени из двух частей - дата системы+время точки из SMS
+        cv.put("date", String.format("%sT%s:00Z", date, time));  //стыковка времени из двух частей - дата системы+время точки из SMS
         db.insert("tracking_table", null, cv);
     }
 }

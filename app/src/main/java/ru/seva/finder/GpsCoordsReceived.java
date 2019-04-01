@@ -92,6 +92,7 @@ public class GpsCoordsReceived extends IntentService {
             if (acc != null) {
                 start_map.putExtra("accuracy", String.valueOf(acc) + getString(R.string.meters));
             }
+            start_map.setAction("point");
             startActivity(start_map);
         } else {
             Intent intentRes = new Intent(getApplicationContext(), HistoryActivity.class);

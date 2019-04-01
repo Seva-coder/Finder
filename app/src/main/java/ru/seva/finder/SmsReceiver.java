@@ -61,7 +61,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 Intent track_point = new Intent(context, TrackReceiveService.class);
                 track_point.putExtra("message", message);
                 track_point.putExtra("phone_number", phone);
-                //TODO: добавить открытие окна с треком из уведомления
+                //TODO: добавить открытие окна с треком из уведомления и отключение звука!
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(context.getString(R.string.new_track_data))

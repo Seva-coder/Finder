@@ -126,5 +126,11 @@
     <string name="tracks_list">List of tracks:</string>
     <string name="poits_tab">Points</string>
     <string name="tracks_tab">Tracks</string>
+    <string name="open_track">Open track</string>
+    <string name="del_track">Delete track</string>
+    <string name="exp_track">Export track</string>
+    <string name="delete_track_warning">Delete track? (irreversible!)</string>
+    <string name="date_time">%s \n%.1f km/h</string>
+    <string name="track_saved_message">Track saved! in Downloads</string>
 
 </resources>
