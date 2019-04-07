@@ -96,6 +96,11 @@
             android:key="disable_sound"
             android:summary="@string/mute_descr"
             android:dependency="answer"/>
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:title="@string/mute_tracking_sms"
+            android:key="disable_tracking_sound"/>
     </PreferenceCategory>
 
     <CheckBoxPreference

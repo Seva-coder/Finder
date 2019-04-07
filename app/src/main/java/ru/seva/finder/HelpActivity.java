@@ -12,7 +12,7 @@ public class HelpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_help);
-
+//TODO: запилить хелп!!!
         TextView tv = (TextView) findViewById(R.id.help_text);
         tv.setText(Html.fromHtml(getString(R.string.help)));
         tv.setMovementMethod(new ScrollingMovementMethod());

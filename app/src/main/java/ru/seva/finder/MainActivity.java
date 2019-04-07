@@ -26,7 +26,6 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,7 +43,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-
+//TODO: проверить возможность уведомлений при старте
 public class MainActivity extends AppCompatActivity {
     Button remember_btn;
     ListView list, list_receive;
@@ -207,11 +206,12 @@ public class MainActivity extends AppCompatActivity {
         menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                Cursor query = db.query(dBase.PHONES_TABLE_IN, new String[] {dBase.PHONES_COL},
+                Cursor query = db.query(dBase.PHONES_TABLE_IN, new String[] {dBase.PHONES_COL, dBase.NAME_COL},
                         "_id = ?", new String[] {Long.toString(id)},
                         null, null, null);
                 query.moveToFirst();
                 final String phone = query.getString(query.getColumnIndex(dBase.PHONES_COL));
+                final String name = query.getString(query.getColumnIndex(dBase.NAME_COL));
                 query.close();
                 switch(item.getItemId()) {
                     case R.id.track:
@@ -261,6 +261,7 @@ public class MainActivity extends AppCompatActivity {
                                         intent.putExtra("tracking_coord_number", tracking_coord_number);
                                         intent.putExtra("tracking_accuracy", tracking_accuracy);
                                         intent.putExtra("phone", phone);
+                                        intent.putExtra("name", name);
                                         startService(intent);
 
                                         Toast.makeText(v.getContext(), R.string.tracking_started, Toast.LENGTH_LONG).show();
@@ -281,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
                             //показываем, но с неактивной кнопокой, если нет дефолтных настроек (sms_number просто для примера - появятся он все вместе)
                             dialog.show();
                             if (sPref.contains("tracking_sms_max_number")) {
-                                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);  //TODO: проверить "сухой" старт, без имеющихся настроек, хотя всё норм
                             } else {
                                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                             }
@@ -417,6 +418,7 @@ public class MainActivity extends AppCompatActivity {
         activityRunning = false;
         cursor.close();
         db.close();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(PGbar);
     }
 
 

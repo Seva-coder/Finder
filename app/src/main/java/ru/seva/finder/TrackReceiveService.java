@@ -1,10 +1,19 @@
 package ru.seva.finder;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.AudioManager;
+import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -40,7 +49,7 @@ public class TrackReceiveService extends IntentService {
 
             Date date, curr_date;
             curr_date = new Date();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");  //TODO: что-то надо мутить с UTC...
             try {
                 date = dateFormat.parse(old_date);
             } catch (ParseException e) {
@@ -56,10 +65,24 @@ public class TrackReceiveService extends IntentService {
         }
         query.close();
 
+        //создадим уведомление с возможностью открыть трек по клику на уведомление
+        Intent intentRes = new Intent(getApplicationContext(), MapsActivity.class);
+        intentRes.setAction("track");
+        intentRes.putExtra("track_id", track_id);
+        PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, intentRes, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                .setContentIntent(pendIntent)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(getString(R.string.new_track_data))
+                .setAutoCancel(true);  //подумать над channel id;
+        Notification notification = builder.build();
+        NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        nManage.notify(1, notification);  // 1st notif - using for tracking
+
         String phone_number = intent.getStringExtra("phone_number");
         String message = intent.getStringExtra("message");
 
-        Pattern tracking_pat = Pattern.compile("(\\d+\\.\\d+);(\\d+\\.\\d+);(\\d+\\.\\d+);(\\d\\d:\\d\\d)\n");
+        Pattern tracking_pat = Pattern.compile("(\\d+\\.\\d+);(\\d+\\.\\d+);(\\d+\\.\\d+);(\\d\\d:\\d\\d)");
         Matcher m = tracking_pat.matcher(message);
 
         while (m.find()) {  //парсинг SMSки с даными
@@ -68,6 +91,21 @@ public class TrackReceiveService extends IntentService {
         }
 
         db.close();
+
+        Intent update_map = new Intent("update_map");
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(update_map);
+
+        //возвращение звука в норм состояние
+        SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        if (sPref.getBoolean("disable_tracking_sound", false) && intent.getBooleanExtra("sound_was_normal", true)) {
+            try {
+                Thread.sleep(200);  //волшебный таймаут для того, чтобы не было звука
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+            AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
+            aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+        }
     }
 
     public void writeToTrackTable(String phone, Double lat, Double lon, Float speed, String time, int track_id) {

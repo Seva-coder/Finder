@@ -119,7 +119,7 @@
     <string name="tracking_accuracy">Desired coordinates accuracy, m</string>
     <string name="tracking_already_running">Tracking already running!</string>
     <string name="tracking_started">Tracking started!</string>
-    <string name="tracking_on_notify">Tracking is active</string>
+    <string name="tracking_on_notify">Tracking is active - %1$s</string>
     <string name="stop_traking">Stop tracking</string>
     <string name="traking_complet">Tracking is completed!</string>
     <string name="tracking_stopped_label">Tracking stopped!</string>
@@ -136,6 +136,7 @@
     <string name="delete_track_warning">Delete track? (irreversible!)</string>
     <string name="date_time">%s \n%.1f km/h</string>
     <string name="track_saved_message">Track saved! in Downloads</string>
+    <string name="mute_tracking_sms">Mute incoming tracking SMS</string>
 
 
 </resources>

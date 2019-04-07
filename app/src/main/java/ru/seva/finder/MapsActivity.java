@@ -1,25 +1,24 @@
 package ru.seva.finder;
 
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.ViewTreeObserver;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.MapBoxTileSource;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.CopyrightOverlay;
@@ -31,14 +30,16 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
+
 
 public class MapsActivity extends AppCompatActivity {
 
     MapView map = null;
+    Polyline line;
+    SQLiteDatabase db;
+    int track_id;
+    IMapController mapController;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -66,7 +67,7 @@ public class MapsActivity extends AppCompatActivity {
 
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
-        IMapController mapController = map.getController();
+        mapController = map.getController();
 
         CopyrightOverlay copyOverlay = new CopyrightOverlay(this);
         copyOverlay.setAlignRight(true);
@@ -87,47 +88,18 @@ public class MapsActivity extends AppCompatActivity {
         compasOver.enableCompass();
         map.getOverlays().add(compasOver);
 
-
         Intent intent = this.getIntent();
         mapController.setZoom(intent.getDoubleExtra("zoom", 15.0d));
         String act = intent.getAction();
-        Double lat, lon;
         if (act.equals("track")) {
-            int track_id = intent.getIntExtra("track_id", 0);
+            track_id = intent.getIntExtra("track_id", 0);
             dBase baseConnect = new dBase(this);
-            SQLiteDatabase db = baseConnect.getWritableDatabase();
-            Cursor query =  db.query("tracking_table", new String[] {"_id", "lat", "lon", "speed", "date"}, "track_id = ?", new String[] {String.valueOf(track_id)}, null, null, "_id ASC");
-
-
-            Cursor last_point =  db.rawQuery("SELECT lat, lon FROM tracking_table WHERE _id = (SELECT MAX(_id) FROM tracking_table WHERE track_id = ?)", new String[] {String.valueOf(track_id)});
-            last_point.moveToFirst();
-            lat = last_point.getDouble(0);
-            lon = last_point.getDouble(1);
-            last_point.close();
-
-            //Привет костыль! а всё из-за того, что BoundBox не работает так, как должен, привет разрабам. Зумимся на последнюю точку
-            mapController.setCenter(new GeoPoint(lat, lon));
-            mapController.setZoom(15d);
-            List<GeoPoint> track = new ArrayList<>();
-
-            while (query.moveToNext()) {
-                GeoPoint gp = new GeoPoint(query.getDouble(1), query.getDouble(2));
-                track.add(gp);
-
-                Marker marker = new Marker(map);
-                marker.setPosition(gp);
-                marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-                map.getOverlays().add(marker);
-                marker.setTitle(getString(R.string.date_time, query.getString(4), query.getFloat(3)));
-            }
-            query.close();
-
-
-            Polyline line = new Polyline(map);
+            db = baseConnect.getWritableDatabase();
+            line = new Polyline(map);
             line.setColor(Color.BLUE);
             line.setInfoWindow(null);  // уберём всплывающий поп-ап с трека
             line.setGeodesic(true);  //отобразим реальные прямые ("большие дуги")
-            line.setPoints(track);
+            trackRedraw();
             map.getOverlays().add(line);
         } else {
             String accuracy = intent.getStringExtra("accuracy");
@@ -140,6 +112,8 @@ public class MapsActivity extends AppCompatActivity {
             startMarker.setTitle(accuracy);
         }
 
+        //ресивер обновления карты
+        LocalBroadcastManager.getInstance(this).registerReceiver(updMap, new IntentFilter("update_map"));
     }
 
     public void onResume() {
@@ -151,4 +125,48 @@ public class MapsActivity extends AppCompatActivity {
         super.onPause();
         map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
     }
+
+    public void onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(updMap);
+        db.close();
+        super.onDestroy();
+    }
+
+
+    public void trackRedraw() {
+        Cursor query =  db.query("tracking_table", new String[] {"_id", "lat", "lon", "speed", "date"}, "track_id = ?", new String[] {String.valueOf(track_id)}, null, null, "_id ASC");
+
+        Cursor last_point =  db.rawQuery("SELECT lat, lon, _id FROM tracking_table WHERE _id = (SELECT MAX(_id) FROM tracking_table WHERE track_id = ?)", new String[] {String.valueOf(track_id)});
+        last_point.moveToFirst();
+        Double lat = last_point.getDouble(0);
+        Double lon = last_point.getDouble(1);
+        last_point.close();
+
+        //Привет костыль! а всё из-за того, что BoundBox не работает так, как должен, привет разрабам. Зумимся на последнюю точку
+        mapController.setCenter(new GeoPoint(lat, lon));
+        mapController.setZoom(15d);
+        List<GeoPoint> track = new ArrayList<>();
+
+        while (query.moveToNext()) {
+            GeoPoint gp = new GeoPoint(query.getDouble(1), query.getDouble(2));
+            track.add(gp);
+            Marker marker = new Marker(map);
+            marker.setPosition(gp);
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+            map.getOverlays().add(marker);
+            marker.setTitle(getString(R.string.date_time, query.getString(4), query.getFloat(3)));
+        }
+        query.close();
+        line.setPoints(track);
+        GeoPoint center = new GeoPoint(lat, lon);
+        mapController.setCenter(center);  //проверить позиционирование
+    }
+
+    //обновление карты
+    private BroadcastReceiver updMap = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            trackRedraw();
+        }
+    };
 }

@@ -77,7 +77,7 @@ public class HistoryActivity extends AppCompatActivity {
 
 
         //биндер для замены пустого имени (null) на "unknown" на лету
-        class Changer implements SimpleCursorAdapter.ViewBinder {  //TODO: сделать нормальный вид для даты (если получится)
+        class Changer implements SimpleCursorAdapter.ViewBinder {
             public boolean setViewValue(View view, Cursor cursor, int column) {
                 if (column == cursor.getColumnIndex("name") && cursor.getString(column) == null) {
                     TextView text = (TextView) view;
@@ -136,6 +136,7 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     //обработка менюхи треков
+    int track_id_global;
     public void openTrackMenu(final View v, final long num_id) {
         PopupMenu menu = new PopupMenu(this, v);
         menu.inflate(R.menu.history_track_menu);
@@ -163,48 +164,10 @@ public class HistoryActivity extends AppCompatActivity {
                                         Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                                         PackageManager.PERMISSION_GRANTED)) || Build.VERSION.SDK_INT < 23) {
                             //права проверены, можно записывать
-
-                            String state = Environment.getExternalStorageState();
-                            if (Environment.MEDIA_MOUNTED.equals(state)) {
-                                File path = Environment.getExternalStoragePublicDirectory(
-                                        Environment.DIRECTORY_DOWNLOADS);
-                                Cursor name_cursor = db.rawQuery("SELECT date FROM tracking_table WHERE _id = (SELECT MAX(_id) FROM tracking_table WHERE track_id = ?)", new String[] {String.valueOf(track_id)});
-                                name_cursor.moveToFirst();
-                                String name = name_cursor.getString(0);
-                                name_cursor.close();
-                                File file = new File(path, name + ".gpx");
-                                try {
-                                    FileOutputStream fos = new FileOutputStream(file);
-                                    String gpx_start = "<?xml version=\"1.0\"?>" +
-                                            "<gpx version=\"1.0\"" +
-                                            " creator=\"Finder - https://github.com/Seva-coder/Finder\"" +
-                                            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
-                                            " xmlns=\"http://www.topografix.com/GPX/1/0\"" +
-                                            " xsi:schemaLocation=\"http://www.topografix.com/GPX/1/0" +
-                                            " http://www.topografix.com/GPX/1/0/gpx.xsd\"><trk><trkseg>\n";
-                                    fos.write(gpx_start.getBytes());
-
-                                    Cursor track_cursor = db.rawQuery("SELECT lat, lon, speed, date FROM tracking_table WHERE track_id = ?", new String[] {String.valueOf(track_id)});
-                                    while (track_cursor.moveToNext()) {
-                                        Double lat = track_cursor.getDouble(0);
-                                        Double lon = track_cursor.getDouble(1);
-                                        Double speed = track_cursor.getDouble(2) / 3.6;
-                                        String date = track_cursor.getString(3);
-                                        fos.write(String.format(Locale.US, "<trkpt lat=\"%f\" lon=\"%f\"><time>%s</time><speed>%.1f</speed></trkpt>\n", lat, lon, date, speed).getBytes());
-                                    }
-                                    fos.write("</trkseg></trk></gpx>".getBytes());
-                                    track_cursor.close();
-                                    fos.close();
-                                    Toast.makeText(HistoryActivity.this, R.string.track_saved_message, Toast.LENGTH_LONG).show();
-                                } catch (IOException e) {
-                                    Toast.makeText(HistoryActivity.this, "failed to save", Toast.LENGTH_LONG).show();
-                                }
-                            } else {
-                                Toast.makeText(HistoryActivity.this, "Storage not mounted, not saved", Toast.LENGTH_LONG).show();
-                            }
+                            writetrack(track_id);
                         } else {
+                            track_id_global = track_id;  //в глобальную переменную, чтобы потом в колбэке узнать номер трека
                             ActivityCompat.requestPermissions(HistoryActivity.this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE} , 1);
-                            //TODO: релзовать повторную проверку, после действий юзера
                         }
                         query.close();
                         return true;
@@ -239,6 +202,56 @@ public class HistoryActivity extends AppCompatActivity {
             }
         });
         menu.show();
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if ((grantResults.length != 0) &&(grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+            writetrack(track_id_global);
+        } else {
+            Toast.makeText(HistoryActivity.this, R.string.no_permits_received, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //сохранение файла трека .GPX
+    public void writetrack(int track_id) {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            File path = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS);
+            Cursor name_cursor = db.rawQuery("SELECT date FROM tracking_table WHERE _id = (SELECT MAX(_id) FROM tracking_table WHERE track_id = ?)", new String[] {String.valueOf(track_id)});
+            name_cursor.moveToFirst();
+            String name = name_cursor.getString(0);
+            name_cursor.close();
+            File file = new File(path, name + ".gpx");
+            try {
+                FileOutputStream fos = new FileOutputStream(file);
+                String gpx_start = "<?xml version=\"1.0\"?>" +
+                        "<gpx version=\"1.0\"" +
+                        " creator=\"Finder - https://github.com/Seva-coder/Finder\"" +
+                        " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+                        " xmlns=\"http://www.topografix.com/GPX/1/0\"" +
+                        " xsi:schemaLocation=\"http://www.topografix.com/GPX/1/0" +
+                        " http://www.topografix.com/GPX/1/0/gpx.xsd\"><trk><trkseg>\n";
+                fos.write(gpx_start.getBytes());
+
+                Cursor track_cursor = db.rawQuery("SELECT lat, lon, speed, date FROM tracking_table WHERE track_id = ?", new String[] {String.valueOf(track_id)});
+                while (track_cursor.moveToNext()) {
+                    Double lat = track_cursor.getDouble(0);
+                    Double lon = track_cursor.getDouble(1);
+                    Double speed = track_cursor.getDouble(2) / 3.6;
+                    String date = track_cursor.getString(3);
+                    fos.write(String.format(Locale.US, "<trkpt lat=\"%.8f\" lon=\"%.8f\"><time>%s</time><speed>%.1f</speed></trkpt>\n", lat, lon, date, speed).getBytes());
+                }
+                fos.write("</trkseg></trk></gpx>".getBytes());
+                track_cursor.close();
+                fos.close();
+                Toast.makeText(HistoryActivity.this, R.string.track_saved_message, Toast.LENGTH_LONG).show();
+            } catch (IOException e) {
+                Toast.makeText(HistoryActivity.this, "failed to save", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(HistoryActivity.this, "Storage not mounted, not saved", Toast.LENGTH_LONG).show();
+        }
     }
 
 
@@ -380,7 +393,6 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
 
-    //TODO: внимание - возможно говнкод! надо бы избежать повтора
     public void updateTracksList() {
         track_cursor = db.rawQuery("SELECT tracking_table._id, tracking_table.phone, tracking_table.date AS date, phones.name AS name FROM tracking_table LEFT JOIN phones ON tracking_table.phone=phones.phone GROUP BY track_id ORDER BY tracking_table._id DESC;", null);//можно ли без копирования?
         track_adapter.swapCursor(track_cursor);

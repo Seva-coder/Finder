@@ -40,7 +40,7 @@ public class Tracking extends Service {
 
     static boolean tracking_running = false;
     boolean lastTrue = false;
-    String lastLat, lastLon, lastSpeed, phone;
+    String lastLat, lastLon, lastSpeed, phone, name;
     SharedPreferences sPref;
     Timer timer;
     static int sms_counter = 0, coords_counter = 0;  //static для доступноти из TrackStatus
@@ -176,14 +176,6 @@ public class Tracking extends Service {
     public void onCreate() {
         sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        Intent notifIntent = new Intent(this, TrackStatus.class);
-        PendingIntent pendIntent = PendingIntent.getActivity(this, 0, notifIntent, 0);
-        builder = new Notification.Builder(this);
-        builder.setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(getString(R.string.tracking_on_notify))
-                .setContentIntent(pendIntent);
-        startForeground(1, builder.build());  //id 1 for tracking, 2,3,4.. for others
-
         locMan = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         nManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
@@ -200,11 +192,22 @@ public class Tracking extends Service {
         delay = Integer.parseInt(intent.getStringExtra("tracking_delay"));
         sms_buffer_max = Integer.parseInt(intent.getStringExtra("tracking_coord_number"));
         accuracy = Integer.parseInt(intent.getStringExtra("tracking_accuracy"));
+        name = intent.getStringExtra("name");
 
         timer = new Timer();
         TrackingTask trackTask = new TrackingTask();  //таймер для получения очередной точки трека
         timer.scheduleAtFixedRate(trackTask, 0L, 1000L*delay);  //5 minutes default
         stop.postDelayed(full_stopper, sms_number * sms_buffer_max * delay * 1500L);  //остановим весь сервис на случай отсутствия GPS дольше чем 1.5 заплпнированного времени  (1500L = 1000ms * 1.5)
+
+        //одновременно разрешён только один трекинг, так что эта штука сработает 1 раз
+        Intent notifIntent = new Intent(this, TrackStatus.class);
+        PendingIntent pendIntent = PendingIntent.getActivity(this, 0, notifIntent, 0);
+        builder = new Notification.Builder(this);
+        builder.setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(getString(R.string.tracking_on_notify, name))
+                .setContentText(getString(R.string.sms_sent, 0))
+                .setContentIntent(pendIntent);
+        startForeground(1, builder.build());  //id 1 for tracking, 2,3,4.. for others
 
         return START_REDELIVER_INTENT;
     }
