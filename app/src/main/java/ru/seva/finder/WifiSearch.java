@@ -19,7 +19,6 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
@@ -40,27 +39,23 @@ public class WifiSearch extends Service {
     public WifiSearch() {
     }
 
-    List<ScanResult> wifi_list;
-    SharedPreferences sPref;
-    ArrayList<String> macs = new ArrayList<>();
+    private SharedPreferences sPref;
+    private final ArrayList<String> macs = new ArrayList<>();
 
-    boolean search_active = false;
-    boolean sound_was_enabled;
+    private boolean search_active = false;
+    private boolean sound_was_enabled;
 
-    dBase baseConnect;
-    SQLiteDatabase db;
-    WifiManager wifi;
-    scan_ready wifiReceiver;
+    private WifiManager wifi;
+    private scan_ready wifiReceiver;
 
-    public static final String PHONES_COL = "phone";
-    public static final String SEARCH_CYCLES = "cycles";
-    public static final String SEARCH_CYCLES_DEFAULT = "3";
-    public static final String WIFI_TIMEOUT = "timeout";
-    public static final String WIFI_TIMEOUT_DEFAULT = "7";
-    public static final String MACS_NUMBER = "mac_numb";
-    public static final String MACS_NUMBER_DEFAULT = "10";
+    private static final String SEARCH_CYCLES = "cycles";
+    private static final String SEARCH_CYCLES_DEFAULT = "3";
+    private static final String WIFI_TIMEOUT = "timeout";
+    private static final String WIFI_TIMEOUT_DEFAULT = "7";
+    private static final String MACS_NUMBER = "mac_numb";
+    private static final String MACS_NUMBER_DEFAULT = "10";
 
-    ArrayList<String> phones = new ArrayList<>();
+    private final ArrayList<String> phones = new ArrayList<>();
 
 
     @Override
@@ -75,13 +70,13 @@ public class WifiSearch extends Service {
         String phone_number = intent.getStringExtra("phone_number");
         sound_was_enabled = intent.getBooleanExtra("sound_was_normal", true);
 
-        baseConnect = new dBase(this);
-        db = baseConnect.getReadableDatabase();
+        dBase baseConnect = new dBase(this);
+        SQLiteDatabase db = baseConnect.getReadableDatabase();
 
         //проверка номера на вхождение
         Cursor cursor_check = db.query(dBase.PHONES_TABLE_IN,
-                new String[] {PHONES_COL},
-                PHONES_COL + "=?",
+                new String[] {dBase.PHONES_COL},
+                dBase.PHONES_COL + "=?",
                 new String[] {phone_number},
                 null, null, null);
 
@@ -105,7 +100,7 @@ public class WifiSearch extends Service {
             name = (name_curs.moveToFirst()) ? (name_curs.getString(name_curs.getColumnIndex(dBase.NAME_COL))) : (phone_number);
             name_curs.close();
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+            Notification.Builder builder = new Notification.Builder(getApplicationContext())
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.wifi_processed))
                     .setContentText(getString(R.string.from, name))
@@ -136,7 +131,7 @@ public class WifiSearch extends Service {
 
     class scan_ready extends BroadcastReceiver {
         public void onReceive(Context context, Intent intent) {
-            wifi_list = wifi.getScanResults();
+            List<ScanResult> wifi_list = wifi.getScanResults();
             for (ScanResult wifi_net : wifi_list) {
                 if (!macs.contains(wifi_net.BSSID.replace(":", ""))) {
                     macs.add(wifi_net.BSSID.replace(":", ""));
@@ -148,7 +143,7 @@ public class WifiSearch extends Service {
 
 
     public class Searcher extends Thread {
-        StringBuilder sms_answer = new StringBuilder("");
+        final StringBuilder sms_answer = new StringBuilder("");
         boolean wifiWasEnabled = false;
         int count = 0;
 
@@ -346,7 +341,7 @@ public class WifiSearch extends Service {
         }
     }
 
-    void start_send(StringBuilder answer) {   //рассылка всем запросившим
+    private void start_send(StringBuilder answer) {   //рассылка всем запросившим
         if ((Build.VERSION.SDK_INT >= 23 &&
                 (getApplicationContext().checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED)) ||
                 Build.VERSION.SDK_INT < 23) {

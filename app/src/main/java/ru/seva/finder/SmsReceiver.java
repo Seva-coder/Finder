@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsMessage;
 import java.util.regex.Matcher;
@@ -18,7 +17,7 @@ import java.util.regex.Pattern;
 
 public class SmsReceiver extends BroadcastReceiver {
     private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
-    StringBuilder text = new StringBuilder("");
+    private StringBuilder text = new StringBuilder("");
 
 
     @Override
@@ -75,7 +74,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 context.startService(track_point);
             } else if ((message.length() > 15) && message.substring(0, 15).equals("gps not enabled")) {
                 //0-15 тк там после фразы данные аккумулятора
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                Notification.Builder builder = new Notification.Builder(context)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(phone)
                         .setContentText(context.getString(R.string.gps_not_enabled))
@@ -88,7 +87,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 LocalBroadcastManager.getInstance(context).sendBroadcast(stop_bar);
             } else if (((message.length() > 19) && message.substring(0, 19).equals("unable get location"))
                     || message.equals("net info unavailable")) {
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                Notification.Builder builder = new Notification.Builder(context)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(phone)
                         .setContentText(context.getString(R.string.no_coord_bad_signal))
@@ -168,7 +167,7 @@ public class SmsReceiver extends BroadcastReceiver {
     }
 
 
-    public static boolean checkTrackingSms(String message) {
+    private static boolean checkTrackingSms(String message) {
         Pattern tracking_pat = Pattern.compile("^(\\d+\\.\\d+;\\d+\\.\\d+;\\d+\\.\\d+;\\d\\d:\\d\\d\n?)+");
         Matcher m = tracking_pat.matcher(message);
         return m.find();

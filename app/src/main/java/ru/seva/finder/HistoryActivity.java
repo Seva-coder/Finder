@@ -9,12 +9,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -32,29 +32,28 @@ import java.util.Locale;
 
 public class HistoryActivity extends AppCompatActivity {
 
-    ListView list_points, list_tracks;
-    Cursor cursor, track_cursor;
-    dBase baseConnect;
-    SQLiteDatabase db;
-    SimpleCursorAdapter adapter, track_adapter;
-    TabHost tabHost;
+    private Cursor cursor;
+    private Cursor track_cursor;
+    private SQLiteDatabase db;
+    private SimpleCursorAdapter adapter;
+    private SimpleCursorAdapter track_adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
 
-        list_points = (ListView) findViewById(R.id.lvHistory);
-        list_tracks = (ListView) findViewById(R.id.lvTracks);
+        ListView list_points = findViewById(R.id.lvHistory);
+        ListView list_tracks = findViewById(R.id.lvTracks);
 
         //подрубаемся к базе
-        baseConnect = new dBase(this);
+        dBase baseConnect = new dBase(this);
         db = baseConnect.getWritableDatabase();
 
         //заполнение списка с одиночными точками
         String[] fromColons = {"name", "date"};
         int[] toViews = {android.R.id.text1, android.R.id.text2};
-        cursor = db.rawQuery("SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone", null);
+        cursor = db.rawQuery("SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone ORDER BY history._id DESC;", null);
 
         //создаём адаптер
         adapter = new SimpleCursorAdapter(this,
@@ -95,7 +94,7 @@ public class HistoryActivity extends AppCompatActivity {
         list_tracks.setAdapter(track_adapter);
         list_points.setAdapter(adapter);
 
-        tabHost = findViewById(R.id.tabHostHist);
+        TabHost tabHost = findViewById(R.id.tabHostHist);
         tabHost.setup();
         TabHost.TabSpec tabspec = tabHost.newTabSpec("tag1");  //тэг нам ненужен, но он нужен конструктору
         tabspec.setContent(R.id.tab_points);
@@ -136,8 +135,8 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     //обработка менюхи треков
-    int track_id_global;
-    public void openTrackMenu(final View v, final long num_id) {
+    private int track_id_global;
+    private void openTrackMenu(final View v, final long num_id) {
         PopupMenu menu = new PopupMenu(this, v);
         menu.inflate(R.menu.history_track_menu);
         menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -204,7 +203,7 @@ public class HistoryActivity extends AppCompatActivity {
         menu.show();
     }
 
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull  String[] permissions, @NonNull int[] grantResults) {
         if ((grantResults.length != 0) &&(grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             writetrack(track_id_global);
         } else {
@@ -213,7 +212,7 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     //сохранение файла трека .GPX
-    public void writetrack(int track_id) {
+    private void writetrack(int track_id) {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             File path = Environment.getExternalStoragePublicDirectory(
@@ -256,7 +255,7 @@ public class HistoryActivity extends AppCompatActivity {
 
 
     //меню обычных точек
-    public void showMenu(final View v, final long num_id) {
+    private void showMenu(final View v, final long num_id) {
         PopupMenu menu = new PopupMenu(this, v);
         menu.inflate(R.menu.history_menu);
         menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -386,14 +385,14 @@ public class HistoryActivity extends AppCompatActivity {
         menu.show();
     }
 
-    public void updateList() {
+    private void updateList() {
         cursor = db.rawQuery("SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone", null);  //можно ли без копирования?
         adapter.swapCursor(cursor);
         adapter.notifyDataSetChanged();
     }
 
 
-    public void updateTracksList() {
+    private void updateTracksList() {
         track_cursor = db.rawQuery("SELECT tracking_table._id, tracking_table.phone, tracking_table.date AS date, phones.name AS name FROM tracking_table LEFT JOIN phones ON tracking_table.phone=phones.phone GROUP BY track_id ORDER BY tracking_table._id DESC;", null);//можно ли без копирования?
         track_adapter.swapCursor(track_cursor);
         track_adapter.notifyDataSetChanged();

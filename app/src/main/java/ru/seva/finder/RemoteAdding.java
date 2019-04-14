@@ -11,7 +11,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.AudioManager;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 
 
 public class RemoteAdding extends IntentService {
@@ -20,16 +19,13 @@ public class RemoteAdding extends IntentService {
         super("RemoteAdding");
     }
 
-    dBase baseConnect;
-    SQLiteDatabase db;
-
     @Override
     protected void onHandleIntent(Intent intent) {
         String phone_number = intent.getStringExtra("phone_number");
 
         //подрубаемся к базе
-        baseConnect = new dBase(this);
-        db = baseConnect.getWritableDatabase();
+        dBase baseConnect = new dBase(this);
+        SQLiteDatabase db = baseConnect.getWritableDatabase();
 
         //проверка на вхождение
         Cursor cursor_check = db.query(dBase.PHONES_TABLE_IN,
@@ -49,7 +45,7 @@ public class RemoteAdding extends IntentService {
         db.close();
 
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+        Notification.Builder builder = new Notification.Builder(getApplicationContext())
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getString(R.string.remote_adding))
                 .setContentText(getString(R.string.was_added, phone_number))

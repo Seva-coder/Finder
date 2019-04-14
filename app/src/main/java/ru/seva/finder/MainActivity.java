@@ -16,6 +16,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -43,29 +44,29 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-//TODO: проверить возможность уведомлений при старте
+
 public class MainActivity extends AppCompatActivity {
-    Button remember_btn;
-    ListView list, list_receive;
-    TabHost tabHost;
+    private Button remember_btn;
+    private TabHost tabHost;
 
     public static boolean activityRunning = false;  //у нас будет только один инстанс, поэтому вроде норм
-    SharedPreferences sPref;
+    private SharedPreferences sPref;
 
-    Cursor cursor, cursor_answ;
-    dBase baseConnect;
-    SQLiteDatabase db;
-    SimpleCursorAdapter adapter, adapter_answ;
-    String[] allDangPerm;
+    private Cursor cursor;
+    private Cursor cursor_answ;
+    private SQLiteDatabase db;
+    private SimpleCursorAdapter adapter;
+    private SimpleCursorAdapter adapter_answ;
+    private String[] allDangPerm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        remember_btn = (Button) findViewById(R.id.button);
-        list = (ListView) findViewById(R.id.lvSendTo);
-        list_receive = (ListView) findViewById(R.id.lvReceiveFrom);
+        remember_btn = findViewById(R.id.button);
+        ListView list = findViewById(R.id.lvSendTo);
+        ListView list_receive = findViewById(R.id.lvReceiveFrom);
         activityRunning = true;
         allDangPerm = new String[] {
                 Manifest.permission.SEND_SMS,
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         //подрубаемся к базе
-        baseConnect = new dBase(this);
+        dBase baseConnect = new dBase(this);
         db = baseConnect.getWritableDatabase();
 
         String[] fromColons = {dBase.NAME_COL, dBase.PHONES_COL};
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 23 && hasPermitions()) {
             remember_btn.setEnabled(true);
         } else if (Build.VERSION.SDK_INT >= 23 && !hasPermitions()) {
-            ArrayList<String> lacking = new ArrayList<String>();
+            ArrayList<String> lacking = new ArrayList<>();
             for (String prem : allDangPerm) {
                 if (ContextCompat.checkSelfPermission(this, prem) == PackageManager.PERMISSION_DENIED) {
                     lacking.add(prem);
@@ -171,9 +172,11 @@ public class MainActivity extends AppCompatActivity {
             builder2.setMessage(R.string.open_help_start).setPositiveButton(R.string.yes, dialogClickListener)
                     .setNegativeButton(R.string.no, dialogClickListener).show();
         }
+
+
     }
 
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         boolean rules = true;
 
         for(int rul: grantResults) {
@@ -218,10 +221,10 @@ public class MainActivity extends AppCompatActivity {
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                         LayoutInflater inflater = getLayoutInflater();
                         final View v2 = inflater.inflate(R.layout.tracking_menu, null);
-                        final EditText max_number_edit = (EditText) v2.findViewById(R.id.max_number);
-                        final EditText delay_edit = (EditText) v2.findViewById(R.id.delay);
-                        final EditText coord_numb_edit = (EditText) v2.findViewById(R.id.number_of_coordinates);
-                        final EditText accuracy_edit = (EditText) v2.findViewById(R.id.accuracy);
+                        final EditText max_number_edit = v2.findViewById(R.id.max_number);
+                        final EditText delay_edit = v2.findViewById(R.id.delay);
+                        final EditText coord_numb_edit = v2.findViewById(R.id.number_of_coordinates);
+                        final EditText accuracy_edit = v2.findViewById(R.id.accuracy);
 
                         if (sPref.contains("tracking_sms_max_number")) {
                             max_number_edit.setText(sPref.getString("tracking_sms_max_number", "10"));
@@ -282,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
                             //показываем, но с неактивной кнопокой, если нет дефолтных настроек (sms_number просто для примера - появятся он все вместе)
                             dialog.show();
                             if (sPref.contains("tracking_sms_max_number")) {
-                                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);  //TODO: проверить "сухой" старт, без имеющихся настроек, хотя всё норм
+                                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                             } else {
                                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                             }
@@ -360,11 +363,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //отключение прогрессбара
-    private BroadcastReceiver PGbar = new BroadcastReceiver() {
+    private final BroadcastReceiver PGbar = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            TextView label = (TextView) findViewById(R.id.textProgress);
-            ProgressBar bar = (ProgressBar) findViewById(R.id.progress);
+            TextView label = findViewById(R.id.textProgress);
+            ProgressBar bar = findViewById(R.id.progress);
             label.setVisibility(View.GONE);
             bar.setVisibility(View.GONE);
         }
@@ -417,6 +420,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         activityRunning = false;
         cursor.close();
+        cursor_answ.close();
         db.close();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(PGbar);
     }
@@ -429,8 +433,8 @@ public class MainActivity extends AppCompatActivity {
 
             private void sendSmsRequest(String key, String def_text, String phone) {
                 SmsManager sManager = SmsManager.getDefault();
-                TextView label = (TextView) findViewById(R.id.textProgress);
-                ProgressBar bar = (ProgressBar) findViewById(R.id.progress);
+                TextView label = findViewById(R.id.textProgress);
+                ProgressBar bar = findViewById(R.id.progress);
                 if ((ContextCompat.checkSelfPermission(v.getContext(), Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) &&
                         (ContextCompat.checkSelfPermission(v.getContext(), Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED)) {
                     sManager.sendTextMessage(phone, null, sPref.getString(key, def_text), null, null);
@@ -451,8 +455,6 @@ public class MainActivity extends AppCompatActivity {
                         null, null, null);
                 query.moveToFirst();
                 final String phone = query.getString(query.getColumnIndex(dBase.PHONES_COL));
-                final TextView label = (TextView) findViewById(R.id.textProgress);
-                final ProgressBar bar = (ProgressBar) findViewById(R.id.progress);
                 switch (item.getItemId()) {
                     case R.id.wifi_id:
                         //предупреждение об интернете
@@ -525,8 +527,8 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         final View v = inflater.inflate(R.layout.add_menu, null);
-        final EditText field_name = (EditText) v.findViewById(R.id.name);
-        final EditText field_phone = (EditText) v.findViewById(R.id.phone);
+        final EditText field_name = v.findViewById(R.id.name);
+        final EditText field_phone = v.findViewById(R.id.phone);
 
         builder.setView(v)
                 .setPositiveButton(R.string.positive_add_button, new DialogInterface.OnClickListener() {
@@ -618,14 +620,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void updateList() {
-        cursor = db.query(dBase.PHONES_TABLE_OUT, null, null, null, null, null, null);
+    private void updateList() {
+        Cursor cursor = db.query(dBase.PHONES_TABLE_OUT, null, null, null, null, null, null);
         adapter.swapCursor(cursor);
         adapter.notifyDataSetChanged();
     }
 
-    public void updateAnswList() {
-        cursor = db.query(dBase.PHONES_TABLE_IN, null, null, null, null, null, null);
+    private void updateAnswList() {
+        Cursor cursor = db.query(dBase.PHONES_TABLE_IN, null, null, null, null, null, null);
         adapter_answ.swapCursor(cursor);
         adapter_answ.notifyDataSetChanged();
     }

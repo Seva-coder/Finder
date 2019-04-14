@@ -12,8 +12,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class TrackStatus extends AppCompatActivity {
-    Button stop_btn;
-    TextView tracking_stopped, sms_sent_text, sms_remained_text;
+    private Button stop_btn;
+    private TextView tracking_stopped;
+    private TextView sms_sent_text;
+    private TextView sms_remained_text;
 
 
     @Override
@@ -21,24 +23,24 @@ public class TrackStatus extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_status);
 
-        stop_btn = (Button) findViewById(R.id.stop_tracking);
-        tracking_stopped = (TextView) findViewById(R.id.tracking_stopped);
-        sms_sent_text = (TextView) findViewById(R.id.sent_text);
-        sms_remained_text = (TextView) findViewById(R.id.status_text);
+        stop_btn = findViewById(R.id.stop_tracking);
+        tracking_stopped = findViewById(R.id.tracking_stopped);
+        sms_sent_text = findViewById(R.id.sent_text);
+        sms_remained_text = findViewById(R.id.status_text);
         updater();
         //ресивер обновления полей
         LocalBroadcastManager.getInstance(this).registerReceiver(Upd, new IntentFilter("update_fields"));
     }
 
     //приёмник для обновления до свежих данных при отправке SMS
-    private BroadcastReceiver Upd = new BroadcastReceiver() {
+    private final BroadcastReceiver Upd = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             updater();
         }
     };
 
-    public void updater() {  //обновление данных полей
+    private void updater() {  //обновление данных полей
         sms_sent_text.setText(getString(R.string.sms_sent, Tracking.sms_counter));
         sms_remained_text.setText(getString(R.string.remaining_mes, (Tracking.sms_number-Tracking.sms_counter)));
         if ((Tracking.sms_number-Tracking.sms_counter) == 0) {

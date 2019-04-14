@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -172,7 +171,7 @@ public class NewGoogleGeo extends IntentService {
 
                     Intent intentRes = new Intent(getApplicationContext(), HistoryActivity.class);
                     PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, intentRes, PendingIntent.FLAG_UPDATE_CURRENT);
-                    NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                    Notification.Builder builder = new Notification.Builder(getApplicationContext())
                             .setSmallIcon(R.mipmap.ic_launcher)
                             .setContentTitle(getString(R.string.message_with_coord))
                             .setContentText(getString(R.string.coords_received, name))
@@ -183,7 +182,7 @@ public class NewGoogleGeo extends IntentService {
                     nManage.notify(id, notification);
                 }
             } else {
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                Notification.Builder builder = new Notification.Builder(getApplicationContext())
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(getString(R.string.error_getting_coordinats))
                         .setContentText(getString(R.string.api_error))
@@ -193,7 +192,7 @@ public class NewGoogleGeo extends IntentService {
                 nManage.notify(id, notification);
             }
         } catch (JSONException e) {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+            Notification.Builder builder = new Notification.Builder(getApplicationContext())
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.error_getting_coordinats))
                     .setContentText(getString(R.string.parsing_error))

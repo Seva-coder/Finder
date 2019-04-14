@@ -11,7 +11,8 @@
         android:layout_height="wrap_content"
         android:padding="5dp"
         android:layout_alignParentTop="true"
-        android:text="@string/phone_number"/>
+        android:text="@string/phone_number"
+        android:labelFor="@id/editTextPhone"/>
 
     <EditText
         android:id="@+id/editTextPhone"
@@ -27,7 +28,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/editTextPhone"
         android:padding="5dp"
-        android:text="@string/insert_sms_text" />
+        android:text="@string/insert_sms_text"
+        android:labelFor="@id/textSms"/>
 
     <EditText
         android:id="@+id/textSms"

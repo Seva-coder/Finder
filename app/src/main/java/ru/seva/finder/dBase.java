@@ -5,9 +5,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 
-public class dBase extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 3;  //в весриях 1.0 и 1.1 была версия 1, c 1.5 - версия ДБ=3
-    public static final String DATABASE_NAME = "phones_db";
+class dBase extends SQLiteOpenHelper {
+    private static final int DATABASE_VERSION = 3;  //в весриях 1.0 и 1.1 была версия 1, c 1.5 - версия ДБ=3
+    private static final String DATABASE_NAME = "phones_db";
     public static final String PHONES_TABLE_OUT = "phones";  //таблица номеров для запросов
     public static final String PHONES_TABLE_IN = "phones_to_answer";
     public static final String PHONES_COL = "phone";  //одинаковая для обоих таблиц

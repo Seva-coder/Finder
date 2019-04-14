@@ -30,22 +30,28 @@ import java.util.TimerTask;
 
 public class Tracking extends Service {
 
-    Notification.Builder builder;
-    NotificationManager nManager;
-    LocationManager locMan;
-    StringBuilder sms_text = new StringBuilder("");
-    Handler stop = new Handler();
+    private Notification.Builder builder;
+    private NotificationManager nManager;
+    private LocationManager locMan;
+    private StringBuilder sms_text = new StringBuilder("");
+    private final Handler stop = new Handler();
 
-    Intent update_intent;  //интент для передачи свежих данных в окно с текущими данными о трекинге
+    private Intent update_intent;  //интент для передачи свежих данных в окно с текущими данными о трекинге
 
     static boolean tracking_running = false;
-    boolean lastTrue = false;
-    String lastLat, lastLon, lastSpeed, phone, name;
-    SharedPreferences sPref;
-    Timer timer;
-    static int sms_counter = 0, coords_counter = 0;  //static для доступноти из TrackStatus
-    static int sms_number = 10, sms_buffer_max = 4;  //default values
-    int delay = 300, accuracy = 15;
+    private boolean lastTrue = false;
+    private String lastLat;
+    private String lastLon;
+    private String lastSpeed;
+    private String phone;
+    private SharedPreferences sPref;
+    private Timer timer;
+    static int sms_counter = 0;
+    private static int coords_counter = 0;  //static для доступноти из TrackStatus
+    static int sms_number = 10;
+    private static int sms_buffer_max = 4;  //default values
+    private int delay = 300;
+    private int accuracy = 15;
 
     public Tracking() {
     }
@@ -92,7 +98,7 @@ public class Tracking extends Service {
     }
 
 
-    LocationListener locListen = new LocationListener() {
+    private final LocationListener locListen = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
             if (location.hasAccuracy() && (location.getAccuracy() < accuracy)) {
@@ -149,7 +155,7 @@ public class Tracking extends Service {
     }
 
     //логика завершения определения КООРДИНАТ по таймеру
-    Runnable stopper = new Runnable() {
+    private final Runnable stopper = new Runnable() {
         @Override
         public void run() {
             locMan.removeUpdates(locListen);  //стопаем в люблм случае, значит за 80% периода координаты так и не удалось получить
@@ -163,7 +169,7 @@ public class Tracking extends Service {
     };
 
     //логика завершения ВСЕГО СЕРВИСА по таймеру при превышении расчётного времени в 1.5 раза
-    Runnable full_stopper = new Runnable() {
+    private final Runnable full_stopper = new Runnable() {
         @Override
         public void run() {
             locMan.removeUpdates(locListen);
@@ -192,7 +198,7 @@ public class Tracking extends Service {
         delay = Integer.parseInt(intent.getStringExtra("tracking_delay"));
         sms_buffer_max = Integer.parseInt(intent.getStringExtra("tracking_coord_number"));
         accuracy = Integer.parseInt(intent.getStringExtra("tracking_accuracy"));
-        name = intent.getStringExtra("name");
+        String name = intent.getStringExtra("name");
 
         timer = new Timer();
         TrackingTask trackTask = new TrackingTask();  //таймер для получения очередной точки трека

@@ -12,7 +12,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.AudioManager;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 
 import java.text.DateFormat;
@@ -26,8 +25,7 @@ import java.util.regex.Pattern;
 
 public class TrackReceiveService extends IntentService {
 
-    dBase baseConnect;
-    SQLiteDatabase db;
+    private SQLiteDatabase db;
 
     public TrackReceiveService() {
         super("TrackReceiveService");
@@ -36,7 +34,7 @@ public class TrackReceiveService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         //подрубаемся к базе
-        baseConnect = new dBase(this);
+        dBase baseConnect = new dBase(this);
         db = baseConnect.getWritableDatabase();
 
         // выбор iD  для трека (дефолт/старый/инкремент) в зависимотсти от времени последних данных
@@ -49,7 +47,7 @@ public class TrackReceiveService extends IntentService {
 
             Date date, curr_date;
             curr_date = new Date();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");  //TODO: что-то надо мутить с UTC...
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
             try {
                 date = dateFormat.parse(old_date);
             } catch (ParseException e) {
@@ -70,7 +68,7 @@ public class TrackReceiveService extends IntentService {
         intentRes.setAction("track");
         intentRes.putExtra("track_id", track_id);
         PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, intentRes, PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+        Notification.Builder builder = new Notification.Builder(getApplicationContext())
                 .setContentIntent(pendIntent)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getString(R.string.new_track_data))
@@ -108,7 +106,7 @@ public class TrackReceiveService extends IntentService {
         }
     }
 
-    public void writeToTrackTable(String phone, Double lat, Double lon, Float speed, String time, int track_id) {
+    private void writeToTrackTable(String phone, Double lat, Double lon, Float speed, String time, int track_id) {
 
         ContentValues cv = new ContentValues();
         cv.put("phone", phone);

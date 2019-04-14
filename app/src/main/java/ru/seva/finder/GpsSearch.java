@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsManager;
 
 import java.util.ArrayList;
@@ -29,27 +28,24 @@ import java.util.Locale;
 
 
 public class GpsSearch extends Service {
-    SharedPreferences sPref;
-    dBase baseConnect;
-    SQLiteDatabase db;
-    LocationManager locMan;
+    private SharedPreferences sPref;
+    private LocationManager locMan;
 
-    //наверно некоторые имеет смысл сделать через string
-    public static final String PHONES_TABLE = "phones_to_answer";
-    public static final String PHONES_COL = "phone";
-    public static final String GPS_ACCURACY = "gps_accuracy";
-    public static final String GPS_ACCURACY_DEFAULT = "12";
-    public static final String GPS_TIME = "gps_time";
-    public static final String GPS_TIME_DEFAULT = "20";  //здесь в минутах
+    private static final String GPS_ACCURACY = "gps_accuracy";
+    private static final String GPS_ACCURACY_DEFAULT = "12";
+    private static final String GPS_TIME = "gps_time";
+    private static final String GPS_TIME_DEFAULT = "20";  //здесь в минутах
 
-    Handler h;  //stopper, котрый будет работать в основном потоке, вроде как быстр, и не подвесит приложение
-    StringBuilder sms_answer = new StringBuilder("");
-    ArrayList<String> phones = new ArrayList<>();
+    private Handler h;  //stopper, котрый будет работать в основном потоке, вроде как быстр, и не подвесит приложение
+    private final StringBuilder sms_answer = new StringBuilder("");
+    private final ArrayList<String> phones = new ArrayList<>();
 
-    String lastLat, lastLon;  //переменные на случай еслси gps завёлся, но не успел набрал точность до таймера
-    String lastSpeed, lastAccuracy;
-    boolean lastTrue = false;
-    boolean sound_was_enabled;
+    private String lastLat;
+    private String lastLon;  //переменные на случай еслси gps завёлся, но не успел набрал точность до таймера
+    private String lastSpeed;
+    private String lastAccuracy;
+    private boolean lastTrue = false;
+    private boolean sound_was_enabled;
 
     public GpsSearch() {
     }
@@ -63,7 +59,7 @@ public class GpsSearch extends Service {
         locMan = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
     }
 
-    LocationListener locListen = new LocationListener() {
+    private final LocationListener locListen = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
             if (location.hasAccuracy() && (location.getAccuracy() < Float.valueOf(sPref.getString(GPS_ACCURACY, GPS_ACCURACY_DEFAULT)))) {
@@ -122,13 +118,13 @@ public class GpsSearch extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         String phone_number = intent.getStringExtra("phone_number");
         sound_was_enabled = intent.getBooleanExtra("sound_was_normal", true);
-        baseConnect = new dBase(this);
-        db = baseConnect.getReadableDatabase();
+        dBase baseConnect = new dBase(this);
+        SQLiteDatabase db = baseConnect.getReadableDatabase();
 
         //проверка на вхождение номера в доверенные
-        Cursor cursor_check = db.query(PHONES_TABLE,
-                new String[] {PHONES_COL},
-                PHONES_COL + "=?",
+        Cursor cursor_check = db.query(dBase.PHONES_TABLE_IN,
+                new String[] {dBase.PHONES_COL},
+                dBase.PHONES_COL + "=?",
                 new String[] {phone_number},
                 null, null, null);
 
@@ -145,7 +141,7 @@ public class GpsSearch extends Service {
             name = (name_curs.moveToFirst()) ? (name_curs.getString(name_curs.getColumnIndex(dBase.NAME_COL))) : (phone_number);
             name_curs.close();
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+            Notification.Builder builder = new Notification.Builder(getApplicationContext())
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.gps_processed))
                     .setContentText(getString(R.string.from, name))
@@ -200,7 +196,7 @@ public class GpsSearch extends Service {
     }
 
 
-    Runnable stopper = new Runnable() {
+    private final Runnable stopper = new Runnable() {
         @Override
         public void run() {
             //логика завершения по таймеру
@@ -229,7 +225,7 @@ public class GpsSearch extends Service {
     }
 
 
-    void start_send() {   //рассылка всем запросившим
+    private void start_send() {   //рассылка всем запросившим
         if ((Build.VERSION.SDK_INT >= 23 &&
                 (getApplicationContext().checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED)) ||
                 Build.VERSION.SDK_INT < 23) {

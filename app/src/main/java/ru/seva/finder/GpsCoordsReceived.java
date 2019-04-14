@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -81,6 +80,7 @@ public class GpsCoordsReceived extends IntentService {
                 "phone = ?", new String[] {phone},
                 null, null, null);
         name = (name_curs.moveToFirst()) ? (name_curs.getString(name_curs.getColumnIndex(dBase.NAME_COL))) : (phone);
+        name_curs.close();
         db.close();
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         if (MainActivity.activityRunning && sPref.getBoolean("auto_map", false)) {  //карта вылетит только в случае настройки
@@ -97,8 +97,8 @@ public class GpsCoordsReceived extends IntentService {
         } else {
             Intent intentRes = new Intent(getApplicationContext(), HistoryActivity.class);
             PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, intentRes, PendingIntent.FLAG_UPDATE_CURRENT);
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
-                    .setSmallIcon(R.mipmap.ic_launcher)
+            Notification.Builder builder = new Notification.Builder(getApplicationContext());
+            builder.setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.message_with_coord))
                     .setContentText(getString(R.string.coords_received, name))
                     .setAutoCancel(true)

@@ -21,15 +21,14 @@ import java.util.Date;
 
 public class NewReadSms extends AppCompatActivity {
 
-    SimpleCursorAdapter adapter;
-    Cursor cursor;
+    private Cursor cursor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_read_sms);
 
-        ListView list = (ListView) findViewById(R.id.lvSms);
+        ListView list = findViewById(R.id.lvSms);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) {
             cursor = getContentResolver().query(Uri.parse("content://sms/inbox"), null, null, null, null);
         } else {
@@ -37,13 +36,13 @@ public class NewReadSms extends AppCompatActivity {
         }
         String[] mWordListColumns = {
                 //Telephony.Sms._ID,    // Contract class constant for the _ID column name
-                Telephony.Sms.ADDRESS,  //ВНИМАНИЕ на API!!!
+                Telephony.Sms.ADDRESS,  //activity will be started only on 19 api and later
                 Telephony.Sms.DATE
         };
 
         int[] toViews = {android.R.id.text1, android.R.id.text2};
 
-        adapter = new SimpleCursorAdapter(this,
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
                 android.R.layout.simple_list_item_2,
                 cursor,
                 mWordListColumns,

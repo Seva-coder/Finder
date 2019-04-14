@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -35,11 +34,11 @@ import java.util.List;
 
 public class MapsActivity extends AppCompatActivity {
 
-    MapView map = null;
-    Polyline line;
-    SQLiteDatabase db;
-    int track_id;
-    IMapController mapController;
+    private MapView map = null;
+    private Polyline line;
+    private SQLiteDatabase db;
+    private int track_id;
+    private IMapController mapController;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -50,7 +49,7 @@ public class MapsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_open_map);
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        map = (MapView) findViewById(R.id.map2);
+        map = findViewById(R.id.map2);
         Configuration.getInstance().setTileFileSystemCacheMaxBytes(1024*1024*Long.parseLong(sPref.getString("cache_size", "5")));
         Configuration.getInstance().setTileFileSystemCacheTrimBytes(512*1024*Long.parseLong(sPref.getString("cache_size", "5")));  // trim storage to ~50% from max after oversize limit
 
@@ -88,13 +87,14 @@ public class MapsActivity extends AppCompatActivity {
         compasOver.enableCompass();
         map.getOverlays().add(compasOver);
 
+        dBase baseConnect = new dBase(this);
+        db = baseConnect.getWritableDatabase();
+
         Intent intent = this.getIntent();
         mapController.setZoom(intent.getDoubleExtra("zoom", 15.0d));
         String act = intent.getAction();
         if (act.equals("track")) {
             track_id = intent.getIntExtra("track_id", 0);
-            dBase baseConnect = new dBase(this);
-            db = baseConnect.getWritableDatabase();
             line = new Polyline(map);
             line.setColor(Color.BLUE);
             line.setInfoWindow(null);  // уберём всплывающий поп-ап с трека
@@ -133,7 +133,7 @@ public class MapsActivity extends AppCompatActivity {
     }
 
 
-    public void trackRedraw() {
+    private void trackRedraw() {
         Cursor query =  db.query("tracking_table", new String[] {"_id", "lat", "lon", "speed", "date"}, "track_id = ?", new String[] {String.valueOf(track_id)}, null, null, "_id ASC");
 
         Cursor last_point =  db.rawQuery("SELECT lat, lon, _id FROM tracking_table WHERE _id = (SELECT MAX(_id) FROM tracking_table WHERE track_id = ?)", new String[] {String.valueOf(track_id)});
@@ -163,7 +163,7 @@ public class MapsActivity extends AppCompatActivity {
     }
 
     //обновление карты
-    private BroadcastReceiver updMap = new BroadcastReceiver() {
+    private final BroadcastReceiver updMap = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             trackRedraw();
