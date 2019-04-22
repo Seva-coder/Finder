@@ -28,11 +28,11 @@ public class TrackStatus extends AppCompatActivity {
         sms_sent_text = findViewById(R.id.sent_text);
         sms_remained_text = findViewById(R.id.status_text);
         updater();
-        //ресивер обновления полей
+        //receiver for updating fields in activity
         LocalBroadcastManager.getInstance(this).registerReceiver(Upd, new IntentFilter("update_fields"));
     }
 
-    //приёмник для обновления до свежих данных при отправке SMS
+
     private final BroadcastReceiver Upd = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -40,7 +40,7 @@ public class TrackStatus extends AppCompatActivity {
         }
     };
 
-    private void updater() {  //обновление данных полей
+    private void updater() {
         sms_sent_text.setText(getString(R.string.sms_sent, Tracking.sms_counter));
         sms_remained_text.setText(getString(R.string.remaining_mes, (Tracking.sms_number-Tracking.sms_counter)));
         if ((Tracking.sms_number-Tracking.sms_counter) == 0) {

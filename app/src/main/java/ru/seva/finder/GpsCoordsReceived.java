@@ -33,7 +33,7 @@ public class GpsCoordsReceived extends IntentService {
         Pattern lat_lon = Pattern.compile("^lat:(-?\\d+\\.\\d+) lon:(-?\\d+\\.\\d+)");
         Matcher m_lat_lon = lat_lon.matcher(message);
         if (m_lat_lon.find()) {
-            lat = Double.valueOf(m_lat_lon.group(1));  //инициализируется, инфа-сотка - проверено в ресивере
+            lat = Double.valueOf(m_lat_lon.group(1));  //will be initialized, regexp checked in the receiver
             lon = Double.valueOf(m_lat_lon.group(2));
         }
 
@@ -75,7 +75,7 @@ public class GpsCoordsReceived extends IntentService {
         date = df.format(Calendar.getInstance().getTime());
         MainActivity.write_to_hist(db, phone, lat, lon, acc, date, bat_value, altitude, speed, direction);
         String name;
-        //получаем имя номера (для уведомления), если он известен
+        //get phone name for notification, if it exists
         Cursor name_curs = db.query(dBase.PHONES_TABLE_OUT, new String[] {dBase.NAME_COL},
                 "phone = ?", new String[] {phone},
                 null, null, null);
@@ -83,7 +83,7 @@ public class GpsCoordsReceived extends IntentService {
         name_curs.close();
         db.close();
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        if (MainActivity.activityRunning && sPref.getBoolean("auto_map", false)) {  //карта вылетит только в случае настройки
+        if (MainActivity.activityRunning && sPref.getBoolean("auto_map", false)) {  //run map only in case of opened app and setting this
             Intent start_map = new Intent(getApplicationContext(), MapsActivity.class);
             start_map.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             start_map.putExtra("lat", lat);
@@ -102,12 +102,12 @@ public class GpsCoordsReceived extends IntentService {
                     .setContentTitle(getString(R.string.message_with_coord))
                     .setContentText(getString(R.string.coords_received, name))
                     .setAutoCancel(true)
-                    .setContentIntent(pendIntent);  //подумать над channel id
+                    .setContentIntent(pendIntent);
             Notification notification = builder.build();
             NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             int id = sPref.getInt("notification_id", 2);
             nManage.notify(id, notification);
-            sPref.edit().putInt("notification_id", id+1).commit();  //это и так новый поток
+            sPref.edit().putInt("notification_id", id+1).commit();  //this is new thread (intent service)
         }
     }
 }

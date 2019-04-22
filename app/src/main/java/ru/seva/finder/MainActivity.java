@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private Button remember_btn;
     private TabHost tabHost;
 
-    public static boolean activityRunning = false;  //у нас будет только один инстанс, поэтому вроде норм
+    public static boolean activityRunning = false;  //we have only one instance, it's ok
     private SharedPreferences sPref;
 
     private Cursor cursor;
@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
 
         sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        //подрубаемся к базе
         dBase baseConnect = new dBase(this);
         db = baseConnect.getWritableDatabase();
 
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         int[] toViews = {android.R.id.text1, android.R.id.text2};
         cursor = db.query(dBase.PHONES_TABLE_OUT, null, null, null, null, null, null);
 
-        //создаём адаптер списка запросов
+        //adapter for requests list
         adapter = new SimpleCursorAdapter(this,
                 android.R.layout.simple_list_item_2,
                 cursor,
@@ -109,8 +108,8 @@ public class MainActivity extends AppCompatActivity {
                 android.R.layout.simple_list_item_2,
                 cursor_answ,
                 fromColons,
-                toViews,  //они совпадают в обоих вкладках
-                0);  //колонка телефонов называется так же
+                toViews,  //"toViews" are the same in both tabs
+                0);
         list_receive.setAdapter(adapter_answ);
         list_receive.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -119,10 +118,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //неплохо было бы всё в XML переписать
+        //maybe it's possible to do in XML?
         tabHost = findViewById(R.id.tabHost);
         tabHost.setup();
-        TabHost.TabSpec tabspec = tabHost.newTabSpec("tag1");  //тэг нам ненужен, но он нужен конструктору
+        TabHost.TabSpec tabspec = tabHost.newTabSpec("tag1");  //tag needed only for constructor
         tabspec.setContent(R.id.tab_out);
         tabspec.setIndicator(getString(R.string.request_numbs));
         tabHost.addTab(tabspec);
@@ -132,10 +131,10 @@ public class MainActivity extends AppCompatActivity {
         tabspec.setIndicator(getString(R.string.answer_numbs));
         tabHost.addTab(tabspec);
 
-        //ресивер остановки прогресс-бара
+        //local receiver for progress bar stopping
         LocalBroadcastManager.getInstance(this).registerReceiver(PGbar, new IntentFilter("disable_bar"));
 
-        //проверка прав на новых android
+        //permission check
         if (Build.VERSION.SDK_INT >= 23 && hasPermitions()) {
             remember_btn.setEnabled(true);
         } else if (Build.VERSION.SDK_INT >= 23 && !hasPermitions()) {
@@ -147,11 +146,11 @@ public class MainActivity extends AppCompatActivity {
             }
             ActivityCompat.requestPermissions(MainActivity.this, lacking.toArray(new String[0]), 1);
         } else if (Build.VERSION.SDK_INT < 23) {
-            //права и так уже все выданы по дефолту
+            //we consider that the rights have already been granted
             remember_btn.setEnabled(true);
         }
 
-        //предложение прочесть справку при первом старте
+        //offer to read the help at the first app start
         if (sPref.getBoolean("first_start", true)) {
             sPref.edit().putBoolean("first_start", false).apply();
             DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
@@ -163,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(intent);
                             break;
                         case DialogInterface.BUTTON_NEGATIVE:
-                            //ничего не отправляем
+                            //don't open
                             break;
                     }
                 }
@@ -185,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == 1 && rules) {
             Toast.makeText(MainActivity.this, R.string.permissions_obtained, Toast.LENGTH_SHORT).show();
-            remember_btn.setEnabled(true);  //разлочить интерфейс
+            remember_btn.setEnabled(true);  //unlock adding button in case of getting permissions
         } else {
             Toast.makeText(MainActivity.this, R.string.no_permits_received, Toast.LENGTH_SHORT).show();
         }
@@ -202,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
         return answer;
     }
 
-    //описание работы меню списка доверенных номеров
+    //popup menu for list of trusted numbers
     private void click_on_trusted(final View v, final long id) {
         PopupMenu menu = new PopupMenu(this, v);
         menu.inflate(R.menu.context_menu_trusted);
@@ -251,13 +250,12 @@ public class MainActivity extends AppCompatActivity {
                                         tracking_delay = delay_edit.getText().toString();
                                         tracking_coord_number = coord_numb_edit.getText().toString();
                                         tracking_accuracy = accuracy_edit.getText().toString();
-                                        //сохраним настройки для повторного заполнения формы (проверка не нужна, тк клава уже цифровая)
+                                        //save settings for auto complete this form in future (no checks need - keyboard is digital)
                                         sPref.edit().putString("tracking_sms_max_number", tracking_sms_max_number).apply();
                                         sPref.edit().putString("tracking_delay", tracking_delay).apply();
                                         sPref.edit().putString("tracking_coord_number", tracking_coord_number).apply();
                                         sPref.edit().putString("tracking_accuracy", tracking_accuracy).apply();
 
-                                        //передача через интент тк быстрее
                                         Intent intent = new Intent(getApplicationContext(), Tracking.class);
                                         intent.putExtra("tracking_sms_max_number", tracking_sms_max_number);
                                         intent.putExtra("tracking_delay", tracking_delay);
@@ -276,13 +274,13 @@ public class MainActivity extends AppCompatActivity {
                                         dialog.cancel();
                                     }
                                 });
-                        //разрешаем трекинг только на 1 номер
-                        final AlertDialog dialog = builder.create();
 
+                        final AlertDialog dialog = builder.create();
+                        //tracking is only possible for 1 phone number
                         if (Tracking.tracking_running) {
                             Toast.makeText(v.getContext(), R.string.tracking_already_running, Toast.LENGTH_LONG).show();
                         } else {
-                            //показываем, но с неактивной кнопокой, если нет дефолтных настроек (sms_number просто для примера - появятся он все вместе)
+                            //show menu with inactive start button in case of missing settings. sms_number is just an example, all settings are created simultaneously. Button will be activated later in listener
                             dialog.show();
                             if (sPref.contains("tracking_sms_max_number")) {
                                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
@@ -293,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
 
                         final Pattern pat = Pattern.compile("\\d+");
 
-                        //обработчик активатор-деактиватор кнопки старта трекинга
+                        //activator/deactivator of start tracking button
                         TextWatcher edit_fields = new TextWatcher() {
                             @Override
                             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -306,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
                                 String delay = delay_edit.getText().toString();
                                 String coord_numb = coord_numb_edit.getText().toString();
                                 String accuracy = accuracy_edit.getText().toString();
-                                //активируем когда все поля - чилсла > 0
+                                //enable when all fields are numbers > 0 (else disable)
                                 if (pat.matcher(max_number).find() && pat.matcher(delay).find()
                                         && pat.matcher(coord_numb).find() && pat.matcher(accuracy).find()
                                         && Integer.parseInt(max_number) >= 1 && Integer.parseInt(delay) >= 20
@@ -362,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
         menu.show();
     }
 
-    //отключение прогрессбара
+    //progress bar disabling
     private final BroadcastReceiver PGbar = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -425,7 +423,7 @@ public class MainActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(PGbar);
     }
 
-
+    //popup for sending request SMS
     private void showSendMenu(final View v, final long num_id) {
         PopupMenu menu = new PopupMenu(this, v);
         menu.inflate(R.menu.context_menu);
@@ -455,50 +453,47 @@ public class MainActivity extends AppCompatActivity {
                         null, null, null);
                 query.moveToFirst();
                 final String phone = query.getString(query.getColumnIndex(dBase.PHONES_COL));
+                query.close();
                 switch (item.getItemId()) {
                     case R.id.wifi_id:
-                        //предупреждение об интернете
+                        //dialog telling "no internet"
                         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int witch) {
                                 switch(witch) {
                                     case DialogInterface.BUTTON_POSITIVE:
-                                        //ваще поифиг, юзверь оповещён что работать ничего не будет, инет не чекаем
+                                        //user knows about disconnect, send sms-request
                                         sendSmsRequest("wifi", "wifi_search", phone);
                                         break;
                                     case DialogInterface.BUTTON_NEGATIVE:
-                                        //ничего не отправляем
+                                        //nothing to do
                                         break;
                                 }
                             }
                         };
 
-                        //проверим наличие сети
+                        //check network
                         ConnectivityManager cManager = (ConnectivityManager) v.getContext().getSystemService(v.getContext().CONNECTIVITY_SERVICE);
                         NetworkInfo network_inf = cManager.getActiveNetworkInfo();
 
                         if (network_inf != null && network_inf.isConnected()) {
-                            //сеть "активна", отправляем запрос не дёргая юзера
+                            //network active - send SMS without warning
                             sendSmsRequest("wifi", "wifi_search", phone);
                         } else {
-                            //сети нет, но может всё равно отправить?
+                            //no internet - but after dialog user can send SMS too
                             AlertDialog.Builder builder2 = new AlertDialog.Builder(v.getContext());
                             builder2.setMessage(R.string.no_internet_warning).setPositiveButton(R.string.yes, dialogClickListener)
                                     .setNegativeButton(R.string.no, dialogClickListener).show();
                         }
-                        query.close();
                         return true;
 
                     case R.id.gps_id:
                         sendSmsRequest("gps", "gps_search", phone);
-                        query.close();
                         return true;
 
                     case R.id.del_id:
                         db.delete(dBase.PHONES_TABLE_OUT, "_id = ?", new String[] {Long.toString(num_id)});
-                        //обновление списка
                         updateList();
-                        query.close();
                         return true;
                     default:
                         return false;
@@ -540,13 +535,13 @@ public class MainActivity extends AppCompatActivity {
                         cv.put(dBase.PHONES_COL, phone_number);
                         cv.put(dBase.NAME_COL, number_name);
 
-                        String table;  //выбор таблицы для записи
+                        String table;  //select table for adding phone number
                         if (tabHost.getCurrentTab() == 0) {
                             table = dBase.PHONES_TABLE_OUT;  //"phones";
                         } else {
                             table = dBase.PHONES_TABLE_IN;  //"phones_to_answer";
                             if (!sPref.getBoolean("answer", false)) {
-                                sPref.edit().putBoolean("answer", true).apply();  // включение режима ответа
+                                sPref.edit().putBoolean("answer", true).apply();  //enabling "Respond to requests" mode
                                 Toast.makeText(MainActivity.this, R.string.check_settings, Toast.LENGTH_SHORT).show();
                             }
                             if (Build.VERSION.SDK_INT >= 23) {
@@ -554,7 +549,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
 
-                        //проверка номера на повторное вхождение
+                        //is this number in DB?
                         Cursor cursor_check = db.query(table,
                                 new String[] {dBase.PHONES_COL},
                                 dBase.PHONES_COL + "=?",
@@ -586,7 +581,7 @@ public class MainActivity extends AppCompatActivity {
         final AlertDialog dialog = builder.create();
         dialog.show();
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-        //активация кнопки при непустом поле
+        //activate "add" button when phone field is not empty
         field_phone.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -615,6 +610,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, NewReadSms.class);
             startActivity(intent);
         } else {
+            //on older API user enters text manually
             Intent intent = new Intent(this, OldReadSms.class);
             startActivity(intent);
         }

@@ -1,6 +1,7 @@
 package ru.seva.finder;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -35,8 +36,7 @@ public class NewReadSms extends AppCompatActivity {
             Toast.makeText(NewReadSms.this, R.string.no_sms_rights, Toast.LENGTH_LONG).show();
         }
         String[] mWordListColumns = {
-                //Telephony.Sms._ID,    // Contract class constant for the _ID column name
-                Telephony.Sms.ADDRESS,  //activity will be started only on 19 api and later
+                Telephony.Sms.ADDRESS,  //this activity will be started only on 19 api and later
                 Telephony.Sms.DATE
         };
 
@@ -77,25 +77,9 @@ public class NewReadSms extends AppCompatActivity {
                     String phone = query.getString(query.getColumnIndex("ADDRESS"));
                     String message = query.getString(query.getColumnIndex("BODY"));
                     query.close();
-                    if (SmsReceiver.checkWifiSms(message)) {
-                        //это сообщение с wifi-сетями
-                        Intent new_message_intent = new Intent(NewReadSms.this, NewGoogleGeo.class);  //intent-сервис с запросом к google-api
-                        new_message_intent.putExtra("phone", phone);
-                        new_message_intent.putExtra("message", message);
-                        startService(new_message_intent);
-                        Toast.makeText(NewReadSms.this, R.string.wifi_sms_processing, Toast.LENGTH_SHORT).show();
+                    boolean ok = checkSms(NewReadSms.this, phone, message);
+                    if (ok) {  //close activity in success case
                         finish();
-                    } else if (SmsReceiver.checkGpsSms(message)) {
-                        //sms с gps данными
-                        Intent gps_intent = new Intent(NewReadSms.this, GpsCoordsReceived.class);
-                        gps_intent.putExtra("phone", phone);
-                        gps_intent.putExtra("message", message);
-                        startService(gps_intent);
-                        Toast.makeText(NewReadSms.this, R.string.gps_sms_processing, Toast.LENGTH_SHORT).show();
-                        finish();
-                    } else {
-                        //это левая SMS-ка
-                        Toast.makeText(NewReadSms.this, R.string.not_valid_sms, Toast.LENGTH_LONG).show();
                     }
                 } catch (NullPointerException e) {
                     Toast.makeText(NewReadSms.this, R.string.no_sms_accsess, Toast.LENGTH_LONG).show();
@@ -104,6 +88,39 @@ public class NewReadSms extends AppCompatActivity {
         });
     }
 
+
+    static boolean checkSms(Context context, String phone, String message) {
+        boolean res = false;
+        if (SmsReceiver.checkWifiSms(message)) {
+            //this message with wifi-nets
+            Intent new_message_intent = new Intent(context, NewGoogleGeo.class);  //use google-api to get location
+            new_message_intent.putExtra("phone", phone);
+            new_message_intent.putExtra("message", message);
+            context.startService(new_message_intent);
+            Toast.makeText(context, R.string.wifi_sms_processing, Toast.LENGTH_SHORT).show();
+            res = true;
+        } else if (SmsReceiver.checkGpsSms(message)) {
+            //this message with GPS-data
+            Intent gps_intent = new Intent(context, GpsCoordsReceived.class);
+            gps_intent.putExtra("phone", phone);
+            gps_intent.putExtra("message", message);
+            context.startService(gps_intent);
+            Toast.makeText(context, R.string.gps_sms_processing, Toast.LENGTH_SHORT).show();
+            res = true;
+        } else if (SmsReceiver.checkTrackingSms(message)) {
+            //this is tracking SMS
+            Intent track_point = new Intent(context, TrackReceiveService.class);
+            track_point.putExtra("message", message);
+            track_point.putExtra("phone_number", phone);
+            Toast.makeText(context, R.string.tracking_sms_open, Toast.LENGTH_SHORT).show();
+            context.startService(track_point);
+            res = true;
+        } else {
+            //SMS without coordinates
+            Toast.makeText(context, R.string.not_valid_sms, Toast.LENGTH_LONG).show();
+        }
+        return res;
+    }
 
     protected void onDestroy() {
         super.onDestroy();

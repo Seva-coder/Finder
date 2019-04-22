@@ -6,12 +6,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 
 class dBase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 3;  //в весриях 1.0 и 1.1 была версия 1, c 1.5 - версия ДБ=3
+    private static final int DATABASE_VERSION = 3;  //in versions 1.0 and 1.1 was 1st db version, since 1.5 - version db 3
     private static final String DATABASE_NAME = "phones_db";
-    public static final String PHONES_TABLE_OUT = "phones";  //таблица номеров для запросов
-    public static final String PHONES_TABLE_IN = "phones_to_answer";
-    public static final String PHONES_COL = "phone";  //одинаковая для обоих таблиц
-    public static final String NAME_COL = "name";  //одинаковая для обоих таблиц
+    static final String PHONES_TABLE_OUT = "phones";  //table of phone numbers to request
+    static final String PHONES_TABLE_IN = "phones_to_answer";
+    static final String PHONES_COL = "phone";  //same for both tables
+    static final String NAME_COL = "name";  //same for both tables
 
 
     public dBase(Context context) {
@@ -39,14 +39,6 @@ class dBase extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion == 1 && newVersion >= 2) {
-            // move from version 1 --> 2, adding NAME column
-            db.execSQL("ALTER TABLE " + PHONES_TABLE_OUT + " ADD name text DEFAULT \'unknown\'");
-            db.execSQL("ALTER TABLE " + PHONES_TABLE_IN + " ADD name text DEFAULT \'unknown\'");
-        }
-        if (newVersion == 3) {
-            // creating tracking table (new feature of 1.5 version)
-            db.execSQL("CREATE TABLE tracking_table (_id integer primary key autoincrement, phone text, track_id integer, lat real, lon real, speed real, date text)");
-        }
+
     }
 }

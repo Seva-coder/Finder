@@ -36,7 +36,7 @@ public class Tracking extends Service {
     private StringBuilder sms_text = new StringBuilder("");
     private final Handler stop = new Handler();
 
-    private Intent update_intent;  //интент для передачи свежих данных в окно с текущими данными о трекинге
+    private Intent update_intent;  //intent for updating data in TrackStatus
 
     static boolean tracking_running = false;
     private boolean lastTrue = false;
@@ -46,10 +46,10 @@ public class Tracking extends Service {
     private String phone;
     private SharedPreferences sPref;
     private Timer timer;
-    static int sms_counter = 0;
-    private static int coords_counter = 0;  //static для доступноти из TrackStatus
+    static int sms_counter = 0;  //"static" for availability from TrackStatus
+    private int coords_counter = 0;
     static int sms_number = 10;
-    private static int sms_buffer_max = 4;  //default values
+    private int sms_buffer_max = 4;
     private int delay = 300;
     private int accuracy = 15;
 
@@ -58,7 +58,7 @@ public class Tracking extends Service {
 
 
     private void append_send_coordinates(String lat, String lon, String speed, String date) {
-        //просто наполнение буфера
+        //creating message
         sms_text.append(lat);
         sms_text.append(";");
         sms_text.append(lon);
@@ -69,7 +69,7 @@ public class Tracking extends Service {
         sms_text.append("\n");
         coords_counter++;
 
-        //буфер полон => пора слать/+возможно стопать сервис
+        //buffer is full, time to send or stop service
         if (coords_counter == sms_buffer_max) {
             coords_counter = 0;
             if (sms_counter < sms_number) {
@@ -83,15 +83,15 @@ public class Tracking extends Service {
                     sms_counter++;
                     builder.setContentText(getString(R.string.sms_sent, sms_counter));
 
-                    //отправим данные интентом
+                    //update fields in TrackingStatus via intent
                     update_intent.setAction("update_fields");
                     LocalBroadcastManager.getInstance(this).sendBroadcast(update_intent);
                 }
             }
 
-            //двойная проверка для того чтобы СРАЗУ же остановить сервис после отправки всех сообщений
+            //second check to stop service straight after sending all messages
             if (sms_counter == sms_number) {
-                //весь запас SMS отправлен, останавливаем всё. Уведомление в onDestroy
+                //all SMS are sent, notification will be created in onDestroy
                 stopSelf();
             }
         }
@@ -103,7 +103,7 @@ public class Tracking extends Service {
         public void onLocationChanged(Location location) {
             if (location.hasAccuracy() && (location.getAccuracy() < accuracy)) {
                 stop.removeCallbacks(stopper);
-                locMan.removeUpdates(locListen);  //после первого же нормального определения - выкл
+                locMan.removeUpdates(locListen);  //disable GPS listener after first accurate data
                 String lat = String.format(Locale.US, "%.8f",location.getLatitude());
                 String lon = String.format(Locale.US, "%.8f", location.getLongitude());
                 String speed = String.format(Locale.US, "%.1f", location.getSpeed() * 3.6f);
@@ -111,7 +111,7 @@ public class Tracking extends Service {
                 String date = df.format(Calendar.getInstance().getTime());
                 append_send_coordinates(lat, lon, speed, date);
             } else {
-                lastTrue = true;  //местополежение всё таки было определено, но недостаточно точно. Если что - отрпавим хотя бы это
+                lastTrue = true;  //save not accurate data to sending, in case of big GPS work time
                 lastLat = String.format(Locale.US, "%.8f",location.getLatitude());
                 lastLon = String.format(Locale.US, "%.8f", location.getLongitude());
                 lastSpeed = String.format(Locale.US, "%.1f", location.getSpeed() * 3.6f);  //default by function = 0 if not available
@@ -138,28 +138,25 @@ public class Tracking extends Service {
     class TrackingTask extends TimerTask {
         @Override
         public void run() {
-            //проверка прав на новых API
             if (Build.VERSION.SDK_INT >= 23 && (getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                     locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListen, Looper.getMainLooper());  //стартуем!
+                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListen, Looper.getMainLooper());
             }
 
-            //на старом можно включить и так (если работает gps)
+            //on old API permission get by default, check only provider
             if (Build.VERSION.SDK_INT < 23 && locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListen, Looper.getMainLooper());  //стартуем!
+                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListen, Looper.getMainLooper());
             }
-            stop.postDelayed(stopper, delay * 800);  //остановка черз 80% вермени периода (800=1000ms*0.8)
-
-            startForeground(1, builder.build());
+            stop.postDelayed(stopper, delay * 900);  //stop GPS when 90% of the period has passed 900=1000ms*0.9)
         }
     }
 
-    //логика завершения определения КООРДИНАТ по таймеру
+    //stopping GPS by timer
     private final Runnable stopper = new Runnable() {
         @Override
         public void run() {
-            locMan.removeUpdates(locListen);  //стопаем в люблм случае, значит за 80% периода координаты так и не удалось получить
-            if (lastTrue) {  //отправим хотя бы то что есть
+            locMan.removeUpdates(locListen);  //when position not getted in 90% time of period
+            if (lastTrue) {  //send at least what we have
                 DateFormat df = new SimpleDateFormat("HH:mm");
                 String date = df.format(Calendar.getInstance().getTime());
                 append_send_coordinates(lastLat, lastLon, lastSpeed, date);
@@ -168,7 +165,7 @@ public class Tracking extends Service {
         }
     };
 
-    //логика завершения ВСЕГО СЕРВИСА по таймеру при превышении расчётного времени в 1.5 раза
+    //stopping all tracking service when time exceed calculated work time in 1.5 times
     private final Runnable full_stopper = new Runnable() {
         @Override
         public void run() {
@@ -185,7 +182,7 @@ public class Tracking extends Service {
         locMan = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         nManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        update_intent = new Intent(this, TrackStatus.class);  //создадим интент для передачи данных о состоянии
+        update_intent = new Intent(this, TrackStatus.class);  //initialization of intent for updating data in TrackStatus
     }
 
 
@@ -201,16 +198,16 @@ public class Tracking extends Service {
         String name = intent.getStringExtra("name");
 
         timer = new Timer();
-        TrackingTask trackTask = new TrackingTask();  //таймер для получения очередной точки трека
+        TrackingTask trackTask = new TrackingTask();  //timer for regular getting coords
         timer.scheduleAtFixedRate(trackTask, 0L, 1000L*delay);  //5 minutes default
-        stop.postDelayed(full_stopper, sms_number * sms_buffer_max * delay * 1500L);  //остановим весь сервис на случай отсутствия GPS дольше чем 1.5 заплпнированного времени  (1500L = 1000ms * 1.5)
+        stop.postDelayed(full_stopper, sms_number * sms_buffer_max * delay * 1500L);  //stop this service when work time more than 1.5 times then calculated (to save battery) (1500L = 1000ms * 1.5)
 
-        //одновременно разрешён только один трекинг, так что эта штука сработает 1 раз
+        //only one tracking can work, so this code will be called only once
         Intent notifIntent = new Intent(this, TrackStatus.class);
         PendingIntent pendIntent = PendingIntent.getActivity(this, 0, notifIntent, 0);
         builder = new Notification.Builder(this);
         builder.setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(getString(R.string.tracking_on_notify, name))
+                .setContentTitle(getString(R.string.tracking_on_notify, name))  //"name" gets from intent - this is reason using onStartCommand instead onCreate
                 .setContentText(getString(R.string.sms_sent, 0))
                 .setContentIntent(pendIntent);
         startForeground(1, builder.build());  //id 1 for tracking, 2,3,4.. for others
@@ -236,11 +233,9 @@ public class Tracking extends Service {
         nManager.notify(id+1, builder2.build());
         sPref.edit().putInt("notification_id", id+1).commit();
 
-        //возврат к дефолтным значениям, чтобы при повторном запуске было ОК
+        //rollback to default values (static are saved when restart)
         sms_counter = 0;
-        coords_counter = 0;
         sms_number = 10;
-        sms_buffer_max = 4;
     }
 
     @Override

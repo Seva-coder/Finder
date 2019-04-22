@@ -135,6 +135,7 @@
     <string name="date_time">%s \n%.1f km/h</string>
     <string name="track_saved_message">Track saved! in Downloads</string>
     <string name="mute_tracking_sms">Mute incoming tracking SMS</string>
+    <string name="tracking_sms_open">Tracking SMS processed!</string>
 
 
 </resources>

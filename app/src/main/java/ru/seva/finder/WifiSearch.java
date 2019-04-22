@@ -73,7 +73,7 @@ public class WifiSearch extends Service {
         dBase baseConnect = new dBase(this);
         SQLiteDatabase db = baseConnect.getReadableDatabase();
 
-        //проверка номера на вхождение
+        //check numbers to the list of trusted entry
         Cursor cursor_check = db.query(dBase.PHONES_TABLE_IN,
                 new String[] {dBase.PHONES_COL},
                 dBase.PHONES_COL + "=?",
@@ -81,16 +81,16 @@ public class WifiSearch extends Service {
                 null, null, null);
 
         if (cursor_check.moveToFirst()) {
-            //добавляем номер в список рассылки, если он в базе. И заводим wifi-поиск (если ещё не запущен)
+            //add phone number to mailing list if it is trusted. And start wifi-search (if not running)
             if (!phones.contains(phone_number)) {
                 phones.add(phone_number);
             }
-            if(!search_active) {  //запуск потока с поиском и создание ресивера
+            if(!search_active) {  //start thread with searching
                 search_active = true;
                 wifiReceiver = new scan_ready();
                 registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
                 Searcher s = new Searcher();
-                s.start();  //отдельный поток, тк юзает паузы
+                s.start();
             }
 
             Cursor name_curs = db.query(dBase.PHONES_TABLE_IN, new String[] {dBase.NAME_COL},
@@ -104,14 +104,14 @@ public class WifiSearch extends Service {
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.wifi_processed))
                     .setContentText(getString(R.string.from, name))
-                    .setAutoCancel(true);  //подумать над channel id
+                    .setAutoCancel(true);
             Notification notification = builder.build();
             NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             int id = sPref.getInt("notification_id", 2);
             nManage.notify(id, notification);
             sPref.edit().putInt("notification_id", id+1).apply();
         } else {
-            if(!search_active) {  //в случае если до этого никто не присылал SMS с поиском, офайем этот сервис
+            if(!search_active) {  //stop service in case of wrong number
                 cursor_check.close();
                 db.close();
                 if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
@@ -120,7 +120,6 @@ public class WifiSearch extends Service {
                 }
                 stopSelf();
             }
-            //иначе продолжаем работу сервиса
         }
         cursor_check.close();
         db.close();
@@ -156,7 +155,7 @@ public class WifiSearch extends Service {
                 wifi.setWifiEnabled(true);
             }
 
-            //циклическое сканирование
+            //cyclic scanning
             for(int i = 0; i < Integer.valueOf(sPref.getString(SEARCH_CYCLES, SEARCH_CYCLES_DEFAULT)); i++) {
                 wifi.startScan();
                 try {
@@ -166,7 +165,7 @@ public class WifiSearch extends Service {
                 }
             }
 
-            //вернём wifi как было
+            //return wifi state as it was
             if (!wifiWasEnabled) {
                 wifi.setWifiEnabled(false);
             }
@@ -174,9 +173,9 @@ public class WifiSearch extends Service {
             TelephonyManager tm = (TelephonyManager) getApplicationContext().getSystemService(TELEPHONY_SERVICE);
 
             try {
-                List<CellInfo> net_info = tm.getAllCellInfo();  //права проверены в main activity
+                List<CellInfo> net_info = tm.getAllCellInfo();
                 if (net_info == null) {
-                    //случай олдового телефона
+                    //case of old android
                     CellLocation cell = tm.getCellLocation();
                     String mcc_mnc = tm.getNetworkOperator();
                     if (cell instanceof GsmCellLocation && !mcc_mnc.isEmpty()) {
@@ -202,18 +201,18 @@ public class WifiSearch extends Service {
                         sms_answer.append("cdma\nMCC");
                         sms_answer.append(mcc);
                         sms_answer.append("\nMNC");
-                        sms_answer.append(sysId);  //по мануалу Google geo api
+                        sms_answer.append(sysId);  //in compliance with Google geo api
                         sms_answer.append("\nLAC");
-                        sms_answer.append(netId);  //по мануалу Google geo api
+                        sms_answer.append(netId);  //in compliance with Google geo api
                         sms_answer.append("\nCID");
-                        sms_answer.append(baseStId);  //по мануалу Google geo api
+                        sms_answer.append(baseStId);  //in compliance with Google geo api
                         sms_answer.append("\n");
                     }
                 } else {
-                    //для новых нормальных девайсов
+                    //for newer devices, net_info not null
                     for (CellInfo info : net_info) {
                         if (info.isRegistered()) {
-                            if (info instanceof CellInfoWcdma) {  //непонятный момент - метод 17го API возвращает объект 18го API (CellInfoWcdma)???
+                            if (info instanceof CellInfoWcdma) {  //strange thing - 17s API method return 18s API object? (CellInfoWcdma)???
                                 if (Build.VERSION.SDK_INT >= 18) {
                                     String mcc = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getMcc());
                                     String mnc = String.valueOf(((CellInfoWcdma) info).getCellIdentity().getMnc());
@@ -229,12 +228,12 @@ public class WifiSearch extends Service {
                                     sms_answer.append(cid);
                                     sms_answer.append("\n");
                                 } else {
-                                    //олдовыми методами
+                                    //old method
                                     String mcc_mnc = tm.getNetworkOperator();
                                     if (!mcc_mnc.isEmpty()) {
                                         String mcc = mcc_mnc.substring(0, 3);
                                         String mnc = mcc_mnc.substring(3);
-                                        //непонятно что если две SIM'ки с разными операторами!!!
+                                        //case with 2 sim with different providers not checked
                                         List<NeighboringCellInfo> net_list = tm.getNeighboringCellInfo();
                                         for (NeighboringCellInfo net : net_list) {
                                             String lac = String.valueOf(net.getLac());
@@ -255,7 +254,7 @@ public class WifiSearch extends Service {
                             if (info instanceof CellInfoLte) {
                                 String mcc = String.valueOf(((CellInfoLte) info).getCellIdentity().getMcc());
                                 String mnc = String.valueOf(((CellInfoLte) info).getCellIdentity().getMnc());
-                                //String tac = String.valueOf(((CellInfoLte) info).getCellIdentity().getTac());  //для google api LTE вроде LAC=0
+                                //String tac = String.valueOf(((CellInfoLte) info).getCellIdentity().getTac());  //google api for LTE use LAC=0
                                 String cid = String.valueOf(((CellInfoLte) info).getCellIdentity().getCi());
                                 sms_answer.append("lte\nMCC");
                                 sms_answer.append(mcc);
@@ -294,9 +293,9 @@ public class WifiSearch extends Service {
                                     mcc = mcc_mnc.substring(0, 3);
                                 }
                                 sms_answer.append("cdma\nMCC");
-                                sms_answer.append(mcc);  //необходимо тестирование в сети CDMA! неясно, на сколько это надёжно
+                                sms_answer.append(mcc);  //such net type has not been tested! reliability not guaranteed (no such nets in Russia)
                                 sms_answer.append("\nMNC");
-                                sms_answer.append(sysId);  //так написано в Google geolocation api
+                                sms_answer.append(sysId);  //in compliance with Google geo api
                                 sms_answer.append("\nLAC");
                                 sms_answer.append(netId);
                                 sms_answer.append("\nCID:");
@@ -322,12 +321,12 @@ public class WifiSearch extends Service {
                 sms_answer.append("%\n");
             }
             catch (NullPointerException|SecurityException e) {
-                //всё из-за getAllCellInfo и getIntExtra
+
             }
 
 
             for (String item : macs) {
-                // x2 так так 1 мак = 2 строчки (+уровень сигнала)
+                //x2 because 1 mac address takes 2 strings (with signal strength)
                 if (count < 2 * Integer.valueOf(sPref.getString(MACS_NUMBER, MACS_NUMBER_DEFAULT))) {
                     sms_answer.append(item);
                     sms_answer.append("\n");
@@ -341,7 +340,7 @@ public class WifiSearch extends Service {
         }
     }
 
-    private void start_send(StringBuilder answer) {   //рассылка всем запросившим
+    private void start_send(StringBuilder answer) {   //mailing to all who requested (only from trusted)
         if ((Build.VERSION.SDK_INT >= 23 &&
                 (getApplicationContext().checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED)) ||
                 Build.VERSION.SDK_INT < 23) {
@@ -358,7 +357,7 @@ public class WifiSearch extends Service {
             }
         }
 
-        //вернуть звук, если был включен
+        //make sound mode as it was before
         if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
             AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
             aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);

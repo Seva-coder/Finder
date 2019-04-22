@@ -46,16 +46,15 @@ public class HistoryActivity extends AppCompatActivity {
         ListView list_points = findViewById(R.id.lvHistory);
         ListView list_tracks = findViewById(R.id.lvTracks);
 
-        //подрубаемся к базе
+        //connect to DB
         dBase baseConnect = new dBase(this);
         db = baseConnect.getWritableDatabase();
 
-        //заполнение списка с одиночными точками
+        //processing list with single points
         String[] fromColons = {"name", "date"};
         int[] toViews = {android.R.id.text1, android.R.id.text2};
         cursor = db.rawQuery("SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone ORDER BY history._id DESC;", null);
 
-        //создаём адаптер
         adapter = new SimpleCursorAdapter(this,
                 android.R.layout.simple_list_item_2,
                 cursor,
@@ -63,24 +62,23 @@ public class HistoryActivity extends AppCompatActivity {
                 toViews,
                 0);
 
-        //заполнение списка с треками
+        //processing list with tracks
         track_cursor = db.rawQuery("SELECT tracking_table._id, tracking_table.phone, tracking_table.date AS date, phones.name AS name FROM tracking_table LEFT JOIN phones ON tracking_table.phone=phones.phone GROUP BY track_id ORDER BY tracking_table._id DESC;", null);
 
-        //создаём адаптеры
         track_adapter = new SimpleCursorAdapter(this,
                 android.R.layout.simple_list_item_2,
                 track_cursor,
                 fromColons,
                 toViews,
-                0);  // fromColons и toViews такие же как и раньше
+                0);  //"fromColons" and "toViews" same as before
 
 
-        //биндер для замены пустого имени (null) на "unknown" на лету
+        //ViewBinder for replacing null to "unknown"
         class Changer implements SimpleCursorAdapter.ViewBinder {
             public boolean setViewValue(View view, Cursor cursor, int column) {
                 if (column == cursor.getColumnIndex("name") && cursor.getString(column) == null) {
                     TextView text = (TextView) view;
-                    text.setText(getString(R.string.unknown_number, cursor.getString(1)));  //col index=1 - tracking_table.phone или history.phone
+                    text.setText(getString(R.string.unknown_number, cursor.getString(1)));  //col index=1 - tracking_table.phone or history.phone
                     return true;
                 }
                 return false;
@@ -96,7 +94,7 @@ public class HistoryActivity extends AppCompatActivity {
 
         TabHost tabHost = findViewById(R.id.tabHostHist);
         tabHost.setup();
-        TabHost.TabSpec tabspec = tabHost.newTabSpec("tag1");  //тэг нам ненужен, но он нужен конструктору
+        TabHost.TabSpec tabspec = tabHost.newTabSpec("tag1");  //tag needs only for constructor
         tabspec.setContent(R.id.tab_points);
         tabspec.setIndicator(getString(R.string.poits_tab));
         tabHost.addTab(tabspec);
@@ -134,7 +132,7 @@ public class HistoryActivity extends AppCompatActivity {
         db.close();
     }
 
-    //обработка менюхи треков
+    //popup tracks menu
     private int track_id_global;
     private void openTrackMenu(final View v, final long num_id) {
         PopupMenu menu = new PopupMenu(this, v);
@@ -144,9 +142,9 @@ public class HistoryActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 Cursor query = db.query("tracking_table", null,
                         "_id = ?", new String[] {Long.toString(num_id)},
-                        null, null, null);  //получаем данные из всех колонок (возможно стоит перенести отсюда?)
+                        null, null, null);  //get track data
                 query.moveToFirst();
-                final int track_id = query.getInt(2); //номер столбца с номером трека
+                final int track_id = query.getInt(2); //2 - number of column with track number
 
                 switch (item.getItemId()) {
                     case R.id.track_open_id:
@@ -162,10 +160,9 @@ public class HistoryActivity extends AppCompatActivity {
                                 (ContextCompat.checkSelfPermission(getApplicationContext(),
                                         Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                                         PackageManager.PERMISSION_GRANTED)) || Build.VERSION.SDK_INT < 23) {
-                            //права проверены, можно записывать
                             writetrack(track_id);
                         } else {
-                            track_id_global = track_id;  //в глобальную переменную, чтобы потом в колбэке узнать номер трека
+                            track_id_global = track_id;  //global var to save track number after requestPermissions
                             ActivityCompat.requestPermissions(HistoryActivity.this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE} , 1);
                         }
                         query.close();
@@ -178,11 +175,10 @@ public class HistoryActivity extends AppCompatActivity {
                                 switch(which) {
                                     case DialogInterface.BUTTON_POSITIVE:
                                         db.delete("tracking_table", "track_id = ?", new String[] {Integer.toString(track_id)});
-                                        //обновление списка
                                         updateTracksList();
                                         break;
                                     case DialogInterface.BUTTON_NEGATIVE:
-                                        //отмена удаления, ничего не делаем
+                                        //del cancelled, nothing to do
                                         break;
                                 }
                             }
@@ -211,7 +207,7 @@ public class HistoryActivity extends AppCompatActivity {
         }
     }
 
-    //сохранение файла трека .GPX
+    //save track in .GPX file
     private void writetrack(int track_id) {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
@@ -254,7 +250,7 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
 
-    //меню обычных точек
+    //popup menu of single points
     private void showMenu(final View v, final long num_id) {
         PopupMenu menu = new PopupMenu(this, v);
         menu.inflate(R.menu.history_menu);
@@ -263,14 +259,14 @@ public class HistoryActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 Cursor query = db.query("history", null,
                         "_id = ?", new String[] {Long.toString(num_id)},
-                        null, null, null);  //получаем данные из всех колонок (возможно стоит перенести отсюда?)
+                        null, null, null);  //get point data
                 query.moveToFirst();
                 Double lat = query.getDouble(query.getColumnIndex("lat"));
                 Double lon = query.getDouble(query.getColumnIndex("lon"));
 
                 switch (item.getItemId()) {
                     case R.id.internal_map__id:
-                        //открыть свою встроенную карту
+                        //open built in map
                         Intent start_map = new Intent(v.getContext(), MapsActivity.class);
                         start_map.putExtra("lat", lat);
                         start_map.putExtra("lon", lon);
@@ -285,7 +281,7 @@ public class HistoryActivity extends AppCompatActivity {
                         return true;
 
                     case R.id.external_map_id:
-                        //открыть внешней прогой
+                        //open in external app
                         Uri intentUri = Uri.parse("geo:" + lat + "," + lon);
                         Intent mapIntent = new Intent(Intent.ACTION_VIEW, intentUri);
                         if (mapIntent.resolveActivity(getPackageManager()) != null) {
@@ -305,7 +301,7 @@ public class HistoryActivity extends AppCompatActivity {
                         String phone = query.getString(query.getColumnIndex("phone"));
                         Cursor query2 = db.query(dBase.PHONES_TABLE_OUT, new String[] {dBase.NAME_COL},
                                 "phone = ?", new String[] {phone},
-                                null, null, null);  //второй запрос, тк имя в другой таблице
+                                null, null, null);  //second query because phone name in another table
                         String name;
                         if (query2.moveToFirst()) {
                             name = query2.getString(query2.getColumnIndex("name"));
@@ -355,18 +351,16 @@ public class HistoryActivity extends AppCompatActivity {
                         query.close();
                         return true;
 
-                    case R.id.del_marker_id:  //удаление тоски из истории, с предупреждением
+                    case R.id.del_marker_id:  //delete point with warning
                         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 switch(which) {
                                     case DialogInterface.BUTTON_POSITIVE:
                                         db.delete("history", "_id = ?", new String[] {Long.toString(num_id)});
-                                        //обновление списка
                                         updateList();
                                         break;
                                     case DialogInterface.BUTTON_NEGATIVE:
-                                        //отмена удаления, ничего не делаем
                                         break;
                                 }
                             }
@@ -386,14 +380,14 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void updateList() {
-        cursor = db.rawQuery("SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone", null);  //можно ли без копирования?
+        cursor = db.rawQuery("SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone", null);
         adapter.swapCursor(cursor);
         adapter.notifyDataSetChanged();
     }
 
 
     private void updateTracksList() {
-        track_cursor = db.rawQuery("SELECT tracking_table._id, tracking_table.phone, tracking_table.date AS date, phones.name AS name FROM tracking_table LEFT JOIN phones ON tracking_table.phone=phones.phone GROUP BY track_id ORDER BY tracking_table._id DESC;", null);//можно ли без копирования?
+        track_cursor = db.rawQuery("SELECT tracking_table._id, tracking_table.phone, tracking_table.date AS date, phones.name AS name FROM tracking_table LEFT JOIN phones ON tracking_table.phone=phones.phone GROUP BY track_id ORDER BY tracking_table._id DESC;", null);
         track_adapter.swapCursor(track_cursor);
         track_adapter.notifyDataSetChanged();
     }

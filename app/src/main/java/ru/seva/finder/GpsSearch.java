@@ -34,14 +34,14 @@ public class GpsSearch extends Service {
     private static final String GPS_ACCURACY = "gps_accuracy";
     private static final String GPS_ACCURACY_DEFAULT = "12";
     private static final String GPS_TIME = "gps_time";
-    private static final String GPS_TIME_DEFAULT = "20";  //здесь в минутах
+    private static final String GPS_TIME_DEFAULT = "20";  //in minutes
 
-    private Handler h;  //stopper, котрый будет работать в основном потоке, вроде как быстр, и не подвесит приложение
+    private Handler h;  //stopper, in main thread - it is enough fast to not freeze app
     private final StringBuilder sms_answer = new StringBuilder("");
     private final ArrayList<String> phones = new ArrayList<>();
 
     private String lastLat;
-    private String lastLon;  //переменные на случай еслси gps завёлся, но не успел набрал точность до таймера
+    private String lastLon;  //used in case of working GPS but bad accuracy
     private String lastSpeed;
     private String lastAccuracy;
     private boolean lastTrue = false;
@@ -55,7 +55,7 @@ public class GpsSearch extends Service {
     public void onCreate() {
         h = new Handler();
         sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        h.postDelayed(stopper, Integer.valueOf(sPref.getString(GPS_TIME, GPS_TIME_DEFAULT)) * 60000);  //остановка поиска GPS в случае если он не может получить координаты в течение опр. времени
+        h.postDelayed(stopper, Integer.valueOf(sPref.getString(GPS_TIME, GPS_TIME_DEFAULT)) * 60000);  //stopping GPS if it is impossible to determine the coordinates for a long time
         locMan = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
     }
 
@@ -63,7 +63,7 @@ public class GpsSearch extends Service {
         @Override
         public void onLocationChanged(Location location) {
             if (location.hasAccuracy() && (location.getAccuracy() < Float.valueOf(sPref.getString(GPS_ACCURACY, GPS_ACCURACY_DEFAULT)))) {
-                locMan.removeUpdates(locListen);  //после первого же нормального определения - выкл
+                locMan.removeUpdates(locListen);  //will be disabled after first accurate coords
                 sms_answer.append("lat:");
                 sms_answer.append(String.format(Locale.US, "%.8f",location.getLatitude()));
                 sms_answer.append(" ");
@@ -89,7 +89,7 @@ public class GpsSearch extends Service {
                 sms_answer.append(String.format(Locale.US, "%.0f", location.getAccuracy()));
                 start_send();
             } else {
-                lastTrue = true;  //местополежение всё таки было определено, но недостаточно точно. Если что - отрпавим хотя бы это
+                lastTrue = true;  //coords are ready but not enough precise, send them
                 lastLat = String.format(Locale.US, "%.8f",location.getLatitude());
                 lastLon = String.format(Locale.US, "%.8f", location.getLongitude());
                 lastSpeed = String.format(Locale.US, "%.2f", location.getSpeed() * 3.6f);  //default by function = 0 if not available
@@ -121,7 +121,7 @@ public class GpsSearch extends Service {
         dBase baseConnect = new dBase(this);
         SQLiteDatabase db = baseConnect.getReadableDatabase();
 
-        //проверка на вхождение номера в доверенные
+        //is number in trusted?
         Cursor cursor_check = db.query(dBase.PHONES_TABLE_IN,
                 new String[] {dBase.PHONES_COL},
                 dBase.PHONES_COL + "=?",
@@ -129,7 +129,7 @@ public class GpsSearch extends Service {
                 null, null, null);
 
         if (cursor_check.moveToFirst()) {
-            //добавляем номер в список рассылки, если он в базе. И заводим GPS (если ещё не запущен)
+            //adding number to list for answer if it in DB, and start GPS (if it not running now)
             if (!phones.contains(phone_number)) {
                 phones.add(phone_number);
             }
@@ -145,29 +145,29 @@ public class GpsSearch extends Service {
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.gps_processed))
                     .setContentText(getString(R.string.from, name))
-                    .setAutoCancel(true);  //подумать над channel id
+                    .setAutoCancel(true);
             Notification notification = builder.build();
             NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             int id = sPref.getInt("notification_id", 2);
             nManage.notify(id, notification);
             sPref.edit().putInt("notification_id", id+1).apply();
 
-            //проверка прав на новых API
+            //checking permissions on new API and start GPS
             if (Build.VERSION.SDK_INT >= 23 && (getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                     locMan.isProviderEnabled(LocationManager.GPS_PROVIDER) && startId == 1) {
-                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListen);  //стартуем!
+                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListen);
             }
 
-            //на старом можно включить и так (если работает gps)
+            //older API
             if (Build.VERSION.SDK_INT < 23 && locMan.isProviderEnabled(LocationManager.GPS_PROVIDER) && startId == 1) {
-                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListen);  //стартуем!
+                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListen);
             }
 
-            //на новом API нет прав либо на любоой API gps выключен
+            //on new API no permission or GPS disabled
             if ((Build.VERSION.SDK_INT >=23 && getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) ||
                     !locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 try {
-                    Thread.sleep(200);  //волшебный таймаут для того, чтобы не было звука
+                    Thread.sleep(200);  //timeout for muting
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
@@ -176,7 +176,7 @@ public class GpsSearch extends Service {
             }
 
         } else {
-            if (phones.size() == 0) {  //если НИКОГО в списке рассылки НЕ было, остановливаемся
+            if (phones.size() == 0) {  //if number not added, and list was empty - stop
                 h.removeCallbacks(stopper);
                 locMan.removeUpdates(locListen);
                 cursor_check.close();
@@ -192,16 +192,16 @@ public class GpsSearch extends Service {
         cursor_check.close();
         db.close();
 
-        return START_REDELIVER_INTENT; //ответим хотя бы последнему номеру
+        return START_REDELIVER_INTENT; //answer at least the last number
     }
 
 
     private final Runnable stopper = new Runnable() {
         @Override
         public void run() {
-            //логика завершения по таймеру
+            //stopping by timer
             locMan.removeUpdates(locListen);
-            if (lastTrue) {  //отправим хотя бы то что есть
+            if (lastTrue) {  //send at least what we have (if we have)
                 sms_answer.append("lat:");
                 sms_answer.append(lastLat);
                 sms_answer.append(" lon:");
@@ -225,16 +225,16 @@ public class GpsSearch extends Service {
     }
 
 
-    private void start_send() {   //рассылка всем запросившим
+    private void start_send() {   //sending to all who asked
         if ((Build.VERSION.SDK_INT >= 23 &&
                 (getApplicationContext().checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED)) ||
                 Build.VERSION.SDK_INT < 23) {
-            //добавим данные по батарее
+            //adding battery data
             IntentFilter bat_filt= new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
             Intent battery = getApplicationContext().registerReceiver(null, bat_filt);
             int level = battery.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
             int scale = battery.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-            float batteryPct = level / (float)scale;
+            float batteryPct = level / (float) scale;
             String batLevel = String.valueOf(Math.round(batteryPct*100));
             sms_answer.append(" bat:");
             sms_answer.append(batLevel);

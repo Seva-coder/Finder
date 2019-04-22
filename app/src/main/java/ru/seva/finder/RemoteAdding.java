@@ -23,11 +23,10 @@ public class RemoteAdding extends IntentService {
     protected void onHandleIntent(Intent intent) {
         String phone_number = intent.getStringExtra("phone_number");
 
-        //подрубаемся к базе
         dBase baseConnect = new dBase(this);
         SQLiteDatabase db = baseConnect.getWritableDatabase();
 
-        //проверка на вхождение
+        //this check is to avoid repetition of phone numbers in DB
         Cursor cursor_check = db.query(dBase.PHONES_TABLE_IN,
                 new String[] {dBase.PHONES_COL},
                 dBase.PHONES_COL + "=?",
@@ -35,7 +34,7 @@ public class RemoteAdding extends IntentService {
                 null, null, null);
 
         if (!cursor_check.moveToFirst()) {
-            //номера в базе ещё нет
+            //add number in case of its absence
             ContentValues cv = new ContentValues();
             cv.put(dBase.PHONES_COL, phone_number);
             db.insert(dBase.PHONES_TABLE_IN, null, cv);
@@ -49,19 +48,19 @@ public class RemoteAdding extends IntentService {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getString(R.string.remote_adding))
                 .setContentText(getString(R.string.was_added, phone_number))
-                .setAutoCancel(true);  //подумать над channel id
+                .setAutoCancel(true);
         Notification notification = builder.build();
         NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         int id = sPref.getInt("notification_id", 2);
         nManage.notify(id, notification);
         sPref.edit().putInt("notification_id", id+1).apply();
 
-        //включение режима для ответа на запросы после удалённого добавления номера (даже если он был выключен)
+        //enable response mode after remote adding
         sPref.edit().putBoolean("answer", true).apply();
 
         if (sPref.getBoolean("disable_sound", false) && intent.getBooleanExtra("sound_was_normal", true)) {
             try {
-                Thread.sleep(200);  //волшебный таймаут для того, чтобы не было звука
+                Thread.sleep(200);  //magic timeout for mute
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }

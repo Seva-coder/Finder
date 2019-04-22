@@ -97,8 +97,8 @@ public class MapsActivity extends AppCompatActivity {
             track_id = intent.getIntExtra("track_id", 0);
             line = new Polyline(map);
             line.setColor(Color.BLUE);
-            line.setInfoWindow(null);  // уберём всплывающий поп-ап с трека
-            line.setGeodesic(true);  //отобразим реальные прямые ("большие дуги")
+            line.setInfoWindow(null);  //delete popup label from track
+            line.setGeodesic(true);  //draw "true" lines instead simple lines (great circles)
             trackRedraw();
             map.getOverlays().add(line);
         } else {
@@ -112,7 +112,7 @@ public class MapsActivity extends AppCompatActivity {
             startMarker.setTitle(accuracy);
         }
 
-        //ресивер обновления карты
+        //receiver to map updating
         LocalBroadcastManager.getInstance(this).registerReceiver(updMap, new IntentFilter("update_map"));
     }
 
@@ -142,7 +142,7 @@ public class MapsActivity extends AppCompatActivity {
         Double lon = last_point.getDouble(1);
         last_point.close();
 
-        //Привет костыль! а всё из-за того, что BoundBox не работает так, как должен, привет разрабам. Зумимся на последнюю точку
+        //zoom to latest point, because BoundBox don't work in OsmDroid library (this is known lib bug)
         mapController.setCenter(new GeoPoint(lat, lon));
         mapController.setZoom(15d);
         List<GeoPoint> track = new ArrayList<>();
@@ -159,10 +159,10 @@ public class MapsActivity extends AppCompatActivity {
         query.close();
         line.setPoints(track);
         GeoPoint center = new GeoPoint(lat, lon);
-        mapController.setCenter(center);  //проверить позиционирование
+        mapController.setCenter(center);
     }
 
-    //обновление карты
+    //map update receiver
     private final BroadcastReceiver updMap = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {

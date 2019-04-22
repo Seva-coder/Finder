@@ -26,11 +26,11 @@ public class SmsReceiver extends BroadcastReceiver {
         SharedPreferences sPref;
         sPref = PreferenceManager.getDefaultSharedPreferences(context);
 
-        String phone = "";  //на случай отсутствия в sms-ке
+        String phone = "";  //default init
         Bundle intentExtras = intent.getExtras();
         String action = intent.getAction();
         if ((intentExtras != null) && (action.equals(SMS_RECEIVED))) {
-            /* древний метод для совместимости с 17м API */
+            /* old method to work with 17s API */
             Object[] sms = (Object[]) intentExtras.get("pdus");
 
             for (int i = 0; i < sms.length; ++i) {
@@ -42,11 +42,11 @@ public class SmsReceiver extends BroadcastReceiver {
             }
 
             AudioManager aMan = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-            //проверка на возможный ответ
+            //checking for possible answer
             Intent stop_bar = new Intent("disable_bar");
             String message = text.toString();
             if (checkWifiSms(message)) {
-                Intent new_message_intent = new Intent(context, NewGoogleGeo.class);  //intent-сервис с запросом к google-api
+                Intent new_message_intent = new Intent(context, NewGoogleGeo.class);  //using google geo api
                 new_message_intent.putExtra("phone", phone);
                 new_message_intent.putExtra("message", message);
                 context.startService(new_message_intent);
@@ -73,12 +73,12 @@ public class SmsReceiver extends BroadcastReceiver {
 
                 context.startService(track_point);
             } else if ((message.length() > 15) && message.substring(0, 15).equals("gps not enabled")) {
-                //0-15 тк там после фразы данные аккумулятора
+                //only 0-15 symbols because after goes battery data
                 Notification.Builder builder = new Notification.Builder(context)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(phone)
                         .setContentText(context.getString(R.string.gps_not_enabled))
-                        .setAutoCancel(true);  //подумать над channel id
+                        .setAutoCancel(true);
                 Notification notification = builder.build();
                 NotificationManager nManage = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
                 int id = sPref.getInt("notification_id", 2);
@@ -91,7 +91,7 @@ public class SmsReceiver extends BroadcastReceiver {
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(phone)
                         .setContentText(context.getString(R.string.no_coord_bad_signal))
-                        .setAutoCancel(true);  //подумать над channel id
+                        .setAutoCancel(true);
                 Notification notification = builder.build();
                 NotificationManager nManage = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
                 int id = sPref.getInt("notification_id", 2);
@@ -101,16 +101,15 @@ public class SmsReceiver extends BroadcastReceiver {
             }
 
 
-            //проверка на возможный запрос наших координат
-            //в SMS пришла команда на wifi при этом в настройках указанно отвечать
-
+            //checking for possible request of coordinates
+            //wifi request
             if (message.equals(sPref.getString("wifi", context.getString(R.string.wifi_default_command))) && sPref.getBoolean("answer", false)) {
                 Intent wifi_intent = new Intent(context, WifiSearch.class);
                 if (sPref.getBoolean("disable_sound", false)) {
                     if (aMan.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
                         wifi_intent.putExtra("sound_was_normal", true);
                     } else {
-                        wifi_intent.putExtra("sound_was_normal", false);  //тк звук мог быть ужк отключен, и мы бы его потом включили
+                        wifi_intent.putExtra("sound_was_normal", false);  //sound may be already disabled
                     }
                     aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
                 }
@@ -118,7 +117,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 context.startService(wifi_intent);
             }
 
-            //в SMS пришла команда на GPS при этом в настройках указанно отвечать
+            //GPS request
             if (message.equals(sPref.getString("gps", context.getString(R.string.wifi_default_command))) && sPref.getBoolean("answer", false)) {
                 Intent gps_intent = new Intent(context, GpsSearch.class);
                 if (sPref.getBoolean("disable_sound", false)) {
@@ -133,7 +132,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 context.startService(gps_intent);
             }
 
-            //в SMS пришла команда на remote_add при этом опция включена
+            //remote phone number add (if enabled in options)
             if (message.equals(sPref.getString("remote", "NO_DEFAULT_VALUE")) && sPref.getBoolean("remote_active", false)) {
                 Intent remote_intent = new Intent(context, RemoteAdding.class);
                 if (sPref.getBoolean("disable_sound", false)) {
@@ -148,26 +147,26 @@ public class SmsReceiver extends BroadcastReceiver {
                 context.startService(remote_intent);
             }
 
-            text = new StringBuilder("");  //иначе новый текст складывается с предудущим
+            text = new StringBuilder("");  //default value, else new text added to previous
         }
     }
 
-    public static boolean checkWifiSms(String textMessage) {
+    static boolean checkWifiSms(String textMessage) {
         Pattern pat1 = Pattern.compile("^(gsm|wcdma|lte|cdma)\nMCC(\\d+)\nMNC(\\d+)\nLAC(\\d+)\nCID(\\d+)");
         Matcher m1 = pat1.matcher(textMessage);
-        Pattern pat2 = Pattern.compile("([0-9a-f]{12})\n(-?\\d+)");  //mac или сети могут отсутствовать
+        Pattern pat2 = Pattern.compile("([0-9a-f]{12})\n(-?\\d+)");  //mac or nets can absent
         Matcher m2 = pat2.matcher(textMessage);
         return ((m1.find() || m2.find()));
     }
 
-    public static boolean checkGpsSms(String message) {
+    static boolean checkGpsSms(String message) {
         Pattern gps_pat = Pattern.compile("^lat:-?\\d+\\.\\d+ lon:-?\\d+\\.\\d+");
         Matcher m = gps_pat.matcher(message);
         return m.find();
     }
 
 
-    private static boolean checkTrackingSms(String message) {
+    static boolean checkTrackingSms(String message) {
         Pattern tracking_pat = Pattern.compile("^(\\d+\\.\\d+;\\d+\\.\\d+;\\d+\\.\\d+;\\d\\d:\\d\\d\n?)+");
         Matcher m = tracking_pat.matcher(message);
         return m.find();

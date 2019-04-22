@@ -37,11 +37,11 @@ public class NewGoogleGeo extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String phone = intent.getStringExtra("phone");  //на будущее передадим тел (будет заноситься в базу)
+        String phone = intent.getStringExtra("phone");  //phone needed to record to DB and notification
         String textMessage = intent.getStringExtra("message");
 
-        Pattern pat1 = Pattern.compile("(gsm|wcdma|lte|cdma)\nMCC(\\d+)\nMNC(\\d+)\nLAC(\\d+)\nCID(\\d+)");  //проверка на наличие данных сети
-        Pattern pat2 = Pattern.compile("([0-9a-f]{12})\n(-?\\d+)");  //проверка на входящие маки
+        Pattern pat1 = Pattern.compile("(gsm|wcdma|lte|cdma)\nMCC(\\d+)\nMNC(\\d+)\nLAC(\\d+)\nCID(\\d+)");  //check for nets in SMS
+        Pattern pat2 = Pattern.compile("([0-9a-f]{12})\n(-?\\d+)");  //check for mac addr in SMS
 
         Matcher m1 = pat1.matcher(textMessage);
         Matcher m2 = pat2.matcher(textMessage);
@@ -55,7 +55,7 @@ public class NewGoogleGeo extends IntentService {
             String mcc = m1.group(2);
             String mnc = m1.group(3);
             try {
-                json_req.put("homeMobileCountryCode", Integer.valueOf(mcc));  //первая часть json требует сети (возьмём первую)
+                json_req.put("homeMobileCountryCode", Integer.valueOf(mcc));  //first part of json request require nets (first net used)
                 json_req.put("homeMobileNetworkCode", Integer.valueOf(mnc));
                 json_req.put("radioType", type);
                 json_req.put("considerIp", "false");
@@ -72,7 +72,7 @@ public class NewGoogleGeo extends IntentService {
                 json_req.put("cellTowers", cells_array);
 
             } catch (JSONException e) {
-                //хз когда такое вообще может произойти
+                //is it possible?)
             }
         }
 
@@ -92,7 +92,7 @@ public class NewGoogleGeo extends IntentService {
             }
             json_req.put("wifiAccessPoints", macs_array);
         } catch (JSONException e) {
-            //хз когда такое вообще может произойти
+            //is it possible?)
         }
 
         StringBuilder sb = new StringBuilder();
@@ -132,7 +132,7 @@ public class NewGoogleGeo extends IntentService {
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         int id = sPref.getInt("notification_id", 2);
 
-        //запись в базу теперь здесь
+        //recording to DB
         dBase baseConnect = new dBase(getApplicationContext());
         SQLiteDatabase db = baseConnect.getWritableDatabase();
         try {
@@ -149,7 +149,7 @@ public class NewGoogleGeo extends IntentService {
                 String date = df.format(Calendar.getInstance().getTime());
                 MainActivity.write_to_hist(db, phone, lat, lon, acc, date, bat_value, null, null, null);
 
-                if (MainActivity.activityRunning && sPref.getBoolean("auto_map", false)) {  //карта вылетит только в случае настройки и открытого приложения
+                if (MainActivity.activityRunning && sPref.getBoolean("auto_map", false)) {  //map will be open only in case of running app and enabled option
                     Intent start_map = new Intent(getApplicationContext(), MapsActivity.class);
                     start_map.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     start_map.putExtra("lat", lat);
@@ -161,7 +161,7 @@ public class NewGoogleGeo extends IntentService {
                     }
                     startActivity(start_map);
                 } else {
-                    //получаем имя номера, если он известен
+                    //get phone name if exist
                     Cursor name_curs = db.query(dBase.PHONES_TABLE_OUT, new String[] {dBase.NAME_COL},
                             "phone = ?", new String[] {phone},
                             null, null, null);
@@ -176,7 +176,7 @@ public class NewGoogleGeo extends IntentService {
                             .setContentTitle(getString(R.string.message_with_coord))
                             .setContentText(getString(R.string.coords_received, name))
                             .setAutoCancel(true)
-                            .setContentIntent(pendIntent);  //подумать над channel id  и ИКОНКОЙ!
+                            .setContentIntent(pendIntent);
                     Notification notification = builder.build();
                     NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                     nManage.notify(id, notification);
@@ -186,7 +186,7 @@ public class NewGoogleGeo extends IntentService {
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(getString(R.string.error_getting_coordinats))
                         .setContentText(getString(R.string.api_error))
-                        .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
+                        .setAutoCancel(true);
                 Notification notification = builder.build();
                 NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 nManage.notify(id, notification);
@@ -196,12 +196,12 @@ public class NewGoogleGeo extends IntentService {
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.error_getting_coordinats))
                     .setContentText(getString(R.string.parsing_error))
-                    .setAutoCancel(true);  //подумать над channel id  и ИКОНКОЙ!
+                    .setAutoCancel(true);
             Notification notification = builder.build();
             NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             nManage.notify(id, notification);
         }
         db.close();
-        sPref.edit().putInt("notification_id", id+1).commit();  //это и так новый поток
+        sPref.edit().putInt("notification_id", id+1).commit();  //this is new thread
     }
 }

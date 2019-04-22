@@ -131,5 +131,6 @@
     <string name="date_time">%s \n%.1f км/ч</string>
     <string name="track_saved_message">Трек сохранён! в Загрузках</string>
     <string name="mute_tracking_sms">Отключать звук при входящих теркинговых SMS</string>
+    <string name="tracking_sms_open">Трекинговое SMS обработано!</string>
 
 </resources>

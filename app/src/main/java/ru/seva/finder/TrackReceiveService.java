@@ -33,14 +33,13 @@ public class TrackReceiveService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        //подрубаемся к базе
         dBase baseConnect = new dBase(this);
         db = baseConnect.getWritableDatabase();
 
-        // выбор iD  для трека (дефолт/старый/инкремент) в зависимотсти от времени последних данных
+        //selection of id for track (old/increment)
         Cursor query = db.rawQuery("SELECT track_id, date FROM tracking_table WHERE _id = (SELECT MAX(_id) FROM tracking_table)", null);
 
-        int track_id = 0;  // дефолтное, если в базе ещё нет треков
+        int track_id = 0;  //default value, for case when this track is first
         if (query.moveToFirst()) {
             track_id = query.getInt(query.getColumnIndex("track_id"));
             String old_date = query.getString(query.getColumnIndex("date"));
@@ -51,19 +50,18 @@ public class TrackReceiveService extends IntentService {
             try {
                 date = dateFormat.parse(old_date);
             } catch (ParseException e) {
-                //да быть такого не может)
-                //хз что делать
+                //how this happen?!
                 date = curr_date;
             }
 
-            float days_from_last = (curr_date.getTime() - date.getTime())/(1000f * 3600f * 24f);  //число дней от старых данных
-            if (days_from_last >= 1.0f) {  //прошло более одного дня с последних данных
+            float days_from_last = (curr_date.getTime() - date.getTime())/(1000f * 3600f * 24f);  //number of days since old track
+            if (days_from_last >= 1.0f) {  //more than one day has passed since the last data
                 track_id++;
             }
         }
         query.close();
 
-        //создадим уведомление с возможностью открыть трек по клику на уведомление
+        //create notification which open current track
         Intent intentRes = new Intent(getApplicationContext(), MapsActivity.class);
         intentRes.setAction("track");
         intentRes.putExtra("track_id", track_id);
@@ -72,7 +70,7 @@ public class TrackReceiveService extends IntentService {
                 .setContentIntent(pendIntent)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getString(R.string.new_track_data))
-                .setAutoCancel(true);  //подумать над channel id;
+                .setAutoCancel(true);
         Notification notification = builder.build();
         NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         nManage.notify(1, notification);  // 1st notif - using for tracking
@@ -83,7 +81,7 @@ public class TrackReceiveService extends IntentService {
         Pattern tracking_pat = Pattern.compile("(\\d+\\.\\d+);(\\d+\\.\\d+);(\\d+\\.\\d+);(\\d\\d:\\d\\d)");
         Matcher m = tracking_pat.matcher(message);
 
-        while (m.find()) {  //парсинг SMSки с даными
+        while (m.find()) {  //incoming SMS parsing
             writeToTrackTable(phone_number, Double.valueOf(m.group(1)), Double.valueOf(m.group(2)),
                     Float.valueOf(m.group(3)), m.group(4), track_id);
         }
@@ -93,11 +91,11 @@ public class TrackReceiveService extends IntentService {
         Intent update_map = new Intent("update_map");
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(update_map);
 
-        //возвращение звука в норм состояние
+        //sound Mode return to the original state
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         if (sPref.getBoolean("disable_tracking_sound", false) && intent.getBooleanExtra("sound_was_normal", true)) {
             try {
-                Thread.sleep(200);  //волшебный таймаут для того, чтобы не было звука
+                Thread.sleep(200);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
@@ -118,7 +116,7 @@ public class TrackReceiveService extends IntentService {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         String date = df.format(Calendar.getInstance().getTime());
 
-        cv.put("date", String.format("%sT%s:00Z", date, time));  //стыковка времени из двух частей - дата системы+время точки из SMS
+        cv.put("date", String.format("%sT%s:00Z", date, time));  //string with time consists of two parts - system date and time from SMS. May be using UTC time is better solution
         db.insert("tracking_table", null, cv);
     }
 }
