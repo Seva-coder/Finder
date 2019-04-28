@@ -11,7 +11,7 @@ Repository with application sources - https://github.com/Seva-coder/Finder<br><b
 
 <h2><font color="red">Important for MIUI users!</font></h2>
 
-\tSome of OS from different manufacturers, for example MIUI (and maybe some others) try to reduce power consumption very hard and prohibit starting background processes. And although the \"Finder\" starts only when the SMS received (no services are running at another time, the exception is tracking feature), system can disable broadcast receiver (it is a component of Android apps), which leads to <b>non-operability of app</b> - it does not answer to incoming requests. To avoid this situation user should change some Android settings:<br>
+\tSome of OS from different manufacturers, for example MIUI (and maybe some others) try to reduce power consumption very hard and prohibit starting background processes. And although the \"Finder\" starts only when the SMS received (no services are running at another time, the exception is tracker feature), system can disable broadcast receiver (it is a component of Android apps), which leads to <b>non-operability of app</b> - it does not answer to incoming requests. To avoid this situation user should change some Android settings:<br>
 1. Security -> Permissions -> Autostart -> add Finder to autostart<br>
 2. Security -> Battery -> App battery saver -> set <b>\"No restrictions\"</b> and <b>\"Allow\"</b> background location for this app<br>
 3. In \"recent apps menu\" slide Finder an select <b>\"Lock\"</b><br>
@@ -33,8 +33,8 @@ All this should make the system don\'t disable broadcast receiver and allow app 
 <b><i>\tMute sound for incoming SMS request</b></i> - setting allows you to silently receive messages with commands, but notifications will be displayed in any case. Can help when phone was stolen. If sound already was muted, it remain muted (otherwise it will return to normal, as it was before the command).<br>
 <b><i>\tRemote phone number adding</b></i> - when setting is enabled <b>and it\'s command assigned</b>, allows to register new trusted number (from which the remote adding command was sent). Even if responding mode is not enabled, after this command it will be enabled with default settings (or last modified settings, before responding mode was disabled). This feature allows start phone searching quickly as possible in case of theft, by sending remote add command from any available phone.<br>
 <p>
-<h2>Tracking</h2>
-<i>Tracking</i> - mode, sending coordinates to selected number with certain frequency (do not forget the cost of SMS!). To start this mode click on trusted number -> "Start tracking..". This feature can\'t be started remotely. It has following settings (appear before start):<br>
+<h2>Tracker</h2>
+<i>Tracker</i> - mode, sending coordinates to selected number with certain frequency (do not forget the cost of SMS!). To start this mode click on trusted number -> "Start tracker..". This feature can\'t be started remotely. It has following settings (appear before start):<br>
 <b><i>\tMax number of..</b></i> - limit number of SMS to send.<br>
 <b><i>\tDelay between checking..</b></i> - GPS will be enabled with such period. Note, that small time can cause <b>skipping getting coordinates</b> (due to long GPS starting). GPS is not used after receiving the coordinates, such behavior saves battery.<br>
 <b><i>\tDesired accuracy</b></i> - after enabling GPS app will wait this accuracy. If the desired accuracy is not achieved for the period, the available data will be sent.<br>

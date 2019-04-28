@@ -1,0 +1,13 @@
+The main function of the Finder is to send the location of the smartphone on request. Also it has tracker feature (can’t be activated remotely, only manually). The application is designed to search for lost people or a stolen phone. SMS is used for communication because Internet may be not available. App has two ways of determining the coordinates: using GPS (must be enabled in system settings!), and using mobile nets and WiFi-net info.
+
+<b>Important!</b> On Android 6.0 and newer for Wifi-networks searching feature, GPS must be enabled! (beforehand). GPS will not be used during nets scanning, but nevertheless, newer versions of Android require it to be turned on (otherwise the system returns an empty list of nets). App has detailed help, read it before use (but the best is check working of app on real device beforehand use).
+
+When location is get using wifi- and mobile nets, the response SMS will have mac-addresses of surrounding wifi networks, and to determine the location it is necessary to have this application and the Internet on the requesting phone. This method can help in the case of finding the phone in a building / dense arrangement of buildings in the city.
+
+An important feature is that the application responds only to numbers from the "trusted list" and only when the "respond to requests" option is enabled! (disabled by default). It is necessary to add the telephone numbers from which the requests will be sent in advance. The commands on the requesting and responding phones must be the same. It is possible to enable the remote addition mode. If this mode was enabled and the command is setted, it allows you to remotely register a previously unknown number in the "trusted list". Finder always displays notifications about any requests/responses.
+
+MIUI users (and possibly some other OS) need to additionally make some settings in the system for the operability of the application. This is described in detail in the built-in help.
+
+Tracker function if enabled send coordinates to one of trusted numbers with setted period. On other device incoming SMS are parsed and track is displayed on the map. Track can be exported in gpx format for using in other navigation applications (the only difference from standard is local time instead UTC).
+
+It is also possible to send coordinates manually to any number from "trusted list".
