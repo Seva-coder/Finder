@@ -147,7 +147,10 @@ public class Tracking extends Service {
             if (Build.VERSION.SDK_INT < 23 && locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListen, Looper.getMainLooper());
             }
-            stop.postDelayed(stopper, delay * 900);  //stop GPS when 90% of the period has passed 900=1000ms*0.9)
+            int gps_timeout_setting = Integer.valueOf(sPref.getString("gps_time", "20")) * 60 * 1000;  //in ms
+            int delay_90 = delay * 900; // 900=1000ms*0.9
+            int delay_min = (delay_90 < gps_timeout_setting) ? delay_90 : gps_timeout_setting;
+            stop.postDelayed(stopper, delay_min);  //stop GPS when 90% of the period has passed OR worktime exceeds time for single request. Will be used only in case when GPS is not available
         }
     }
 

@@ -11,7 +11,6 @@ An important feature is that the application responds only to numbers from the "
 
 MIUI users (and possibly some other OS) need to additionally make some settings in the system for the operability of the application. This is described in detail in the built-in help.
 It is also possible to send your coordinates manually to any number from "trusted list".
-This is an open source application, the repository is located at
 
 If you see a bug, please report it! (or commit here)
 

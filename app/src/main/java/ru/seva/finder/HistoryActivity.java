@@ -37,6 +37,8 @@ public class HistoryActivity extends AppCompatActivity {
     private SQLiteDatabase db;
     private SimpleCursorAdapter adapter;
     private SimpleCursorAdapter track_adapter;
+    private final String points_sql = "SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone ORDER BY history._id DESC;";
+    private final String tracks_sql = "SELECT tracking_table._id, tracking_table.phone, tracking_table.date AS date, phones.name AS name FROM tracking_table LEFT JOIN phones ON tracking_table.phone=phones.phone GROUP BY track_id ORDER BY tracking_table._id DESC;";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +55,8 @@ public class HistoryActivity extends AppCompatActivity {
         //processing list with single points
         String[] fromColons = {"name", "date"};
         int[] toViews = {android.R.id.text1, android.R.id.text2};
-        cursor = db.rawQuery("SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone ORDER BY history._id DESC;", null);
+
+        cursor = db.rawQuery(points_sql, null);
 
         adapter = new SimpleCursorAdapter(this,
                 android.R.layout.simple_list_item_2,
@@ -63,7 +66,7 @@ public class HistoryActivity extends AppCompatActivity {
                 0);
 
         //processing list with tracks
-        track_cursor = db.rawQuery("SELECT tracking_table._id, tracking_table.phone, tracking_table.date AS date, phones.name AS name FROM tracking_table LEFT JOIN phones ON tracking_table.phone=phones.phone GROUP BY track_id ORDER BY tracking_table._id DESC;", null);
+        track_cursor = db.rawQuery(tracks_sql, null);
 
         track_adapter = new SimpleCursorAdapter(this,
                 android.R.layout.simple_list_item_2,
@@ -123,12 +126,13 @@ public class HistoryActivity extends AppCompatActivity {
 
     protected void onResume() {
         super.onResume();
-        updateList();
+        updateList(points_sql, adapter);
     }
 
     protected void onDestroy() {
         super.onDestroy();
         cursor.close();
+        track_cursor.close();
         db.close();
     }
 
@@ -175,7 +179,7 @@ public class HistoryActivity extends AppCompatActivity {
                                 switch(which) {
                                     case DialogInterface.BUTTON_POSITIVE:
                                         db.delete("tracking_table", "track_id = ?", new String[] {Integer.toString(track_id)});
-                                        updateTracksList();
+                                        updateList(tracks_sql, track_adapter);
                                         break;
                                     case DialogInterface.BUTTON_NEGATIVE:
                                         //del cancelled, nothing to do
@@ -358,7 +362,7 @@ public class HistoryActivity extends AppCompatActivity {
                                 switch(which) {
                                     case DialogInterface.BUTTON_POSITIVE:
                                         db.delete("history", "_id = ?", new String[] {Long.toString(num_id)});
-                                        updateList();
+                                        updateList(points_sql, adapter);
                                         break;
                                     case DialogInterface.BUTTON_NEGATIVE:
                                         break;
@@ -379,16 +383,20 @@ public class HistoryActivity extends AppCompatActivity {
         menu.show();
     }
 
-    private void updateList() {
-        cursor = db.rawQuery("SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone", null);
+    private void updateList(String sql, SimpleCursorAdapter adapt) {
+        Cursor temp_cursor = db.rawQuery(sql, null);
+        adapt.swapCursor(temp_cursor);
+        adapt.notifyDataSetChanged();
+
+        /*cursor = db.rawQuery("SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone", null);
         adapter.swapCursor(cursor);
-        adapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged(); */
     }
 
-
+  /*
     private void updateTracksList() {
         track_cursor = db.rawQuery("SELECT tracking_table._id, tracking_table.phone, tracking_table.date AS date, phones.name AS name FROM tracking_table LEFT JOIN phones ON tracking_table.phone=phones.phone GROUP BY track_id ORDER BY tracking_table._id DESC;", null);
         track_adapter.swapCursor(track_cursor);
         track_adapter.notifyDataSetChanged();
-    }
+    }   */
 }
