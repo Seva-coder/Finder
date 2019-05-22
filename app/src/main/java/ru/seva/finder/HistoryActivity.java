@@ -387,16 +387,5 @@ public class HistoryActivity extends AppCompatActivity {
         Cursor temp_cursor = db.rawQuery(sql, null);
         adapt.swapCursor(temp_cursor);
         adapt.notifyDataSetChanged();
-
-        /*cursor = db.rawQuery("SELECT history._id, history.phone, phones.name, history.date FROM history LEFT JOIN phones ON history.phone = phones.phone", null);
-        adapter.swapCursor(cursor);
-        adapter.notifyDataSetChanged(); */
     }
-
-  /*
-    private void updateTracksList() {
-        track_cursor = db.rawQuery("SELECT tracking_table._id, tracking_table.phone, tracking_table.date AS date, phones.name AS name FROM tracking_table LEFT JOIN phones ON tracking_table.phone=phones.phone GROUP BY track_id ORDER BY tracking_table._id DESC;", null);
-        track_adapter.swapCursor(track_cursor);
-        track_adapter.notifyDataSetChanged();
-    }   */
 }
