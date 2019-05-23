@@ -17,3 +17,6 @@ If you see a bug, please report it! (or commit here)
 Now it is fully open source, for map used library OsmDroid version 6.0.1.
 
 Sevastyanov Nikita, 2018-2019
+nikita.sevast@gmail.com
+
+I'm the app author, and I support inclusion in F-Droid.
