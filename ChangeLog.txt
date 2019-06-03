@@ -1,10 +1,20 @@
-v1.0
-- initial release
+v1.6
+- fixed bug on Android Oreo 8.0, when for sending SMS "READ_PHONE_STATE" permission also needed (it used only in this android version)
+- fixed bug when user can set empty commands and other settings
+- now commands are compared with each other (to be different)
 
-v1.1
-- unused permissions deleted
-- Android bug/feature with getting wifi-data only with enabled GPS described in help. Added notification about it when number added
-- screenshot of map in play market
+v1.5
+- cache trim size now depend from max size
+- new tracking feature
+
+v1.4
+- number of digits in SMS after comma reduced
+- new satellite map (uses MapBox)
+- cache size setting
+
+v1.3
+- map changed to OpenStreetMap
+- "add" button disabled if phone field is empty
 
 v1.2
 - added names for contacts
@@ -14,15 +24,11 @@ v1.2
 - new phone now add via dialog (field of name and number are deleted)
 - some improvements in formatting info about location in history
 
-v1.3
-- map changed to OpenStreetMap
-- "add" button disabled if phone field is empty
+v1.1
+- unused permissions deleted
+- Android bug/feature with getting wifi-data only with enabled GPS described in help. Added notification about it when number added
+- screenshot of map in play market
 
-v1.4
-- number of digits in SMS after comma reduced
-- new satellite map (uses MapBox)
-- cache size setting
 
-v1.5
-- cache trim size now depend from max size
-- new tracking feature (in dev)
+v1.0
+- initial release

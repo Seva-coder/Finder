@@ -68,14 +68,33 @@ public class MainActivity extends AppCompatActivity {
         ListView list = findViewById(R.id.lvSendTo);
         ListView list_receive = findViewById(R.id.lvReceiveFrom);
         activityRunning = true;
-        allDangPerm = new String[] {
+        String[] allDangPermNormal = new String[]{
                 Manifest.permission.SEND_SMS,
                 Manifest.permission.RECEIVE_SMS,
+                Manifest.permission.READ_SMS,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.CHANGE_WIFI_STATE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
         };
+
+        //because bug in android Oreo (to send SMS READ_PHONE_STATE permission is needed) https://issuetracker.google.com/issues/66979952
+        String[] allDangPermOreo = new String[]{
+                Manifest.permission.SEND_SMS,
+                Manifest.permission.RECEIVE_SMS,
+                Manifest.permission.READ_SMS,
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.CHANGE_WIFI_STATE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
+
+        if (Build.VERSION.SDK_INT == 26) {
+            allDangPerm = allDangPermOreo;  //READ_PHONE_STATE added to workaround known bug (only in android 8.0)
+        } else {
+            allDangPerm = allDangPermNormal;
+        }
 
         sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 

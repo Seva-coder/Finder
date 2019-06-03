@@ -43,7 +43,7 @@
             android:key="cache_size"
             android:title="@string/cache_size"
             android:summary="@string/cache_descr"
-            android:numeric="integer"
+            android:inputType="number"
             android:defaultValue="5"/>
 
     </PreferenceCategory>
