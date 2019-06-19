@@ -12,8 +12,9 @@ Tracker function if enabled send coordinates to one of trusted numbers with sett
 
 It is also possible to send coordinates manually to any number from "trusted list".
 
-Description of required permissions:
+Permissions are requested immediately at the start, because they will be needed later for determining the coordinates (in the background). Description of required permissions:
 
 <i>Access to location</i> - obvious, for getting location.
 <i>Access to SMS</i> - "receive" - for detecting commands, "read" - need in case of not receiving SMS with nets data, "send" - to send location and commands.
 <i>Write to external storage</i> - for cache of map and export track in gpx.
+*<i>Read phone state</i> - requested only for android 8.0 due to a bug in this version of the OS (only in 8.0).

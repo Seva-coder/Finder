@@ -1,0 +1,3 @@
+- fixed bug with not working wifi-searching feature
+- fixed bug with crash on android 8 when mute feature enabled
+- notifications on android 8 now are working

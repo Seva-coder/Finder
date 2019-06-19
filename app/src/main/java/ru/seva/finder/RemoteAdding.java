@@ -10,7 +10,9 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.AudioManager;
+import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 
 
 public class RemoteAdding extends IntentService {
@@ -44,7 +46,7 @@ public class RemoteAdding extends IntentService {
         db.close();
 
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        Notification.Builder builder = new Notification.Builder(getApplicationContext())
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), MainActivity.COMMON_NOTIF_CHANNEL)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getString(R.string.remote_adding))
                 .setContentText(getString(R.string.was_added, phone_number))
@@ -60,12 +62,14 @@ public class RemoteAdding extends IntentService {
 
         if (sPref.getBoolean("disable_sound", false) && intent.getBooleanExtra("sound_was_normal", true)) {
             try {
-                Thread.sleep(200);  //magic timeout for mute
+                Thread.sleep(500);  //magic timeout for mute
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
             AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
-            aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+            if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
+                aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+            }
         }
     }
 }

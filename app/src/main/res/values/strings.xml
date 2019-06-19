@@ -137,6 +137,12 @@
     <string name="mute_tracking_sms">Mute incoming tracking SMS</string>
     <string name="tracking_sms_open">Tracking SMS processed!</string>
     <string name="wrong_values">Wrong value! not saved</string>
+    <string name="sound_perm_fail">Permission not granted, feature disabled</string>
+    <string name="enable_sound">Please, enable \'Dont disturb permission\' for Finder</string>
+    <string name="single_coord_chan">Single coordinates</string>
+    <string name="single_coord_chan_description">It is used for notification about requests/responses of coordinates</string>
+    <string name="tracking_chan">Tracking</string>
+    <string name="tracking_chan_description">Used for data about tracking (both receive and sending)</string>
 
 
 </resources>

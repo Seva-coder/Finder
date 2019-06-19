@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="google_geo_api" translatable="false">YOUR_GEOLOCATION_API_KEY</string>
+    <string name="google_geo_api" translatable="false">AIzaSyCsSU5nS8aOFGhKhtmTH11pFYY9acz_-9c</string>
 </resources>

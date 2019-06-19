@@ -1,7 +1,6 @@
 package ru.seva.finder;
 
 import android.Manifest;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -17,6 +16,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
 
@@ -30,7 +30,7 @@ import java.util.TimerTask;
 
 public class Tracking extends Service {
 
-    private Notification.Builder builder;
+    private NotificationCompat.Builder builder;
     private NotificationManager nManager;
     private LocationManager locMan;
     private StringBuilder sms_text = new StringBuilder("");
@@ -208,7 +208,7 @@ public class Tracking extends Service {
         //only one tracking can work, so this code will be called only once
         Intent notifIntent = new Intent(this, TrackStatus.class);
         PendingIntent pendIntent = PendingIntent.getActivity(this, 0, notifIntent, 0);
-        builder = new Notification.Builder(this);
+        builder = new NotificationCompat.Builder(this, MainActivity.TRACKING_NOTIF_CHANNEL);
         builder.setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getString(R.string.tracking_on_notify, name))  //"name" gets from intent - this is reason using onStartCommand instead onCreate
                 .setContentText(getString(R.string.sms_sent, 0))
@@ -227,7 +227,7 @@ public class Tracking extends Service {
         stop.removeCallbacks(full_stopper);
         locMan.removeUpdates(locListen);
 
-        Notification.Builder builder2 = new Notification.Builder(this);
+        NotificationCompat.Builder builder2 = new NotificationCompat.Builder(this, MainActivity.TRACKING_NOTIF_CHANNEL);
 
         builder2.setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getString(R.string.traking_complet))

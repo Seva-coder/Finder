@@ -7,8 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsMessage;
 import java.util.regex.Matcher;
@@ -42,6 +44,7 @@ public class SmsReceiver extends BroadcastReceiver {
             }
 
             AudioManager aMan = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            NotificationManager nManage = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
             //checking for possible answer
             Intent stop_bar = new Intent("disable_bar");
             String message = text.toString();
@@ -68,32 +71,32 @@ public class SmsReceiver extends BroadcastReceiver {
                     } else {
                         track_point.putExtra("sound_was_normal", false);
                     }
-                    aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
+                        aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    }
                 }
 
                 context.startService(track_point);
             } else if ((message.length() > 15) && message.substring(0, 15).equals("gps not enabled")) {
                 //only 0-15 symbols because after goes battery data
-                Notification.Builder builder = new Notification.Builder(context)
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MainActivity.COMMON_NOTIF_CHANNEL)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(phone)
                         .setContentText(context.getString(R.string.gps_not_enabled))
                         .setAutoCancel(true);
                 Notification notification = builder.build();
-                NotificationManager nManage = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
                 int id = sPref.getInt("notification_id", 2);
                 nManage.notify(id, notification);
                 sPref.edit().putInt("notification_id", id+1).apply();
                 LocalBroadcastManager.getInstance(context).sendBroadcast(stop_bar);
             } else if (((message.length() > 19) && message.substring(0, 19).equals("unable get location"))
                     || message.equals("net info unavailable")) {
-                Notification.Builder builder = new Notification.Builder(context)
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MainActivity.COMMON_NOTIF_CHANNEL)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(phone)
                         .setContentText(context.getString(R.string.no_coord_bad_signal))
                         .setAutoCancel(true);
                 Notification notification = builder.build();
-                NotificationManager nManage = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
                 int id = sPref.getInt("notification_id", 2);
                 nManage.notify(id, notification);
                 sPref.edit().putInt("notification_id", id+1).apply();
@@ -111,14 +114,16 @@ public class SmsReceiver extends BroadcastReceiver {
                     } else {
                         wifi_intent.putExtra("sound_was_normal", false);  //sound may be already disabled
                     }
-                    aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
+                        aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    }
                 }
                 wifi_intent.putExtra("phone_number", phone);
                 context.startService(wifi_intent);
             }
 
             //GPS request
-            if (message.equals(sPref.getString("gps", context.getString(R.string.wifi_default_command))) && sPref.getBoolean("answer", false)) {
+            if (message.equals(sPref.getString("gps", context.getString(R.string.gps_default_command))) && sPref.getBoolean("answer", false)) {
                 Intent gps_intent = new Intent(context, GpsSearch.class);
                 if (sPref.getBoolean("disable_sound", false)) {
                     if (aMan.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
@@ -126,7 +131,9 @@ public class SmsReceiver extends BroadcastReceiver {
                     } else {
                         gps_intent.putExtra("sound_was_normal", false);
                     }
-                    aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
+                        aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    }
                 }
                 gps_intent.putExtra("phone_number", phone);
                 context.startService(gps_intent);
@@ -141,7 +148,9 @@ public class SmsReceiver extends BroadcastReceiver {
                     } else {
                         remote_intent.putExtra("sound_was_normal", false);
                     }
-                    aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
+                        aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    }
                 }
                 remote_intent.putExtra("phone_number", phone);
                 context.startService(remote_intent);

@@ -1,3 +1,8 @@
+v1.7
+- fixed bug with not working wifi-searching feature
+- fixed bug with crash on android 8 when mute feature enabled
+- notifications on android 8 now are working
+
 v1.6
 - fixed bug on Android Oreo 8.0, when for sending SMS "READ_PHONE_STATE" permission also needed (it used only in this android version)
 - fixed bug when user can set empty commands and other settings

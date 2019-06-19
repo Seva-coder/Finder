@@ -19,6 +19,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
@@ -100,7 +101,7 @@ public class WifiSearch extends Service {
             name = (name_curs.moveToFirst()) ? (name_curs.getString(name_curs.getColumnIndex(dBase.NAME_COL))) : (phone_number);
             name_curs.close();
 
-            Notification.Builder builder = new Notification.Builder(getApplicationContext())
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), MainActivity.COMMON_NOTIF_CHANNEL)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.wifi_processed))
                     .setContentText(getString(R.string.from, name))
@@ -116,7 +117,10 @@ public class WifiSearch extends Service {
                 db.close();
                 if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
                     AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
-                    aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                    NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
+                        aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                    }
                 }
                 stopSelf();
             }
@@ -360,7 +364,10 @@ public class WifiSearch extends Service {
         //make sound mode as it was before
         if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
             AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
-            aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+            NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
+                aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+            }
         }
     }
 

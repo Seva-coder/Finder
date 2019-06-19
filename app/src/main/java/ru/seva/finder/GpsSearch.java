@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsManager;
 
 import java.util.ArrayList;
@@ -141,7 +142,7 @@ public class GpsSearch extends Service {
             name = (name_curs.moveToFirst()) ? (name_curs.getString(name_curs.getColumnIndex(dBase.NAME_COL))) : (phone_number);
             name_curs.close();
 
-            Notification.Builder builder = new Notification.Builder(getApplicationContext())
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), MainActivity.COMMON_NOTIF_CHANNEL)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.gps_processed))
                     .setContentText(getString(R.string.from, name))
@@ -183,7 +184,10 @@ public class GpsSearch extends Service {
                 db.close();
                 if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
                     AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
-                    aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                    NotificationManager nManage = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
+                        aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                    }
                 }
                 stopSelf();
             }
@@ -249,7 +253,10 @@ public class GpsSearch extends Service {
 
         if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
             AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
-            aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+            NotificationManager nManage = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
+                aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+            }
         }
         stopSelf();
     }

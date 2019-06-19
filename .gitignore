@@ -14,6 +14,5 @@
 .DS_Store
 /build
 /captures
-app/src/main/res/values/keys.xml
 app/src/main/res/values/google_maps_api.xml
 app/src/release/res/values/google_maps_api.xml

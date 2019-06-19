@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -97,7 +98,7 @@ public class GpsCoordsReceived extends IntentService {
         } else {
             Intent intentRes = new Intent(getApplicationContext(), HistoryActivity.class);
             PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, intentRes, PendingIntent.FLAG_UPDATE_CURRENT);
-            Notification.Builder builder = new Notification.Builder(getApplicationContext());
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), MainActivity.COMMON_NOTIF_CHANNEL);
             builder.setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.message_with_coord))
                     .setContentText(getString(R.string.coords_received, name))

@@ -1,6 +1,8 @@
 package ru.seva.finder;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -50,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private TabHost tabHost;
 
     public static boolean activityRunning = false;  //we have only one instance, it's ok
+    public final static String COMMON_NOTIF_CHANNEL = "common_channel";
+    public final static String TRACKING_NOTIF_CHANNEL = "tracking_channel";
     private SharedPreferences sPref;
 
     private Cursor cursor;
@@ -169,9 +173,22 @@ public class MainActivity extends AppCompatActivity {
             remember_btn.setEnabled(true);
         }
 
-        //offer to read the help at the first app start
+        //offer to read the help at the first app start and create channels for notifications
         if (sPref.getBoolean("first_start", true)) {
             sPref.edit().putBoolean("first_start", false).apply();
+
+            if (Build.VERSION.SDK_INT >= 26) {
+                NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                NotificationChannel single_channel = new NotificationChannel(COMMON_NOTIF_CHANNEL, getString(R.string.single_coord_chan), NotificationManager.IMPORTANCE_HIGH);
+                single_channel.setDescription(getString(R.string.single_coord_chan_description));
+                nm.createNotificationChannel(single_channel);
+
+                NotificationChannel tracking_channel = new NotificationChannel(TRACKING_NOTIF_CHANNEL, getString(R.string.tracking_chan), NotificationManager.IMPORTANCE_LOW);
+                tracking_channel.setDescription(getString(R.string.tracking_chan_description));
+                nm.createNotificationChannel(tracking_channel);
+            }
+
+
             DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int witch) {

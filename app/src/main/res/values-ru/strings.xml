@@ -130,8 +130,14 @@
     <string name="delete_track_warning">Удалить трек? (необратимо!)</string>
     <string name="date_time">%s \n%.1f км/ч</string>
     <string name="track_saved_message">Трек сохранён! в Загрузках</string>
-    <string name="mute_tracking_sms">Отключать звук при входящих теркинговых SMS</string>
+    <string name="mute_tracking_sms">Отключать звук при входящих трекинговых SMS</string>
     <string name="tracking_sms_open">Трекинговое SMS обработано!</string>
     <string name="wrong_values">Неверное значение! не сохранено</string>
+    <string name="sound_perm_fail">Разрешение не получено</string>
+    <string name="enable_sound">Включите доступ к функции \'Не беспокоить\' для Finder</string>
+    <string name="single_coord_chan">Одиночные точки</string>
+    <string name="single_coord_chan_description">Используется для уведомлений о запрсах/ответах координат.</string>
+    <string name="tracking_chan">Трекинг</string>
+    <string name="tracking_chan_description">Используется для уведомлений о данных трекинга (как приёма, так и отправки).</string>
 
 </resources>
