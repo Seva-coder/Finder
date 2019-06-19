@@ -7,8 +7,10 @@
     alt="Get it on F-Droid"
     height="80">
 </a>
+
 Functionality
 -------------
+
 The main function of the Finder is to send the location of the smartphone on request. Also it has tracking feature (can’t be activated remotely, only manually), using it app periodically send coordinates to setted number. The application is designed to search for lost people or a stolen phone. SMS is used for communication because Internet may not be available. It has two ways of determining the coordinates: using GPS (must be enabled in system settings!), and using mobile net and WiFi-net info. In the second case, the response SMS will have mac-addresses of wifi access points, and to determine the location it is necessary to have this application and the Internet on the requesting phone (but on the responding side the Internet is not needed). This method can help in the case of finding the phone in a building / dense arrangement of buildings in the city.
 
 <b>Important!</b> On Android 6.0 and newer for Wifi-networks searching feature, GPS must be enabled! (beforehand). GPS will not be used during nets scanning, but nevertheless, newer versions of Android require it to be turned on (otherwise the system returns an empty list of nets).
