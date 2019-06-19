@@ -14,8 +14,8 @@ import android.widget.Toast;
 
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
-    final static int REQUEST_CODE_ALL = 2;
-    final static int REQUEST_CODE_TRACKING = 3;
+    private final static int REQUEST_CODE_ALL = 2;
+    private final static int REQUEST_CODE_TRACKING = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
