@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="help"><![CDATA[
+<h1>Hilfe</h1>
+<b><i>App-Version v1.8</i></b><br>
+Lizenz - GPLv3<br>
+
+Repository mit Anwendungsquellen - https://github.com/Seva-coder/Finder<br><br>
+\tDie Anwendung dient zum Fernabfragen von Smartphone-Koordinaten per SMS-Anforderung (und manuellem Senden). Es besteht aus zwei Teilen - erstens zum Senden einer SMS-Anfrage und zum Anzeigen von Koordinaten und zweitens zum automatischen Antworten auf eingehende Anfragen (nur wenn diese Option aktiviert ist). Es ist auch möglich, Ihre Koordinaten manuell an eine beliebige Nummer aus der Liste der vertrauenswürdigen Nummern zu senden (von der Registerkarte mit der Liste der vertrauenswürdigen Nummern). <b>Vertrauenswürdige Nummern</b> - sind Telefonnummern, auf die Anwendung reagiert (mit Ausnahme des Befehls zum Hinzufügen aus der Ferne. Wenn dieser Befehl aktiviert ist, werden dieser Liste unabhängig von der Telefonnummer Nummern hinzugefügt). Bitte beachten Sie, dass die Nummer die gleiche Form wie in der Anrufer-ID haben muss (zum Beispiel in Deutschland wie +49231234567 ohne Leerzeichen/Klammern).<br>
+\tBei der Ausführung unter Android 6.0 und höher überprüft die Anwendung beim Start die erforderlichen Berechtigungen (Zugriff auf SMS und Speicherort). Fehlende Rechte werden angefordert. Wenn Sie die fehlende Berechtigung nicht erteilen, bleibt die Schaltfläche zum Hinzufügen von Nummern inaktiv. Die Schaltfläche "Hinzufügen" fügt der Liste der aktiven Registerkarten eine neue Telefonnummer hinzu. Die Namen für "Verlauf" und Koordinatenbenachrichtigungen werden aus der Anforderungsliste (links) abgerufen. Die Namen für Benachrichtigungen über eingehende Anforderungen werden aus der rechten Liste abgerufen.<br>
+<font color = "red">\tWichtig!</font> Für <b>Android 6.0</b> und neuere Versionen zum Senden von WiFi-Netzen muss <b>GPS aktiviert sein!</b> Es wird nicht direkt verwendet, für diese Funktion ist dies aber leider Voraussetzung, bei neuen Android-Versionen.
+
+<h2><font color = "red">Wichtig für MIUI-Benutzer!</font></h2>
+
+Einige Betriebssysteme verschiedener Hersteller, z. B. MIUI (und möglicherweise einige andere), versuchen, den Stromverbrauch sehr stark zu senken, und verhindern das Starten von Hintergrundprozessen. Und obwohl der "Finder" nur gestartet wird, wenn die SMS empfangen wurde (zu einem anderen Zeitpunkt werden keine Dienste ausgeführt, Ausnahme ist die Verfolgungsfunktion), kann das System den Rundfunkempfänger deaktivieren (dies ist eine Komponente von Android-Apps), was zu führt <b>Nichtbedienbarkeit der App</b> - Eingehende Anfragen werden nicht beantwortet. Um dies zu vermeiden, sollten Benutzer einige Android-Einstellungen ändern:<br>
+1. Sicherheit ->Berechtigungen ->Autostart ->Finder zum Autostart hinzufügen<br>
+2. Sicherheit ->Akku ->App-Akku-Sparer ->Setze <b>\"Keine Einschränkungen\"</b> und <b>\"Zulassen\"</b> Hintergrundspeicherort für diese App<br>
+3. Schieben Sie im Menü \"Zuletzt verwendete Apps\" den Finder und wählen Sie <b>"Sperren"</b> aus<br>
+4. Sicherheit ->Berechtigungen ->Andere Berechtigungen ->Finder - aktivieren Sie <b>\"Im Hintergrund starten\"</b> und <b>\"WLAN-Verbindung ändern\"</b><br>
+All dies sollte dazu führen, dass das System den Rundfunkempfänger nicht deaktiviert und die App zuverlässig auf Anfragen reagiert.
+
+<h2>Beschreibung der Einstellungen</h2>\tEinstellungen in zwei Gruppen unterteilt. Erste Gruppe ist verantwortlich für den Text von SMS-Befehlen. Dieser Text verwendet sowohl zum Senden als auch zum Überprüfen eingehender SMS auf Befehle (nur wenn der Antwortmodus aktiviert ist). Texte von Suchtypen sollten nicht übereinstimmen. Ihre Standardwerte sind <i>wifi_search</i> und <i>gps_search</i>. Der Text auf dem anfragenden Telefon muss mit dem auf dem antwortenden Telefon übereinstimmen (bei Befehlen muss die Groß- und Kleinschreibung beachtet werden!</B>) und die Telefonnummer des anfragenden Telefons muss in der Liste der "Vertrauenswürdigen Nummern" auf dem anderen Telefon enthalten sein.<br>
+
+<b><i>\tKarte automatisch öffnen</i></b> - Wenn diese Option aktiviert ist und die App ausgeführt wird, wird die Karte sofort nach dem Empfang einer SMS mit Antwort geöffnet. Aber auch im Falle einer geschlossenen App werden die Koordinaten im Menü<i>Verlauf</i>gespeichert (die beschriebenen Funktionen einiger Betriebssysteme, wie z. B. MIUI, dürfen nicht vergessen werden).<br>
+\tWenn eingehende SMS nicht verarbeitet wurden, können Sie diese Nachricht manuell im Menü <i>SMS öffnen</i> öffnen (besonders wichtig bei Daten mit WLAN). Bitte beachten Sie, dass Sie auf Anfrage einen Internetzugang benötigen, um die Koordinaten mithilfe der WLAN-Daten abzurufen. "Google Geolocation API" wird für diese Funktion verwendet. Im Falle einer Antwort mit Koordinaten (unter Verwendung von GPS) ist das Internet nicht erforderlich, aber es kann zum Laden der Karte nützlich sein (Sie können den empfangenen Ort jedoch in jeder Offline-Karte über das Menü <i>\"history\"</i> öffnen. ohne Internet).<br>
+\tKontrollkästchen<b><i> Auf Anfragen antworten</b></i> aktiviert die zweite Gruppe von Einstellungen und ermöglicht das Antworten auf eingehende SMS-Anfragen. Wird auch nach dem Hinzufügen einer vertrauenswürdigen Nummer aktiviert.<br>
+<b><i>\tAnzahl der WLAN-Scans</b></i> - Legt fest, wie oft nach WLAN-Netzen gesucht wird, bevor Ergebnisse gesendet werden. Wenn es nur einmal gemacht wird, werden einige Netze mit schwachem Signal möglicherweise nicht erkannt. Standardwert 3.<br>
+<b><i>\tPause zwischen Scans</b></i> - Zeit zwischen Wifi-Scan-Anforderungen. Dies kann vom Telefonmodell abhängen. Die Standardeinstellung ist 7 Sekunden.<br>
+<b><i>\tAnzahl der MAC-Adressen in SMS</b></i> - Beschränken Sie die Anzahl der MAC-Adressen in Antwort-SMS. Kann bei einer großen Anzahl von Netzwerken nützlich sein, z. B. in Städten. Lange SMS werden auf einige kleinere aufgeteilt, die vom Mobilfunkbetreiber akzeptiert werden. Eine große Anzahl von SMS kann zu Geldverschwendung führen. Der Standardwert ist 10.<br>
+<b><i>\tGPS-Arbeitszeit</b></i> - Während dieser Zeit versucht die App, sich mithilfe von GPS zu lokalisieren. Falls der Standort nicht verfügbar ist, stoppt die App und sendet eine Fehlermeldung. Der Timer soll die Batterieentladung verhindern, beispielsweise bei der Suche in Gebäuden. Diese Einstellung wird auch für die Verfolgung verwendet. Die Standardzeit beträgt 20 Minuten.<br>
+<b><i>\tWünschte GPS-Genauigkeit</b></i> - Erste GPS-Korrekturen sind nicht zuverlässig. Mit dieser Einstellung können ungenaue Daten übersprungen und Antworten gesendet werden, wenn die Genauigkeit akzeptabel ist. Aber selbst wenn die Genauigkeit während der "GPS-Arbeitszeit" nicht erreicht wird, wird der verfügbare "ungenaue" Standort <b>immer noch gesendet</b>. Der Standardwert ist 12 Meter.<br>
+<b><i>\tTon für eingehende SMS-Anforderungen stummschalten</b></i> - Mit dieser Einstellung können Sie Nachrichten mit Befehlen still empfangen. Benachrichtigungen werden jedoch in jedem Fall angezeigt. Kann helfen, wenn das Telefon gestohlen wurde. Wenn der Ton bereits stummgeschaltet war, bleibt er stummgeschaltet (andernfalls wird der normale Ton wie vor dem Befehl wiederhergestellt).<br>
+<b><i>\tFerntelefonnummer hinzufügen</b></i> - Wenn die Einstellung <b> aktiviert und der Befehl zugewiesen</b> ist, kann eine neue vertrauenswürdige Nummer registriert werden (von der aus die Fernbedienung Befehl zum Hinzufügen wurde gesendet). Auch wenn der Antwortmodus nicht aktiviert ist, wird er nach diesem Befehl mit den Standardeinstellungen (oder den zuletzt geänderten Einstellungen, bevor der Antwortmodus deaktiviert wurde) aktiviert. Mit dieser Funktion können Sie die Telefonsuche im Falle eines Diebstahls so schnell wie möglich starten, indem Sie einen Remote-Befehl zum Hinzufügen von einem beliebigen verfügbaren Telefon senden.<br>
+<p>
+<h2>Tracker</h2>
+<i>Tracker</i> - Modus, bei dem Koordinaten mit einer bestimmten Häufigkeit an die ausgewählte Nummer gesendet werden (SMS-Kosten nicht vergessen!). Um diesen Modus zu starten, klicken Sie auf "Vertrauenswürdige Nummer" ->"Tracker starten". Diese Funktion kann nicht remote gestartet werden. Es hat folgende Einstellungen (erscheinen vor dem Start):<br>
+<b><i>\tMax. Anzahl von ..</b></i> - Anzahl der zu sendenden SMS begrenzen.<br>
+<b><i>\tVerzögern Sie zwischen den Überprüfungen.</b></i> - GPS wird in diesem Zeitraum aktiviert. Beachten Sie, dass eine kurze Zeit dazu führen kann, dass <b>das Abrufen von Koordinaten</b> übersprungen wird (aufgrund eines langen GPS-Startvorgangs). GPS wird nach dem Empfang der Koordinaten nicht verwendet, ein solches Verhalten spart Batterie. Außerdem ist die GPS-Betriebszeit während der Verfolgung durch die Einstellung "GPS-Arbeitszeit" für einzelne Abfragen begrenzt.<br>
+<b><i>\t Gewünschte Genauigkeit</b></i> - Nach dem Aktivieren der GPS-App wird auf diese Genauigkeit gewartet. Wird die gewünschte Genauigkeit für den Zeitraum nicht erreicht, werden die verfügbaren Daten gesendet.<br>
+<b><i>\tAnzahl der Koordinaten.</b></i> - Mit dieser Einstellung können Sie mehrere Positionen in einer einzelnen SMS senden, um die Anzahl der zu sendenden SMS zu verringern. Nummer der Koordinate. abhängig vom Mobilfunkbetreiber, typisch 3-4 Positionen pro SMS. Die Nachricht wird nur gesendet, wenn diese Nummer empfangen wurde. Die Häufigkeit des Versendens von Nachrichten wird entsprechend reduziert.<br>
+Die Verfolgungsmeldungen enthalten neben den Koordinaten auch die Geschwindigkeit und die Ortszeit.
+
+
+<p>
+<i>Sevastyanov Nikita,<br>
+ moosburger<br>
+ 2018-2019</i>]]></string>
+</resources>

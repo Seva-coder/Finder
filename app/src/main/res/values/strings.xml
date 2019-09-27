@@ -101,7 +101,7 @@
     <string name="name_hint_text">Name of new number</string>
     <string name="name_text">Name:</string>
     <string name="phone_text">New phone number:</string>
-    <string name="example_number" translatable="false">+71231234567</string>
+    <string name="example_number">+71231234567</string>
     <string name="unknown_number">unknown (%1$s)</string>
     <string name="positive_add_button">Add</string>
     <string name="negative_add_button">Cancel</string>

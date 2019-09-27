@@ -99,6 +99,7 @@
     <string name="unknown_number">неизвестный номер (%1$s)</string>
     <string name="name_text">Имя:</string>
     <string name="phone_text">Новый номер:</string>
+    <string name="example_number">+71231234567</string>
     <string name="positive_add_button">Добавить</string>
     <string name="negative_add_button">Отмена</string>
     <string name="sat">Спутниковые снимки</string>
