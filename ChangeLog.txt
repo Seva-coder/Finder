@@ -1,5 +1,6 @@
 v1.8
 - added German translation (by moosburger)
+- added "adaptive" icon for newer Android version
 
 v1.7
 - fixed bug with not working wifi-searching feature

@@ -1,1 +1,2 @@
 - added German translation
+- added "adaptive" icon for newer Android version

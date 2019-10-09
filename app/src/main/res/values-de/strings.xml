@@ -95,7 +95,7 @@
   <string name="del_number">Telefonnummer löschen</string>
   <string name="help_title">Hilfe</string>
   <string name="check_settings">Einstellungen überprüfen! Antworten ist aktiviert!</string>
-  <string name="wifi_gps_warning">Für die Ortung über WLAN-Netze unter Android 6 und höher muss auch GPS aktiviert sein! Leider ist dies eine 'Feature' der neuen Android Versionen </string>
+  <string name="wifi_gps_warning">Für die Ortung über WLAN-Netze unter Android 6 und höher muss auch GPS aktiviert sein! Leider ist dies eine \'Feature\' der neuen Android Versionen </string>
   <string name="name_hint_text">Kontaktname</string>
   <string name="name_text">Name:</string>
   <string name="phone_text">Neue Telefonnummer:</string>
