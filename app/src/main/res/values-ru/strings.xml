@@ -140,5 +140,7 @@
     <string name="single_coord_chan_description">Используется для уведомлений о запрсах/ответах координат.</string>
     <string name="tracking_chan">Трекинг</string>
     <string name="tracking_chan_description">Используется для уведомлений о данных трекинга (как приёма, так и отправки).</string>
-
+    <string name="enable_location">Включить местоположение автоматически</string>
+    <string name="location_enable_descr">Активируйте местоположение, когда запрос получен.</string>
+    <string name="location_enable_grant_descr">Для этого требуется авторизация авторизации через АБР. См. https://github.com/Seva-coder/Finder.</string>
 </resources>

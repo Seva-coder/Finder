@@ -31,6 +31,7 @@ import java.util.Locale;
 public class GpsSearch extends Service {
     private SharedPreferences sPref;
     private LocationManager locMan;
+    private LocationHelper locationHelper;
 
     private static final String GPS_ACCURACY = "gps_accuracy";
     private static final String GPS_ACCURACY_DEFAULT = "12";
@@ -58,6 +59,7 @@ public class GpsSearch extends Service {
         sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         h.postDelayed(stopper, Integer.valueOf(sPref.getString(GPS_TIME, GPS_TIME_DEFAULT)) * 60000);  //stopping GPS if it is impossible to determine the coordinates for a long time
         locMan = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+        locationHelper = new LocationHelper(getApplicationContext());
     }
 
     private final LocationListener locListen = new LocationListener() {
@@ -153,6 +155,10 @@ public class GpsSearch extends Service {
             nManage.notify(id, notification);
             sPref.edit().putInt("notification_id", id+1).apply();
 
+            // Activate location if it's not enabled
+            // (only if permission to write secure settings is granted via ADB)
+            locationHelper.activateLocation(true);
+
             //checking permissions on new API and start GPS
             if (Build.VERSION.SDK_INT >= 23 && (getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                     locMan.isProviderEnabled(LocationManager.GPS_PROVIDER) && startId == 1) {
@@ -226,6 +232,10 @@ public class GpsSearch extends Service {
     @Override
     public void onDestroy() {
         h.removeCallbacks(stopper);
+
+        // Deactivate location if it was not enabled
+        // (only if permission to write secure settings is granted via ADB)
+        locationHelper.deactivateLocation();
     }
 
 

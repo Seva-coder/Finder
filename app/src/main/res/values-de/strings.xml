@@ -141,4 +141,7 @@
   <string name="single_coord_chan_description">Wird zur Benachrichtigung über Anfragen / Antworten von Koordinaten verwendet.</string>
   <string name="tracking_chan">Tracking</string>
   <string name="tracking_chan_description">Wird für Daten zum Verfolgen (Empfangen und Senden) verwendet.</string>
+  <string name="enable_location">Standort automatisch einschalten</string>
+  <string name="location_enable_descr">Aktiviere Standort, wenn eine Anfrage eingeht.</string>
+  <string name="location_enable_grant_descr">Dies benötigt eine Berechtigungsgenehmigung via ADB. Siehe https://github.com/Seva-coder/Finder.</string>
 </resources>

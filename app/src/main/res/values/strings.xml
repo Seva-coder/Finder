@@ -143,6 +143,7 @@
     <string name="single_coord_chan_description">It is used for notification about requests/responses of coordinates</string>
     <string name="tracking_chan">Tracking</string>
     <string name="tracking_chan_description">Used for data about tracking (both receive and sending)</string>
-
-
+    <string name="enable_location">Turn on Location automatically</string>
+    <string name="location_enable_descr">Activate Location when request received.</string>
+    <string name="location_enable_grant_descr">This requires a permission approval via ADB. See https://github.com/Seva-coder/Finder.</string>
 </resources>

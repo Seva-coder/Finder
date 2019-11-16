@@ -117,6 +117,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             Preference mac_number = findPreference("mac_numb");
             Preference gps_time = findPreference("gps_time");
             Preference accuracy = findPreference("gps_accuracy");
+            Preference location_enable = findPreference("location_enable");
             Preference remote = findPreference("remote");
             Preference sound = findPreference("disable_sound");
             Preference tracking_sound = findPreference("disable_tracking_sound");
@@ -135,6 +136,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
             sound.setOnPreferenceChangeListener(audioCheck);
             tracking_sound.setOnPreferenceChangeListener(audioCheck);
+
+            if (new LocationHelper(getActivity()).canActivateLocation()) {
+                location_enable.setOnPreferenceChangeListener(emptyCheck);
+            } else {
+                location_enable.setEnabled(false);
+                location_enable.setSummary(R.string.location_enable_grant_descr);
+            }
         }
     }
 }
