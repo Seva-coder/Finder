@@ -92,6 +92,13 @@
 
         <CheckBoxPreference
             android:defaultValue="false"
+            android:title="@string/enable_location"
+            android:key="location_enable"
+            android:summary="@string/location_enable_descr"
+            android:dependency="answer"/>
+
+        <CheckBoxPreference
+            android:defaultValue="false"
             android:title="@string/mute"
             android:key="disable_sound"
             android:summary="@string/mute_descr"

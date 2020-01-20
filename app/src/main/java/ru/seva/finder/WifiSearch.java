@@ -41,6 +41,7 @@ public class WifiSearch extends Service {
     }
 
     private SharedPreferences sPref;
+    private LocationHelper locationHelper;
     private final ArrayList<String> macs = new ArrayList<>();
 
     private boolean search_active = false;
@@ -63,6 +64,7 @@ public class WifiSearch extends Service {
     public void onCreate() {
         wifi = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
         sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        locationHelper = new LocationHelper(getApplicationContext());
     }
 
 
@@ -88,6 +90,11 @@ public class WifiSearch extends Service {
             }
             if(!search_active) {  //start thread with searching
                 search_active = true;
+
+                // Activate location if it's not enabled
+                // (only if permission to write secure settings is granted via ADB)
+                locationHelper.activateLocation(false);
+
                 wifiReceiver = new scan_ready();
                 registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
                 Searcher s = new Searcher();
@@ -371,6 +378,12 @@ public class WifiSearch extends Service {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        // Deactivate location if it was not enabled
+        // (only if permission to write secure settings is granted via ADB)
+        locationHelper.deactivateLocation();
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
