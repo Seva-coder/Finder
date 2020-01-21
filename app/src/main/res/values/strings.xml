@@ -34,7 +34,7 @@
     <string name="delete_warning">Delete a location entry from history? (Irreversible!)</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="no_internet_warning">Wifi  disconnected, send a request anyway? (without wifi, the request will have to be reopened from the list of SMS messages after connecting to wifi.)</string>
+    <string name="no_internet_warning">Network disconnected, send a request anyway? (without network connectivity, the request will have to be reopened from the list of SMS messages after connecting to a network.)</string>
     <string name="no_rights_for_sms">Required permissions have not been granted, request not sent!</string>
     <string name="request_has_been_send">Request has been sent!</string>
     <string name="sms_messages">SMS messages:</string>
@@ -51,7 +51,7 @@
     <string name="del_point">Delete a location entry from history</string>
     <string name="gps_not_enabled">GPS disabled on responding device, try WiFi request</string>
     <string name="no_coord_bad_signal">Coordinates are not available, possibly weak GPS signal</string>
-    <string name="request_sent">Request sent, waitingifor response…</string>
+    <string name="request_sent">Request sent, waiting for response…</string>
     <string name="delete_text">Delete phone number</string>
     <string name="error_getting_coordinats">Unable to get coordinates</string>
     <string name="message_with_coord">"Message with location"</string>
@@ -62,9 +62,9 @@
     <string name="remote_adding">Remote phone number added!</string>
     <string name="was_added">%1$s added to trusted</string>
     <string name="menu_gps_send">Send GPS data</string>
-    <string name="menu_wifi_send">Send WiFi data</string>
+    <string name="menu_wifi_send">Send network data</string>
     <string name="coordinates_will_be_sent">Coordinates (using GPS) will be sent to %1$s</string>
-    <string name="nets_will_be_sent">WiFi data will be sent to %1$s</string>
+    <string name="nets_will_be_sent">Network data will be sent to %1$s</string>
     <string name="no_gps_or_rights">GPS disabled/permission not granted! Location will not be sent!</string>
     <string name="no_rights_for_wifi_sending">Required WiFi permissions not granted, data will not be sent!</string>
     <string name="permissions_obtained">Permissions - OK</string>
