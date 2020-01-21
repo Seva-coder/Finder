@@ -2,7 +2,7 @@
 <resources>
     <string name="help"><![CDATA[
 <h1>Help</h1>
-<b><i>App version v1.8</i></b><br>
+<b><i>App version v1.9</i></b><br>
 License - GPLv3<br>
 
 Repository with application sources - https://github.com/Seva-coder/Finder<br><br>
@@ -44,9 +44,14 @@ In addition to the coordinates, tracking messages contain speed and local time.
 
 
 <p>
+For <b>automatically GPS activation</b> option WRITE_SECURE_SETTINGS permission should be granted. You can do it using ADB command:<br>
+<i>adb shell pm grant ru.seva.finder android.permission.WRITE_SECURE_SETTINGS</i><br>
+more details, description at the bottom of the page - https://github.com/Seva-coder/Finder
+<p>
 <i>Sevastyanov Nikita,<br>
- moosburger<br>
- 2018-2019</i>
+ moosburger,<br>
+ domkrm<br>
+ 2018-2020</i>
 ]]>
     </string>
 </resources>
