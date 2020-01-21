@@ -28,3 +28,22 @@ Sevastyanov Nikita, 2018-2019
 nikita.sevast@gmail.com
 
 I'm the app author, and I support inclusion in F-Droid.
+
+Activate Location automatically
+-------------------------------
+This app can automatically activate Location if a request is received.
+
+Requirements:
+* Min. Android 4.4
+* Grant permission via ADB
+
+To grant the permission you need to do the following:
+1. Install ADB (https://developer.android.com/studio/releases/platform-tools.html)
+2. Activate Developer options on your phone (https://developer.android.com/studio/debug/dev-options#enable)
+3. In the Developer options enable USB debugging (https://developer.android.com/studio/debug/dev-options#debugging)
+4. Connect your phone with your computer via USB
+5. On your computer open a terminal, change to the directory where you extracted the platform tools and run the following command
+
+```
+adb shell pm grant ru.seva.finder android.permission.WRITE_SECURE_SETTINGS
+```
