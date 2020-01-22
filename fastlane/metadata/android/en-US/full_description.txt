@@ -1,20 +1,20 @@
-The main function of the Finder is to send the location of the smartphone on request. Also it has tracker feature (can’t be activated remotely, only manually). The application is designed to search for lost people or a stolen phone. SMS is used for communication because Internet may be not available. App has two ways of determining the coordinates: using GPS (must be enabled in system settings!), and using mobile nets and WiFi-net info.
+The main function of Finder is to send the location of the smartphone it's installed on when requested. It also has a "tracker" feature (it can’t be activated remotely, only manually). The application is designed to search for missing people or stolen phones. SMS is used for communication because Internet connectivity may be not available. The app has two ways of determining the coordinates: using GPS (must be enabled in system settings!), and using mobile and WiFi network info.
 
-<b>Important!</b> On Android 6.0 and newer for Wifi-networks searching feature, GPS must be enabled! (beforehand). GPS will not be used during nets scanning, but nevertheless, newer versions of Android require it to be turned on (otherwise the system returns an empty list of nets). App has detailed help, read it before use (but the best is check working of app on real device beforehand use).
+<b>Important!</b> On Android 6.0 and newer for the Wifi networks searching feature, GPS must be enabled beforehand!. GPS will not be used during network scanning, but nevertheless, newer versions of Android require it to be turned on (otherwise the system returns an empty list of networks). The app has a detailed help section, read it before use (but it is best to check whether the app works on a real device before use).
 
-When location is get using wifi- and mobile nets, the response SMS will have mac-addresses of surrounding wifi networks, and to determine the location it is necessary to have this application and the Internet on the requesting phone. This method can help in the case of finding the phone in a building / dense arrangement of buildings in the city.
+When location is retrieved using wifi and mobile networks, the response SMS will have the MAC addresses of surrounding wifi networks, and to determine the location it is necessary to have this application and a connection the Internet on the requesting phone (not needed on the remote [responding] side). This method can help in the case of trying to find a phone in a building / dense arrangement of buildings in the city.
 
-An important feature is that the application responds only to numbers from the "trusted list" and only when the "respond to requests" option is enabled! (disabled by default). It is necessary to add the telephone numbers from which the requests will be sent in advance. The commands on the requesting and responding phones must be the same. It is possible to enable the remote addition mode. If this mode was enabled and the command is setted, it allows you to remotely register a previously unknown number in the "trusted list". Finder always displays notifications about any requests/responses.
+An important feature is the fact that the application only responds to numbers from the "trusted list" and only when the "respond to requests" option is enabled! It is necessary to add the telephone numbers from which the requests will be sent in advance. The commands on the requesting and responding phones must be the same. It is possible to enable remote adding of phone nimbers to the "trusted list". If this mode is enabled (and the command is right) it allows you to remotely register a previously unknown number in the "trusted list". Finder displays notifications for any requests/responses.
 
-MIUI users (and possibly some other OS) need to additionally make some settings in the system for the operability of the application. This is described in detail in the built-in help.
+It is also possible to send your coordinates manually to any number from "trusted list".
 
-Tracker function if enabled send coordinates to one of trusted numbers with setted period. On other device incoming SMS are parsed and track is displayed on the map. Track can be exported in gpx format for using in other navigation applications (the only difference from standard is local time instead UTC).
+MIUI users (and possibly some other OSes) need to apply additional system settings to make the aplication operate reliably. This is described in detail in the built-in help.
 
-It is also possible to send coordinates manually to any number from "trusted list".
+If the tracker function is  enabled, the device sends its coordinates to one of the trusted numbers with a set period. On the other device incoming SMS are parsed and a track is displayed on the map. Tracks can be exported in GPX format to be used in other navigation applications (the only difference from standard is local time instead UTC).
 
-Permissions are requested immediately at the start, because they will be needed later for determining the coordinates (in the background). Description of required permissions:
+Permissions are requested immediately at the start, because they will be needed later for determining the coordinates in the background. Description of required permissions:
 
-<i>Access to location</i> - obvious, for getting location.
-<i>Access to SMS</i> - "receive" - for detecting commands, "read" - need in case of not receiving SMS with nets data, "send" - to send location and commands.
+<i>Access to location</i> - obvious, for retrieving location.
+<i>Access to SMS</i> - "receive" - for detecting commands, "read" - needed in the case of the app not detecting having receivied SMS with network data, "send" - to send location and commands.
 <i>Write to external storage</i> - for cache of map and export track in gpx.
 *<i>Read phone state</i> - requested only for android 8.0 due to a bug in this version of the OS (only in 8.0).

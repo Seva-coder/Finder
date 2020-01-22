@@ -18,7 +18,7 @@ The main function of Finder is to send the location of the smartphone it's insta
 An important feature is the fact that the application only responds to numbers from the "trusted list" and only when the "respond to requests" option is enabled! It is necessary to add the telephone numbers from which the requests will be sent in advance. The commands on the requesting and responding phones must be the same. It is possible to enable remote adding of phone nimbers to the "trusted list". If this mode is enabled (and the command is right) it allows you to remotely register a previously unknown number in the "trusted list". Finder displays notifications for any requests/responses.
 It is also possible to send your coordinates manually to any number from "trusted list".
 
-MIUI users (and possibly some other OSes) need to additionally apply additional system settings to make the aplication operate reliably. This is described in detail in the built-in help.
+MIUI users (and possibly some other OSes) need to apply additional system settings to make the aplication operate reliably. This is described in detail in the built-in help.
 
 
 If you see a bug, please report it (or make a pull request here)!
