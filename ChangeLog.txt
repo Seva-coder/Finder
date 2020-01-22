@@ -1,3 +1,7 @@
+v1.9
+- new feature: auto activation GPS
+- some fixes in english translation
+
 v1.8
 - added German translation (by moosburger)
 - added "adaptive" icon for newer Android version

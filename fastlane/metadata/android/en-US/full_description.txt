@@ -18,3 +18,4 @@ Permissions are requested immediately at the start, because they will be needed 
 <i>Access to SMS</i> - "receive" - for detecting commands, "read" - needed in the case of the app not detecting having receivied SMS with network data, "send" - to send location and commands.
 <i>Write to external storage</i> - for cache of map and export track in gpx.
 *<i>Read phone state</i> - requested only for android 8.0 due to a bug in this version of the OS (only in 8.0).
+<i>WRITE_SECURE_SETTINGS</i> - needed for automatically activating GPS on device (app can work without this permission, but GPS should be enabled manually beforehand). Can be granted using an ADB command: "adb shell pm grant ru.seva.finder android.permission.WRITE_SECURE_SETTINGS", for more info see https://github.com/Seva-coder/Finder

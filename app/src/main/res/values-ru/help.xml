@@ -2,7 +2,7 @@
 <resources>
     <string name="help"><![CDATA[
 <h1>Справка</h1>
-<b><i>Версия приложения v1.8</i></b><br>
+<b><i>Версия приложения v1.9</i></b><br>
 Лицензия - GPLv3<br>
 
 Репозиторий с исходниками - https://github.com/Seva-coder/Finder<br><br>
@@ -46,7 +46,12 @@
 В сообщениях трекинга помимо координат содержится скорость и местное время.
 
 <p>
+Для <b>автоматического включения</b> GPS надо выдать приложению права WRITE_SECURE_SETTINGS. Делается через ADB командой:<br>
+<i>adb shell pm grant ru.seva.finder android.permission.WRITE_SECURE_SETTINGS</i><br>
+подробнее, описание внизу страницы - https://github.com/Seva-coder/Finder
+<p>
 <i>Севастьянов Никита,<br>
- moosburger<br>
- 2018-2019</i>]]></string>
+ moosburger,<br>
+ domkrm<br>
+ 2018-2020</i>]]></string>
 </resources>
