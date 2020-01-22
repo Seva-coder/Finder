@@ -1,1 +1,1 @@
-Remote mobile phone searching via SMS-requests.
+Remote mobile phone searching via SMS requests.
