@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="help"><![CDATA[
+<h1>Help</h1>
+<b><i>App version v1.9</i></b><br>
+License - GPLv3<br>
+
+Repository with application sources - https://github.com/Seva-coder/Finder<br><br>
+\tThe application is designed for remote getting smartphone coordinates via SMS-request (and manual sending). It consists of two parts - first for sending SMS-request and displaying coordinates, and second for automatic response to incoming request (only if this option is enabled). It is also possible to send your coordinates to any number from list of trusted numbers manually (from tab with trusted numbers list). <b>Trusted numbers</b> - are phone numbers to which application responds (except remote adding command. If it is enabled, it adds numbers to this list regardless of phone number). Please note that the number must have the same form as on the caller Id (for example in Russia like +71231234567 without spaces/brackets).<br>
+\tWhen running on Android 6.0 and later, the application will check at start necessary permissions (access to sms and location). Missing rights will be requested, if you do not grant the lacking permission, button for adding numbers remains inactive. Button \"Add\" adds new phone number to list of active tab, names for \"history\" and coordinates notifications are getting from request list (left), names for notifications about incoming requests are getting from right list.<br>
+<font color="red">\tImportant!</font> On <b>Android 6.0</b> and newer for sending WiFi-nets <b>GPS must be enabled!</b> It will not be directly used for this feature, but unfortunately this is requirement of new Android versions.
+
+<h2><font color="red">Important for MIUI users!</font></h2>
+
+\tSome of OS from different manufacturers, for example MIUI (and maybe some others) try to reduce power consumption very hard and prohibit starting background processes. And although the \"Finder\" starts only when the SMS received (no services are running at another time, the exception is tracker feature), system can disable broadcast receiver (it is a component of Android apps), which leads to <b>non-operability of app</b> - it does not answer to incoming requests. To avoid this situation user should change some Android settings:<br>
+1. Security -> Permissions -> Autostart -> add Finder to autostart<br>
+2. Security -> Battery -> App battery saver -> set <b>\"No restrictions\"</b> and <b>\"Allow\"</b> background location for this app<br>
+3. In \"recent apps menu\" slide Finder an select <b>\"Lock\"</b><br>
+4. Security -> Permissions -> Other permissions -> Finder - enable <b>\"Start in background\"</b> and <b>\"Change Wi-Fi connectivity\"</b><br>
+All this should make the system don\'t disable broadcast receiver and allow app reliably respond to requests.
+
+<h2>Description of settings</h2>
+
+\tSettings divided on two groups. First group is responsible for text of SMS-commands. This text using both for sending and checking incoming SMS for commands (only if answer mode is enabled). Texts of searching types should not match. Their default values are <i>wifi_search</i> and <i>gps_search</i>. Text on requesting phone must be the same as on responding phone (commands are <b>case-sensitive!</b>) and phone number of requesting phone must be in the list of \"Trusted numbers\" on other phone.<br>
+
+<b><i>\tOpen map automatically</i></b> - if enabled and app is running, map will be opened immediately after SMS with answer received. But even in case of closed app coordinates will be saved in menu  <i>history</i> (don\'t forget about described features some OS, such as MIUI).<br>
+\tIn case when incoming SMS has not been processed, you can manually open this message in menu <i>open SMS</i> (it especially important in data with wifi nets). Please note, that you need Internet access on requesting phone to get coordinates using wifi data. \"Google geolocation API\" is using for this feature. In case of an answer with coordinates (using GPS) the Internet is not required, but it can be useful for loading map (however, you can open received location in any offline-map from menu <i>\"history\"</i> without Internet).<br>
+\tCheckbox <b><i>respond to requests</b></i> activates the second group of settings and enables responding to incoming SMS-requests. Enabled also after adding trusted number.<br>
+<b><i>\tNumber of scans WiFi</b></i> - determines how many times searching of wifi nets will be done before sending results. If it will be made only once, some of nets with weak signal may not be detected. Default value 3.<br>
+<b><i>\tPause between scans</b></i> - time between wifi scan requests. It can depend from phone model, default is 7 seconds.<br>
+<b><i>\tNumber of MAC in SMS</b></i> - limit number of mac-addresses in response SMS. May be useful in case of large number of networks, for example in cities. Long SMS are divided to some smaller, acceptable by mobile operator. Large number of SMS can lead to a waste of money. Default value is 10.<br>
+<b><i>\tGPS work time</b></i> - during this time app will try locate itself using GPS. In case, when location unavailable, app stops and send error message. The timer is made to prevent the battery discharge, for example when searching in buildings. Also, this setting is used for tracking. Default time is 20 minutes.<br>
+<b><i>\tDesired GPS accuracy</b></i> - first gps fixes are not reliable. This setting allows skip inaccurate data and send response, when accuracy is acceptable. But even if accuracy is not reached during \"GPS work time\", available \"inaccurate\" location <b>will still be sent</b>. Default value is 12 meters.<br>
+<b><i>\tMute sound for incoming SMS request</b></i> - setting allows you to silently receive messages with commands, but notifications will be displayed in any case. Can help when phone was stolen. If sound already was muted, it remain muted (otherwise it will return to normal, as it was before the command).<br>
+<b><i>\tRemote phone number adding</b></i> - when setting is enabled <b>and it\'s command assigned</b>, allows to register new trusted number (from which the remote adding command was sent). Even if responding mode is not enabled, after this command it will be enabled with default settings (or last modified settings, before responding mode was disabled). This feature allows start phone searching quickly as possible in case of theft, by sending remote add command from any available phone.<br>
+<p>
+<h2>Tracker</h2>
+<i>Tracker</i> - mode, sending coordinates to selected number with certain frequency (do not forget the cost of SMS!). To start this mode click on trusted number -> "Start tracker..". This feature can\'t be started remotely. It has following settings (appear before start):<br>
+<b><i>\tMax number of..</b></i> - limit number of SMS to send.<br>
+<b><i>\tDelay between checking..</b></i> - GPS will be enabled with such period. Note, that small time can cause <b>skipping getting coordinates</b> (due to long GPS starting). GPS is not used after receiving the coordinates, such behavior saves battery. Also, the GPS operation time during tracking is limited by the setting \"GPS work time\" for single queries.<br>
+<b><i>\tDesired accuracy</b></i> - after enabling GPS app will wait this accuracy. If the desired accuracy is not achieved for the period, the available data will be sent.<br>
+<b><i>\tNumber of coordinates..</b></i> - This setting allows you to send multiple positions in a single SMS to decrease number of SMS to send. Number of coord. depends of mobile operator, typical 3-4 positions per SMS. The message will be sent only when this number is received. The frequency of sending messages is reduced accordingly.<br>
+In addition to the coordinates, tracking messages contain speed and local time.
+
+
+<p>
+For <b>automatically GPS activation</b> option WRITE_SECURE_SETTINGS permission should be granted. You can do it using ADB command:<br>
+<i>adb shell pm grant ru.seva.finder android.permission.WRITE_SECURE_SETTINGS</i><br>
+more details, description at the bottom of the page - https://github.com/Seva-coder/Finder
+<p>
+<i>Sevastyanov Nikita,<br>
+ moosburger,<br>
+ domkrm,<br>
+ Atrate<br>
+ 2018-2020</i>
+]]>
+    </string>
+</resources>
