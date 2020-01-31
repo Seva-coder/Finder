@@ -71,7 +71,7 @@
   <string name="permissions_obtained">Toestemmingen - OK</string>
   <string name="no_permits_received">Vereiste rechten zijn niet verleend!</string>
   <string name="open_help_start">Wilt u hulp openen?</string>
-  <string name="command_group_settings">Verzoek/reactie commando's</string>
+  <string name="command_group_settings">Verzoek/reactie commando\'s</string>
   <string name="auto_open_map">Kaart automatisch openen</string>
   <string name="auto_map_description">Kaart wordt onmiddellijk geopend nadat een sms is ontvangen</string>
   <string name="answer_to_requests">Reageren op verzoeken</string>
@@ -81,7 +81,7 @@
   <string name="scan_description">Scan meerdere keren om meer netwerken te ontdekken</string>
   <string name="scan_pause">Pauzeer tussen scans</string>
   <string name="seconds">in seconden</string>
-  <string name="mac_number">Aantal MAC's in sms-reactie</string>
+  <string name="mac_number">Aantal MAC\'s in sms-reactie</string>
   <string name="mac_number_descr">Maximale hoeveelheid MAC-adressen in sms-reactie</string>
   <string name="gps_work_time">Maximale GPS-looptijd</string>
   <string name="gps_time_descr">Maximale looptijd van GPS, in minuten</string>
@@ -98,7 +98,7 @@
   <string name="del_number">Telefoonnummer verwijderen</string>
   <string name="help_title">Helpen</string>
   <string name="check_settings">Controleer instellingen! Reageren is ingeschakeld!</string>
-  <string name="wifi_gps_warning">Voor het lokaliseren via WiFi-netten op Android 6 en nieuwer moet GPS ook zijn ingeschakeld!  Helaas is het een beperking van nieuwere Android-versies</string>
+  <string name="wifi_gps_warning">Voor het lokaliseren via WiFi-netten op Android 6 en nieuwer moet GPS ook zijn ingeschakeld! Helaas is het een beperking van nieuwere Android-versies</string>
   <string name="name_hint_text">Naam van nieuw nummer</string>
   <string name="name_text">Naam:</string>
   <string name="phone_text">Nieuw telefoonnummer:</string>
@@ -112,7 +112,7 @@
   <string name="cache_size">Cache grootte</string>
   <string name="cache_descr">Grootte van tegelcache opgeslagen voor offline gebruik, MB</string>
   <string name="tracking_menu_item">Start tracker...</string>
-  <string name="max_sms_number">Max aantal verzonden sms'en:</string>
+  <string name="max_sms_number">Max aantal verzonden sms\'en:</string>
   <string name="sms_delay">Vertraging tussen het controleren van coördinaten (\u226520, sec):</string>
   <string name="coord_in_sms">Aantal coördinaten in één sms:</string>
   <string name="tracking_accuracy">Gewenste coördinaten nauwkeurigheid, m</string>
@@ -139,7 +139,7 @@
   <string name="tracking_sms_open">Tracking SMS verwerkt!</string>
   <string name="wrong_values">Verkeerde waarde! (Niet opgeslagen!)</string>
   <string name="sound_perm_fail">Toestemming niet verleend, functie uitgeschakeld</string>
-  <string name="enable_sound">Schakel alstublieft  'Niet storen toestemming ' in voor Finder</string>
+  <string name="enable_sound">Schakel alstublieft  \'Niet storen toestemming\' in voor Finder</string>
   <string name="single_coord_chan">Enkele coördinaten</string>
   <string name="single_coord_chan_description">Wordt gebruikt voor meldingen over verzoeken/antwoorden met coördinaten</string>
   <string name="tracking_chan">Tracking</string>
