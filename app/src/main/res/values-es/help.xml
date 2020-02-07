@@ -31,22 +31,22 @@ Todo esto debería hacer que el sistema no desactive el receptor de transmisión
 <b><i>\tDirecciones MAC en SMS</b></i> - límite de direcciones MAC por respuesta SMS. Podría servir en grandes estaciones de red, por ejemplo en ciudades. SMS largos son divididos en trozos permitidos por el operador móvil. Demsaiados SMS podrían llevar a un desperdicio de dinero. Valor predeterminado es 10.<br>
 <b><i>\tDuración de GPS</b></i> - durante este tiempo la app se localizará usando GPS. En caso que la localización no esté disponible, la app se detiene y envia mensaje de error. El tiempo está diseñado para prevenir la descarga rápida de batería en, por ejemplo, la búsqueda dentro de edificios. Además, este ajuste es uado para rastreo. Valor por defecto es de 20 minutos.<br>
 <b><i>\tNivel de precisión GPS</b></i> - las primeras precisiones GPS no son fiables. Este ajusta saltará datos imprecisos y enviará la respuesta más certera. Pero incluso si la precisión no es suficiente durante la \"duración del GPS\", la ubicación \"inexacta\" disponible <b>se enviará de todas formas</b>. Valor preestablecido es de 12 meteros.<br>
-<b><i>\tSilenciar sonido de solicitudes en SMS entrantes</b></i> - setting allows you to silently receive messages with commands, but notifications will be displayed in any case. Can help when phone was stolen. If sound already was muted, it remain muted (otherwise it will return to normal, as it was before the command).<br>
-<b><i>\tRemote phone number adding</b></i> - when setting is enabled <b>and it\'s command assigned</b>, allows to register new trusted number (from which the remote adding command was sent). Even if responding mode is not enabled, after this command it will be enabled with default settings (or last modified settings, before responding mode was disabled). This feature allows start phone searching quickly as possible in case of theft, by sending remote add command from any available phone.<br>
+<b><i>\tSilenciar sonido de solicitudes en SMS entrantes</b></i> - el modo permite recibir silenciosamente mensajes con comandos, pero las notificaciones se mostrarán de todos modos. Puede ayudar cuando el teléfono fue robado. Si el sonido ya fue silenciado, permanecerá en silencio (de lo contrario volverá a la normalidad, como si no hubiera el comando).<br>
+<b><i>\tAñadir múmeros remotos</b></i> - cuando la configuración está activada <b>con su comando asignado</b>, permite registrar un nuevo número de confianza (desde el momento que se envió el comando de adición remota). Incluso si el modo de respuesta no está activado, después de este comando se habilitará de los ajustes por defecto (o los últimos ajustes modificados, antes de que se deshabilitara el modo de respuesta). Esta característica permite iniciar la búsqueda de un teléfono lo más rápido posible en caso de robo, enviando el comando de adición remota desde cualquier teléfono disponible.<br>
 <p>
-<h2>Tracker</h2>
-<i>Tracker</i> - mode, sending coordinates to selected number with certain frequency (do not forget the cost of SMS!). To start this mode click on trusted number -> "Start tracker..". This feature can\'t be started remotely. It has following settings (appear before start):<br>
-<b><i>\tMax number of..</b></i> - limit number of SMS to send.<br>
-<b><i>\tDelay between checking..</b></i> - GPS will be enabled with such period. Note, that small time can cause <b>skipping getting coordinates</b> (due to long GPS starting). GPS is not used after receiving the coordinates, such behavior saves battery. Also, the GPS operation time during tracking is limited by the setting \"GPS work time\" for single queries.<br>
-<b><i>\tDesired accuracy</b></i> - after enabling GPS app will wait this accuracy. If the desired accuracy is not achieved for the period, the available data will be sent.<br>
-<b><i>\tNumber of coordinates..</b></i> - This setting allows you to send multiple positions in a single SMS to decrease number of SMS to send. Number of coord. depends of mobile operator, typical 3-4 positions per SMS. The message will be sent only when this number is received. The frequency of sending messages is reduced accordingly.<br>
-In addition to the coordinates, tracking messages contain speed and local time.
+<h2>Rastreo</h2>
+<i>Rastreador</i> - este modo envia de coordenadas al número seleccionado con cierta frecuencia (¡no olvides que tiene coste por SMS!). Para iniciar este modo, haga clic en el número de confianza -> "Iniciar rastreo…". Esta función no se puede iniciar de forma remota. Tiene los siguientes ajustes (aparecen antes del inicio):<br>
+<b><i>\tNúmero máximo de..</b></i> - limite los SMS a enviar.<br>
+<b><i>\tAplazar entre revisión de coordenadas..</b></i> - el GPS se activará durante ese período. Ten en cuenta que un corto tiempo puede causar <b>saltos en la obtención de coordenadas</b> (debido al inicio prolongado del GPS). El GPS no se usa después de recibir las coordenadas y, por ende, ahorra batería. Además, el tiempo de funcionamiento del GPS durante el rastreo está limitado por el ajuste \"duración GPS\" para consultas individuales.<br>
+<b><i>\tNivel de precisión</b></i> - después de activar el GPS la app buscará la mayor precisión. Si no se logra la precisión deseada para ese período, se enviarán los datos conseguidos.<br>
+<b><i>\tNúmero de coordenadas..</b></i> - este ajuste permite enviar varias posiciones en un solo mensaje para reducir la cantidad de SMS enviados. El número de coordenadas depende del operador móvil, típicamente 3 a 4 posiciones por SMS. El mensaje se enviará sólo cuando se reciba este número. La frecuencia de envío de mensajes se reduce en consecuencia.<br>
+Junto con las coordenadas, los mensajes de rastreo contienen la velocidad y la hora local.
 
 
 <p>
-For <b>automatically GPS activation</b> option WRITE_SECURE_SETTINGS permission should be granted. You can do it using ADB command:<br>
+For <b>activa automáticamente el GPS</b> se debe conceder el permiso WRITE_SECURE_SETTINGS. Puedes hacerlo realizando el comando ADB:<br>
 <i>adb shell pm grant ru.seva.finder android.permission.WRITE_SECURE_SETTINGS</i><br>
-more details, description at the bottom of the page - https://github.com/Seva-coder/Finder
+para más detalles la descripción está debajo de la página - https://github.com/Seva-coder/Finder
 <p>
 <i>Sevastyanov Nikita,<br>
  moosburger,<br>
