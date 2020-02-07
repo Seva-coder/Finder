@@ -3,9 +3,9 @@
   <string name="remember_int_on">Añadir nuevo teléfono</string>
   <string name="set_button_text">Ajustes</string>
   <string name="request_numbs">Números solicitados</string>
-  <string name="answer_numbs">Números confiables</string>
+  <string name="answer_numbs">Números de confianza</string>
   <string name="phones_for_queries">Lista de números solicitados (para pedir sus coordinadas):</string>
-  <string name="confidant_phones">Lista de números confiables (el programa responderá sus solicitudes):</string>
+  <string name="confidant_phones">Lista de números de confianza (el programa responderá sus solicitudes):</string>
   <string name="title_activity_settings">Ajustes</string>
   <string name="phone_already_recorded">Este número ha sido recordado</string>
   <string name="number_saved">Número telefónico guardado</string>
@@ -76,7 +76,7 @@
   <string name="searching_parameters">Buscar parámetros</string>
   <string name="scan_number">Número de escaneos WIFi</string>
   <string name="scan_description">Busca múltiples veces para descubrir más redes</string>
-  <string name="scan_pause">Pausar entre escaneos</string>
+  <string name="scan_pause">Pausa entre escaneos</string>
   <string name="seconds">en segundos</string>
   <string name="mac_number">Direcciones MAC en SMS</string>
   <string name="mac_number_descr">Cantidad máxima de direcciones MAC en SMS</string>
@@ -87,7 +87,7 @@
   <string name="mute">Silenciar sonido de solicitudes en SMS entrantes</string>
   <string name="mute_descr">El sonido se desactiva temporalmente cuando se recibe una solicitud.</string>
   <string name="remote">Añadir nuevo número de teléfono remotamente</string>
-  <string name="remote_descr">Permite agregar de forma remota uno nuevo a la lista de números confiables.</string>
+  <string name="remote_descr">Permite agregar de forma remota uno nuevo a la lista de números de confianza.</string>
   <string name="remote_command">Comando de adición remota</string>
   <string name="phone_number">Número telefónico (necesario para historial):</string>
   <string name="wifi_request">Solicitud WiFi</string>
@@ -107,7 +107,7 @@
   <string name="sat_descr">Mostrar imagen satelital en lugar de OSM<</string>
   <string name="map_param">Parámetros del mapa</string>
   <string name="cache_size">Tamaño de caché</string>
-  <string name="cache_descr">Tamaño de caché de baldosas guardadas para uso offline, MB</string>
+  <string name="cache_descr">Tamaño de caché de baldosas guardadas para uso sin conexión, MB</string>
   <string name="tracking_menu_item"> Iniciar rastreo… </string>
   <string name="max_sms_number">Número de máximo de envios SMS:</string>
   <string name="sms_delay">Aplazar entre revisión de coordenadas (\u226520, sec):</string>
