@@ -4,7 +4,7 @@
   <string name="set_button_text">Ajustes</string>
   <string name="request_numbs">Números solicitados</string>
   <string name="answer_numbs">Números de confianza</string>
-  <string name="phones_for_queries">Lista de números solicitados (para pedir sus coordinadas):</string>
+  <string name="phones_for_queries">Lista de números solicitados (para pedir sus coordenadas):</string>
   <string name="confidant_phones">Lista de números de confianza (el programa responderá sus solicitudes):</string>
   <string name="title_activity_settings">Ajustes</string>
   <string name="phone_already_recorded">Este número ha sido recordado</string>
