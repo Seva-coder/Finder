@@ -2,7 +2,7 @@
 <resources>
     <string name="help"><![CDATA[
 <h1>Ayuda</h1>
-<b><i>Versión de app v1.9</i></b><br>
+<b><i>Versión de app v2.0</i></b><br>
 Licencia - GPLv3<br>
 
 Repositorio con código fuente de la aplicación - https://github.com/Seva-coder/Finder<br><br>
@@ -52,7 +52,8 @@ para más detalles la descripción está debajo de la página - https://github.c
  moosburger,<br>
  domkrm,<br>
  Atrate,<br>
- albertheres<br>
+ albertheres,<br>
+ sguinetti<br>
  2018-2020</i>
 ]]>
     </string>

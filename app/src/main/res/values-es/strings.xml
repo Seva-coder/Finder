@@ -11,7 +11,7 @@
   <string name="number_saved">Número telefónico guardado</string>
   <string name="pref_gps_name">Solicitar GPS</string>
   <string name="gps_description">Texto para ordenar solicitud de GPS (y respuesta)</string>
-  <string name="pref_wifi_name">Solicitar WiFi/string>
+  <string name="pref_wifi_name">Solicitar WiFi/string></string>
   <string name="wifi_description">Texto para ordenar solicitud de GPS (y respuesta)</string>
   <string name="title_activity_maps">Mapa</string>
   <string name="api_error">Error API de Google Geolocation</string>
@@ -104,7 +104,7 @@
   <string name="positive_add_button">Añadir</string>
   <string name="negative_add_button">Cancelar</string>
   <string name="sat">Vista satelital</string>
-  <string name="sat_descr">Mostrar imagen satelital en lugar de OSM<</string>
+  <string name="sat_descr">Mostrar imagen satelital en lugar de OSM</string>
   <string name="map_param">Parámetros del mapa</string>
   <string name="cache_size">Tamaño de caché</string>
   <string name="cache_descr">Tamaño de caché de baldosas guardadas para uso sin conexión, MB</string>

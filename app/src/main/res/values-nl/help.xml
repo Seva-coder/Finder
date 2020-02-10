@@ -2,7 +2,7 @@
 <resources>
     <string name="help"><![CDATA[
 <h1>Help</h1>
-<b><i>App version v1.9</i></b><br>
+<b><i>App version v2.0</i></b><br>
 License - GPLv3<br>
 
 Repository with application sources - https://github.com/Seva-coder/Finder<br><br>
@@ -52,7 +52,8 @@ more details, description at the bottom of the page - https://github.com/Seva-co
  moosburger,<br>
  domkrm,<br>
  Atrate,<br>
- albertheres<br>
+ albertheres,<br>
+ sguinetti<br>
  2018-2020</i>
 ]]>
     </string>

@@ -2,7 +2,7 @@
 <resources>
     <string name="help"><![CDATA[
 <h1>Справка</h1>
-<b><i>Версия приложения v1.9</i></b><br>
+<b><i>Версия приложения v2.0</i></b><br>
 Лицензия - GPLv3<br>
 
 Репозиторий с исходниками - https://github.com/Seva-coder/Finder<br><br>
@@ -54,6 +54,7 @@
  moosburger,<br>
  domkrm,<br>
  Atrate,<br>
- albertheres<br>
+ albertheres,<br>
+ sguinetti<br>
  2018-2020</i>]]></string>
 </resources>
