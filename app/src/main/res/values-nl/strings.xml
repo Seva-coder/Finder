@@ -147,4 +147,5 @@
   <string name="enable_location">Schakel Locatie automatisch in</string>
   <string name="location_enable_descr">Activeer Locatie wanneer een aanvraag wordt ontvangen.</string>
   <string name="location_enable_grant_descr">Dit vereist toestemming goedkeuring via ADB.  Zie https://github.com/Seva-coder/Finder. f70a7299370ce867c5dd2f4a82c1f4c2</string>
+    <string name="add_from_contacts_button">Van contacten</string>
 </resources>

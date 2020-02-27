@@ -143,4 +143,5 @@
     <string name="enable_location">Включать GPS автоматически</string>
     <string name="location_enable_descr">Автоматическое включение GPS, когда получен запрос.</string>
     <string name="location_enable_grant_descr">Для этого требуется добавление прав через ADB. См. https://github.com/Seva-coder/Finder.</string>
+    <string name="add_from_contacts_button">Из контактов</string>
 </resources>

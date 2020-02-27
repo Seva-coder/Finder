@@ -144,4 +144,5 @@
   <string name="enable_location">Standort automatisch einschalten</string>
   <string name="location_enable_descr">Aktiviere Standort, wenn eine Anfrage eingeht.</string>
   <string name="location_enable_grant_descr">Dies benötigt eine Berechtigungsgenehmigung via ADB. Siehe https://github.com/Seva-coder/Finder.</string>
+    <string name="add_from_contacts_button">Von Kontakten</string>
 </resources>

@@ -1,0 +1,4 @@
+v2.1
+- contacts can be added from contacts (no new permissions required)
+- spaces are automatically removed from the phone number when adding
+- short link to OSM in SMS (when GPS used)

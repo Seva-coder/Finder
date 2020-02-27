@@ -37,15 +37,21 @@ public class GpsSearch extends Service {
     private static final String GPS_ACCURACY_DEFAULT = "12";
     private static final String GPS_TIME = "gps_time";
     private static final String GPS_TIME_DEFAULT = "20";  //in minutes
+    private static final String OSM_URL = "https://osm.org/go/";
+    private static final int OSM_ZOOM = 15;
+    private static final char intToBase64[] = {
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_', '~'
+    };
 
     private Handler h;  //stopper, in main thread - it is enough fast to not freeze app
     private final StringBuilder sms_answer = new StringBuilder("");
     private final ArrayList<String> phones = new ArrayList<>();
 
-    private String lastLat;
-    private String lastLon;  //used in case of working GPS but bad accuracy
-    private String lastSpeed;
-    private String lastAccuracy;
+    private Location lastLocation;  //used in case of working GPS but bad accuracy
     private boolean lastTrue = false;
     private boolean sound_was_enabled;
 
@@ -90,13 +96,13 @@ public class GpsSearch extends Service {
                 }
                 sms_answer.append("acc:");
                 sms_answer.append(String.format(Locale.US, "%.0f", location.getAccuracy()));
+                sms_answer.append("\n");
+                sms_answer.append(gen_short_osm_url(location.getLatitude(), location.getLongitude(), OSM_ZOOM));
+                sms_answer.append("\n");
                 start_send();
             } else {
                 lastTrue = true;  //coords are ready but not enough precise, send them
-                lastLat = String.format(Locale.US, "%.8f",location.getLatitude());
-                lastLon = String.format(Locale.US, "%.8f", location.getLongitude());
-                lastSpeed = String.format(Locale.US, "%.2f", location.getSpeed() * 3.6f);  //default by function = 0 if not available
-                lastAccuracy = String.format(Locale.US, "%.0f", location.getAccuracy());  // -//-
+                lastLocation = location;
             }
         }
 
@@ -213,14 +219,17 @@ public class GpsSearch extends Service {
             locMan.removeUpdates(locListen);
             if (lastTrue) {  //send at least what we have (if we have)
                 sms_answer.append("lat:");
-                sms_answer.append(lastLat);
+                sms_answer.append(String.format(Locale.US, "%.8f",lastLocation.getLatitude()));
                 sms_answer.append(" lon:");
-                sms_answer.append(lastLon);
+                sms_answer.append(String.format(Locale.US, "%.8f", lastLocation.getLongitude()));
                 sms_answer.append(" vel:");
-                sms_answer.append(lastSpeed);
+                sms_answer.append(String.format(Locale.US, "%.2f", lastLocation.getSpeed() * 3.6f));  //default by function = 0 if not available
                 sms_answer.append(" km/h");
                 sms_answer.append(" acc:");
-                sms_answer.append(lastAccuracy);
+                sms_answer.append(String.format(Locale.US, "%.0f", lastLocation.getAccuracy()));
+                sms_answer.append("\n");
+                sms_answer.append(gen_short_osm_url(lastLocation.getLatitude(), lastLocation.getLongitude(), OSM_ZOOM));
+                sms_answer.append("\n");
             } else {
                 sms_answer.append("unable get location");
             }
@@ -270,6 +279,35 @@ public class GpsSearch extends Service {
         }
         stopSelf();
     }
+
+    private String gen_short_osm_url(double latitude, double longitude, int zoom) {
+        long lat = (long) (((latitude + 90d)/180d)*(1L << 32));
+        long lon = (long) (((longitude + 180d)/360d)*(1L << 32));
+        long code = interleaveBits(lon, lat);
+        String str = "";
+        // add eight to the zoom level, which approximates an accuracy of one pixel in a tile.
+        for (int i = 0; i < Math.ceil((zoom + 8) / 3d); i++) {
+            str += intToBase64[(int) ((code >> (58 - 6 * i)) & 0x3f)];
+        }
+        // append characters onto the end of the string to represent
+        // partial zoom levels (characters themselves have a granularity of 3 zoom levels).
+        for (int j = 0; j < (zoom + 8) % 3; j++) {
+            str += '-';
+        }
+        return OSM_URL + str + "?m";
+    }
+
+    //interleaves the bits of two 32-bit numbers. the result is known as a Morton code.
+    private static long interleaveBits(long x, long y) {
+        long c = 0;
+        for (byte b = 31; b >= 0; b--) {
+            c = (c << 1) | ((x >> b) & 1);
+            c = (c << 1) | ((y >> b) & 1);
+        }
+        return c;
+    }
+
+
 
 
     @Override

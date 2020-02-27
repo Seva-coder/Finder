@@ -8,6 +8,13 @@
     android:layout_marginRight="40dp"
     android:padding="10dp">
 
+    <Button
+        android:id="@+id/add_from_contact_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_from_contacts_button"
+        android:onClick="btn_get_contact"/>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

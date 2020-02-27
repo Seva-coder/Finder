@@ -144,4 +144,5 @@
   <string name="enable_location">Activar geolocalización automáticamente</string>
   <string name="location_enable_descr">Activa Localización cuando la solicitud es recibida.</string>
   <string name="location_enable_grant_descr">Esta requiere permisos aprobados via ADB. Para más detalles vea https://github.com/Seva-coder/Finder.</string>
+    <string name="add_from_contacts_button">De contactos</string>
 </resources>

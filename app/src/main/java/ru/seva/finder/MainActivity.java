@@ -16,8 +16,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean activityRunning = false;  //we have only one instance, it's ok
     public final static String COMMON_NOTIF_CHANNEL = "common_channel";
     public final static String TRACKING_NOTIF_CHANNEL = "tracking_channel";
+    public final static int REQUEST_CODE_CONTACTS = 1;
     private SharedPreferences sPref;
 
     private Cursor cursor;
@@ -62,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
     private SimpleCursorAdapter adapter;
     private SimpleCursorAdapter adapter_answ;
     private String[] allDangPerm;
+
+    private EditText field_name, field_phone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -558,15 +563,15 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         final View v = inflater.inflate(R.layout.add_menu, null);
-        final EditText field_name = v.findViewById(R.id.name);
-        final EditText field_phone = v.findViewById(R.id.phone);
+        field_name = v.findViewById(R.id.name);
+        field_phone = v.findViewById(R.id.phone);
 
         builder.setView(v)
                 .setPositiveButton(R.string.positive_add_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String number_name = field_name.getText().toString();
-                        String phone_number = field_phone.getText().toString();
+                        String phone_number = field_phone.getText().toString().replaceAll("\\s+", "");
                         ContentValues cv = new ContentValues();
                         cv.put(dBase.PHONES_COL, phone_number);
                         cv.put(dBase.NAME_COL, number_name);
@@ -638,6 +643,32 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    //open contacts app on the phone to select contact
+    public void btn_get_contact(View v) {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
+        startActivityForResult(intent, REQUEST_CODE_CONTACTS);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    Intent data) {
+        if (requestCode == REQUEST_CODE_CONTACTS) {
+            if (resultCode == RESULT_OK) {
+                Uri uri = data.getData();
+                String[] columns_to_get = new String[] {ContactsContract.CommonDataKinds.Phone.NUMBER,
+                                                        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME};
+                Cursor curs = getContentResolver().query(uri, columns_to_get, null, null, null);
+
+                if (curs != null && curs.moveToFirst()) {
+                    String name = curs.getString(1);
+                    String number = curs.getString(0);
+                    field_name.setText(name);
+                    field_phone.setText(number.replaceAll("\\s+|-+|[()]+", ""));
+                }
+            }
+        }
     }
 
     public void sms_btn_clicked(View view) {

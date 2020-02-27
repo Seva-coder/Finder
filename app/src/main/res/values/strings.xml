@@ -146,4 +146,5 @@
     <string name="enable_location">Turn Location on automatically</string>
     <string name="location_enable_descr">Activate Location when a request is received.</string>
     <string name="location_enable_grant_descr">This requires permission approval via ADB. See https://github.com/Seva-coder/Finder.</string>
+    <string name="add_from_contacts_button">From contacts</string>
 </resources>
