@@ -53,6 +53,9 @@ public class GpsSearch extends Service {
 
     private Location lastLocation;  //used in case of working GPS but bad accuracy
     private boolean lastTrue = false;
+    private boolean no_accurate_coords = true;  //to stop adding gps data to answer after accuracy is good
+    //there was a problem on andr. 4 emulator, were after "removeUpdates" method new "accurate" location cause
+    // doubling sms text (2 location was received with pause 10 ms, "removeUpdates" may be too slow)
     private boolean sound_was_enabled;
 
     public GpsSearch() {
@@ -71,7 +74,8 @@ public class GpsSearch extends Service {
     private final LocationListener locListen = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            if (location.hasAccuracy() && (location.getAccuracy() < Float.valueOf(sPref.getString(GPS_ACCURACY, GPS_ACCURACY_DEFAULT)))) {
+            if (no_accurate_coords && location.hasAccuracy() &&
+                    (location.getAccuracy() < Float.valueOf(sPref.getString(GPS_ACCURACY, GPS_ACCURACY_DEFAULT)))) {
                 locMan.removeUpdates(locListen);  //will be disabled after first accurate coords
                 sms_answer.append("lat:");
                 sms_answer.append(String.format(Locale.US, "%.8f",location.getLatitude()));
@@ -99,6 +103,7 @@ public class GpsSearch extends Service {
                 sms_answer.append("\n");
                 sms_answer.append(gen_short_osm_url(location.getLatitude(), location.getLongitude(), OSM_ZOOM));
                 sms_answer.append("\n");
+                no_accurate_coords = false;
                 start_send();
             } else {
                 lastTrue = true;  //coords are ready but not enough precise, send them
