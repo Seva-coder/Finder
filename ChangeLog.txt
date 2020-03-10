@@ -1,3 +1,7 @@
+v2.2
+- Added Polish translation
+- fixed bug on android 4 with auto enabling GPS
+
 v2.1
 - contacts can be added from contacts (no new permissions required)
 - spaces are automatically removed from the phone number when adding

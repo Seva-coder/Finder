@@ -19,7 +19,7 @@
 <i>Досутп к данным</i> - для кэша карт и экспорта треков в gpx.
 *<i>Чтеное состояния телефона</i> - запрашивается только на android 8.0 из-за бага в этой версии ОС (только на 8.0)
 
-<i>WRITE_SECURE_SETTINGS</i> - нужно для автоматического включения GPS в телефоне (приложение может работать и без этих прав, но тогда GPS должен быть включен заранее, постоянно). Включается командой через ADB (adb shell pm grant ru.seva.finder android.permission.WRITE_SECURE_SETTINGS), подробнее - https://github.com/Seva-coder/Finder
+<i>WRITE_SECURE_SETTINGS</i>, <i>WRITE_SETTINGS</i> - нужно для автоматического включения GPS в телефоне (приложение может работать и без этих прав, но тогда GPS должен быть включен заранее, постоянно). Включается командой через ADB (adb shell pm grant ru.seva.finder android.permission.WRITE_SECURE_SETTINGS), подробнее - https://github.com/Seva-coder/Finder
 
 Приложение поддерживает следующие языки:
 - английский
@@ -27,3 +27,4 @@
 - нидерландский
 - испанский
 - русский
+- Польский

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.widget.TextView;
+import ru.seva.finder.BuildConfig;
 
 public class HelpActivity extends AppCompatActivity {
 
@@ -14,7 +15,7 @@ public class HelpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_help);
 
         TextView tv = findViewById(R.id.help_text);
-        tv.setText(Html.fromHtml(getString(R.string.help)));
+        tv.setText(Html.fromHtml(getString(R.string.help, BuildConfig.VERSION_NAME)));
         tv.setMovementMethod(new ScrollingMovementMethod());
     }
 }

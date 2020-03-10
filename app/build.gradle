@@ -6,10 +6,11 @@ android {
         applicationId "ru.seva.finder"
         minSdkVersion 17
         targetSdkVersion 26
-        versionCode 12
-        versionName "2.1"
+        versionCode 13
+        versionName "2.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        project.ext.set("archivesBaseName", "Finder" + defaultConfig.versionName)
     }
 
     lintOptions {

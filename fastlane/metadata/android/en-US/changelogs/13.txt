@@ -1,0 +1,2 @@
+- Added Polish translation
+- fixed bug on android 4 with auto enabling GPS
