@@ -5,14 +5,9 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.media.AudioManager;
-import android.os.Build;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -92,20 +87,6 @@ public class TrackReceiveService extends IntentService {
 
         Intent update_map = new Intent("update_map");
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(update_map);
-
-        //sound Mode return to the original state
-        SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        if (sPref.getBoolean("disable_tracking_sound", false) && intent.getBooleanExtra("sound_was_normal", true)) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
-            AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
-            if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
-                aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-            }
-        }
     }
 
     private void writeToTrackTable(String phone, Double lat, Double lon, Float speed, String time, int track_id) {

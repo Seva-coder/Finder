@@ -6,13 +6,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.AudioManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsMessage;
+
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,9 +27,10 @@ public class SmsReceiver extends BroadcastReceiver {
 
         SharedPreferences sPref;
         sPref = PreferenceManager.getDefaultSharedPreferences(context);
-
+        AudioHelper aHelp = new AudioHelper(context, sPref);
         String phone = "";  //default init
         Bundle intentExtras = intent.getExtras();
+
         String action = intent.getAction();
         if ((intentExtras != null) && (action.equals(SMS_RECEIVED))) {
             /* old method to work with 17s API */
@@ -43,8 +44,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 text.append(message);
             }
 
-            AudioManager aMan = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-            NotificationManager nManage = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+            NotificationManager nManage = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             //checking for possible answer
             Intent stop_bar = new Intent("disable_bar");
             String message = text.toString();
@@ -61,21 +61,10 @@ public class SmsReceiver extends BroadcastReceiver {
                 LocalBroadcastManager.getInstance(context).sendBroadcast(stop_bar);
                 context.startService(gps_intent);
             } else if (checkTrackingSms(message)) {
+                aHelp.pauseTrackingSound();
                 Intent track_point = new Intent(context, TrackReceiveService.class);
                 track_point.putExtra("message", message);
                 track_point.putExtra("phone_number", phone);
-
-                if (sPref.getBoolean("disable_tracking_sound", false)) {
-                    if (aMan.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
-                        track_point.putExtra("sound_was_normal", true);
-                    } else {
-                        track_point.putExtra("sound_was_normal", false);
-                    }
-                    if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
-                        aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                    }
-                }
-
                 context.startService(track_point);
             } else if ((message.length() > 15) && message.substring(0, 15).equals("gps not enabled")) {
                 //only 0-15 symbols because after goes battery data
@@ -107,51 +96,31 @@ public class SmsReceiver extends BroadcastReceiver {
             //checking for possible request of coordinates
             //wifi request
             if (message.equals(sPref.getString("wifi", context.getString(R.string.wifi_default_command))) && sPref.getBoolean("answer", false)) {
+                aHelp.pauseSound();
                 Intent wifi_intent = new Intent(context, WifiSearch.class);
-                if (sPref.getBoolean("disable_sound", false)) {
-                    if (aMan.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
-                        wifi_intent.putExtra("sound_was_normal", true);
-                    } else {
-                        wifi_intent.putExtra("sound_was_normal", false);  //sound may be already disabled
-                    }
-                    if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
-                        aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                    }
-                }
                 wifi_intent.putExtra("phone_number", phone);
                 context.startService(wifi_intent);
             }
 
             //GPS request
             if (message.equals(sPref.getString("gps", context.getString(R.string.gps_default_command))) && sPref.getBoolean("answer", false)) {
+                aHelp.pauseSound();
                 Intent gps_intent = new Intent(context, GpsSearch.class);
-                if (sPref.getBoolean("disable_sound", false)) {
-                    if (aMan.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
-                        gps_intent.putExtra("sound_was_normal", true);
-                    } else {
-                        gps_intent.putExtra("sound_was_normal", false);
-                    }
-                    if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
-                        aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                    }
-                }
                 gps_intent.putExtra("phone_number", phone);
                 context.startService(gps_intent);
             }
 
             //remote phone number add (if enabled in options)
             if (message.equals(sPref.getString("remote", "NO_DEFAULT_VALUE")) && sPref.getBoolean("remote_active", false)) {
+                aHelp.pauseSound();
                 Intent remote_intent = new Intent(context, RemoteAdding.class);
-                if (sPref.getBoolean("disable_sound", false)) {
-                    if (aMan.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
-                        remote_intent.putExtra("sound_was_normal", true);
-                    } else {
-                        remote_intent.putExtra("sound_was_normal", false);
-                    }
-                    if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
-                        aMan.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                    }
-                }
+                remote_intent.putExtra("phone_number", phone);
+                context.startService(remote_intent);
+            }
+
+            //start ringing command
+            if (message.equals(sPref.getString("ringing", context.getString(R.string.ring_default_command)))) {
+                Intent remote_intent = new Intent(context, RingingService.class);
                 remote_intent.putExtra("phone_number", phone);
                 context.startService(remote_intent);
             }

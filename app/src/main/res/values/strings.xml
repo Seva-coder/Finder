@@ -147,4 +147,10 @@
     <string name="location_enable_descr">Activate Location when a request is received.</string>
     <string name="location_enable_grant_descr">This requires permission approval via ADB. See https://github.com/Seva-coder/Finder.</string>
     <string name="add_from_contacts_button">From contacts</string>
+
+    <string name="ring_default_command">ring</string>
+    <string name="ringing_description">Command for ringing (even if sound is muted)</string>
+    <string name="ringing_title">Enable sound and start ringing</string>
+    <string name="notification_ringing_title">Ringing mode</string>
+    <string name="notification_ringing_text">click notification to stop ringing</string>
 </resources>

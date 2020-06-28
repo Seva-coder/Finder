@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -14,8 +15,10 @@ import android.widget.Toast;
 
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
-    private final static int REQUEST_CODE_ALL = 2;
+    private final static int REQUEST_CODE_MUTE = 2;
     private final static int REQUEST_CODE_TRACKING = 3;
+    private final static int REQUEST_CODE_RINGING = 4;
+    private static String new_ring_command = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +45,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override  //checking mute permission on new androids (no output in callback, only isNotificationPolicyAccessGranted)
         public void onActivityResult(int requestCode, int resultCode, Intent data) {
             NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
-            if (requestCode == REQUEST_CODE_ALL && Build.VERSION.SDK_INT >= 23 && notificationManager.isNotificationPolicyAccessGranted()) {
+            if (requestCode == REQUEST_CODE_MUTE && Build.VERSION.SDK_INT >= 23 && notificationManager.isNotificationPolicyAccessGranted()) {
                 sPref.edit().putBoolean("disable_sound", true).apply();
                 CheckBoxPreference sound = (CheckBoxPreference) findPreference("disable_sound");
                 sound.setChecked(true);
@@ -54,8 +57,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 sound.setChecked(true);
             }
 
+            if (requestCode == REQUEST_CODE_RINGING && Build.VERSION.SDK_INT >= 23 && notificationManager.isNotificationPolicyAccessGranted()) {
+                sPref.edit().putString("ringing", new_ring_command).apply();  //to change text in settings
+                EditTextPreference ringing = (EditTextPreference) findPreference("ringing");
+                ringing.setText(new_ring_command);  //to change text in current activity
+            }
+
             if (Build.VERSION.SDK_INT >= 23 &&
-                    ((requestCode == REQUEST_CODE_ALL) || (requestCode == REQUEST_CODE_TRACKING)) &&
+                    (       (requestCode == REQUEST_CODE_MUTE) ||
+                            (requestCode == REQUEST_CODE_TRACKING) ||
+                            (requestCode == REQUEST_CODE_RINGING)   ) &&
                     !notificationManager.isNotificationPolicyAccessGranted()) {
                 Toast.makeText(getActivity(), R.string.sound_perm_fail, Toast.LENGTH_LONG).show();
             }
@@ -94,10 +105,34 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
                     Toast.makeText(getActivity(), R.string.enable_sound, Toast.LENGTH_LONG).show();
                     if (preference.getKey().equals("disable_sound")) {
-                        startActivityForResult(intent, REQUEST_CODE_ALL);
+                        startActivityForResult(intent, REQUEST_CODE_MUTE);
                     } else {
                         startActivityForResult(intent, REQUEST_CODE_TRACKING);
                     }
+                    return false;
+                }
+                return true;
+            }
+        };
+
+
+
+        Preference.OnPreferenceChangeListener ringingCheck = new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object value) {
+                String stringValue = value.toString();
+
+                if (stringValue.equals("")) {
+                    Toast.makeText(getActivity(), R.string.wrong_values, Toast.LENGTH_LONG).show();
+                    return false;
+                }
+
+                NotificationManager nManage = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
+                if (Build.VERSION.SDK_INT >= 23 && !nManage.isNotificationPolicyAccessGranted()) {  //request for muting permission
+                    Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+                    Toast.makeText(getActivity(), R.string.enable_sound, Toast.LENGTH_LONG).show();
+                    new_ring_command = stringValue;
+                    startActivityForResult(intent, REQUEST_CODE_RINGING);
                     return false;
                 }
                 return true;
@@ -121,6 +156,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             Preference remote = findPreference("remote");
             Preference sound = findPreference("disable_sound");
             Preference tracking_sound = findPreference("disable_tracking_sound");
+            Preference ringing = findPreference("ringing");
 
             sPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
             gps.setOnPreferenceChangeListener(gpsCommandCheck);
@@ -136,6 +172,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
             sound.setOnPreferenceChangeListener(audioCheck);
             tracking_sound.setOnPreferenceChangeListener(audioCheck);
+
+            ringing.setOnPreferenceChangeListener(ringingCheck);
 
             if (new LocationHelper(getActivity()).canActivateLocation()) {
                 location_enable.setOnPreferenceChangeListener(emptyCheck);

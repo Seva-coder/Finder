@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.media.AudioManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
@@ -122,13 +121,6 @@ public class WifiSearch extends Service {
             if(!search_active) {  //stop service in case of wrong number
                 cursor_check.close();
                 db.close();
-                if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
-                    AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
-                    NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                    if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
-                        aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                    }
-                }
                 stopSelf();
             }
         }
@@ -368,14 +360,6 @@ public class WifiSearch extends Service {
             }
         }
 
-        //make sound mode as it was before
-        if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
-            AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
-            NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
-                aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-            }
-        }
     }
 
     @Override

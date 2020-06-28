@@ -18,6 +18,13 @@
             android:title="@string/pref_gps_name"
             android:summary="@string/gps_description"/>
 
+        <EditTextPreference
+            android:defaultValue="@string/ring_default_command"
+            android:inputType="text"
+            android:key="ringing"
+            android:summary="@string/ringing_description"
+            android:title="@string/ringing_title" />
+
         <CheckBoxPreference
             android:title="@string/answer_to_requests"
             android:summary="@string/response_descr"
