@@ -1,4 +1,4 @@
-The main function of Finder is to send the location of the smartphone it's installed on when requested. It also has a "tracker" feature (it can’t be activated remotely, only manually). The application is designed to search for missing people or stolen phones. SMS is used for communication because Internet connectivity may be not available. The app has two ways of determining the coordinates: using GPS (must be enabled in system settings!), and using mobile and WiFi network info.
+The main function of Finder is to send the location of the smartphone it's installed on when requested. It also has a "tracker" feature (it can’t be activated remotely, only manually). The application is designed to search for missing people or stolen phones. SMS is used for communication because Internet connectivity may be not available. The app has two ways of determining the coordinates: using GPS (gps must be enabled in system settings, or special permission granted via ADB for auto-enabling), and using mobile and WiFi network info.
 
 <b>Important!</b> On Android 6.0 and newer for the Wifi networks searching feature, GPS must be enabled beforehand!. GPS will not be used during network scanning, but nevertheless, newer versions of Android require it to be turned on (otherwise the system returns an empty list of networks). The app has a detailed help section, read it before use (but it is best to check whether the app works on a real device before use).
 
@@ -7,6 +7,8 @@ When location is retrieved using WiFi and mobile networks, the response SMS will
 An important feature is the fact that the application only responds to numbers from the "trusted list" and only when the "respond to requests" option is enabled! It is necessary to add the telephone numbers from which the requests will be sent in advance. The commands on the requesting and responding phones must be the same. It is possible to enable remote adding of phone nimbers to the "trusted list". If this mode is enabled (and the command is right) it allows you to remotely register a previously unknown number in the "trusted list". Finder displays notifications for any requests/responses.
 
 It is also possible to send your coordinates manually to any number from "trusted list".
+
+App can ring by request from trusted numbers. It disable "don't disturb mode", set 90% volume and play ringtone. To stop click on notification. Volume remain on original value.
 
 MIUI users (and possibly some other OSes) need to apply additional system settings to make the aplication operate reliably. This is described in detail in the built-in help.
 

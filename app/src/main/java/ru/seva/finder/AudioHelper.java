@@ -22,6 +22,8 @@ class AudioHelper {
     private Ringtone ringtone;
     private SharedPreferences prefs;
 
+    private int oldVolume;
+
 
     AudioHelper(Context context, SharedPreferences prefs) {
         this.context = context;
@@ -39,6 +41,12 @@ class AudioHelper {
     private void unmute(int oldRingerMode) {
         if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
             aMan.setRingerMode(oldRingerMode);
+        }
+    }
+
+    private void setVolume(int level) {
+        if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
+            aMan.setStreamVolume(AudioManager.STREAM_RING, level, 0);
         }
     }
 
@@ -62,16 +70,25 @@ class AudioHelper {
         }
     }
 
-
+    /**
+     * start ringing at 90% volume, even if sound was muted.
+     * after stop - set old volume
+     */
     void startRinging() {
         unmute(AudioManager.RINGER_MODE_NORMAL);
         ringtone = RingtoneManager.getRingtone(context, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE));
+
+        int maxVol = aMan.getStreamMaxVolume(AudioManager.STREAM_RING);
+        oldVolume = aMan.getStreamVolume(AudioManager.STREAM_RING);
+        setVolume((int) (maxVol * 0.9f));
+
         ringtone.play();
     }
 
 
     void stopRinging() {
         ringtone.stop();
+        setVolume(oldVolume);
     }
 
 

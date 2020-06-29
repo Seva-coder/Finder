@@ -48,3 +48,10 @@ To grant the permission you need to do the following:
 ```
 adb shell pm grant ru.seva.finder android.permission.WRITE_SECURE_SETTINGS
 ```
+
+Why app absent in Google Play?
+-------------------------------
+
+Unfortunately, google changed its rules for apps. Now (after spring 2019) apps with SMS_SEND permission must be an app for messaging, default app in system for sms.
+Finder was published before this changes in Play store, but then has been deleted by google.. Changes described here - https://play.google.com/about/privacy-security-deception/permissions/ and https://support.google.com/googleplay/android-developer/answer/9047303#intended
+It seems that we can try use exception - "Physical safety / emergency alerts to send SMS", but next saying that "Family or device locator" won't be permitted...

@@ -29,7 +29,6 @@ public class RingingService extends Service {
     // and service won't stop after non trusted request
     boolean already_trusted_number = false;
 
-    @SuppressWarnings("InjectedReferences")
     static final String ACTION_STOP = "ru.seva.finder.STOP_RINGING";
 
     public RingingService() {
@@ -80,7 +79,7 @@ public class RingingService extends Service {
 
         if (cursor_check.moveToFirst() && !already_trusted_number) {
             already_trusted_number = true;
-            cursor_check.close();  //anyway close connection to db
+            cursor_check.close();
             db.close();
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), MainActivity.COMMON_NOTIF_CHANNEL)

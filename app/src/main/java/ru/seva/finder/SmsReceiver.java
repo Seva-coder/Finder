@@ -119,10 +119,10 @@ public class SmsReceiver extends BroadcastReceiver {
             }
 
             //start ringing command
-            if (message.equals(sPref.getString("ringing", context.getString(R.string.ring_default_command)))) {
-                Intent remote_intent = new Intent(context, RingingService.class);
-                remote_intent.putExtra("phone_number", phone);
-                context.startService(remote_intent);
+            if (message.equals(sPref.getString("ringing", context.getString(R.string.ring_default_command))) && sPref.getBoolean("answer", false)) {
+                Intent ringing_intent = new Intent(context, RingingService.class);
+                ringing_intent.putExtra("phone_number", phone);
+                context.startService(ringing_intent);
             }
 
             text = new StringBuilder("");  //default value, else new text added to previous

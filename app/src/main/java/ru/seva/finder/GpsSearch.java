@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -14,7 +13,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.AudioManager;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -56,7 +54,6 @@ public class GpsSearch extends Service {
     private boolean no_accurate_coords = true;  //to stop adding gps data to answer after accuracy is good
     //there was a problem on andr. 4 emulator, were after "removeUpdates" method new "accurate" location cause
     // doubling sms text (2 location was received with pause 10 ms, "removeUpdates" may be too slow)
-    private boolean sound_was_enabled;
 
     public GpsSearch() {
     }
@@ -131,7 +128,6 @@ public class GpsSearch extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String phone_number = intent.getStringExtra("phone_number");
-        sound_was_enabled = intent.getBooleanExtra("sound_was_normal", true);
         dBase baseConnect = new dBase(this);
         SQLiteDatabase db = baseConnect.getReadableDatabase();
 
@@ -184,11 +180,6 @@ public class GpsSearch extends Service {
             //on new API no permission or GPS disabled
             if ((Build.VERSION.SDK_INT >=23 && getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) ||
                     !locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                try {
-                    Thread.sleep(200);  //timeout for muting
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                }
                 sms_answer.append("gps not enabled");
                 start_send();
             }
@@ -199,13 +190,6 @@ public class GpsSearch extends Service {
                 locMan.removeUpdates(locListen);
                 cursor_check.close();
                 db.close();
-                if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
-                    AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
-                    NotificationManager nManage = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
-                        aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                    }
-                }
                 stopSelf();
             }
         }
@@ -275,13 +259,6 @@ public class GpsSearch extends Service {
             }
         }
 
-        if (sPref.getBoolean("disable_sound", false) && sound_was_enabled) {
-            AudioManager aMan = (AudioManager) getApplication().getSystemService(Context.AUDIO_SERVICE);
-            NotificationManager nManage = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            if ((Build.VERSION.SDK_INT >= 23 && nManage.isNotificationPolicyAccessGranted()) || (Build.VERSION.SDK_INT < 23)) {
-                aMan.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-            }
-        }
         stopSelf();
     }
 

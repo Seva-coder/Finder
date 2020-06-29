@@ -1,3 +1,6 @@
+v2.3
+- new feature: ringing by request, even if sound muted (only from trusted numbers)
+
 v2.2
 - Added Polish translation
 - fixed bug on android 4 with auto enabling GPS
