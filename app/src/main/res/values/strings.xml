@@ -17,7 +17,7 @@
     <string name="wifi_description">Text of Wifi request command (and response)</string>
     <string name="title_activity_maps">Map</string>
     <string name="api_error">Google geolocation API error</string>
-    <string name="parsing_error">JSON-api response parsing error</string>
+    <string name="parsing_error">no Internet or bad API response</string>
     <string name="no_map_app">No app to display maps has been detected, please install any maps app</string>
     <string name="btn_hist_text">History</string>
     <string name="history_description">Search history:</string>
@@ -153,8 +153,11 @@
     <!--
     not translated to other languages, except Russian
      -->
-    <string name="ringing_description">Command for ringing (even if sound is muted)</string>
-    <string name="ringing_title">Enable sound and start ringing</string>
+    <string name="ringing_description">Enable sound and start ringing (even if sound was muted)</string>
+    <string name="ringing_title">Command for ringing</string>
     <string name="notification_ringing_title">Ringing mode</string>
     <string name="notification_ringing_text">click notification to stop ringing</string>
+    <string name="ringing_duration_title">Ringing duration</string>
+    <string name="ringing_duration_description">in seconds, how long app will play ringtone</string>
+    <string name="menu_start_ringing">Start ringing</string>
 </resources>

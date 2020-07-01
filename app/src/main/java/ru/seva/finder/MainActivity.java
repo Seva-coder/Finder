@@ -478,8 +478,10 @@ public class MainActivity extends AppCompatActivity {
                         (ContextCompat.checkSelfPermission(v.getContext(), Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED)) {
                     sManager.sendTextMessage(phone, null, sPref.getString(key, def_text), null, null);
                     Toast.makeText(v.getContext(), R.string.request_has_been_send, Toast.LENGTH_LONG).show();
-                    label.setVisibility(View.VISIBLE);
-                    bar.setVisibility(View.VISIBLE);
+                    if (!key.equals("ringing")) {
+                        label.setVisibility(View.VISIBLE);
+                        bar.setVisibility(View.VISIBLE);
+                    }
                 } else {
                     Toast.makeText(v.getContext(), R.string.no_rights_for_sms, Toast.LENGTH_LONG).show();
                     label.setVisibility(View.GONE);
@@ -530,6 +532,10 @@ public class MainActivity extends AppCompatActivity {
 
                     case R.id.gps_id:
                         sendSmsRequest("gps", "gps_search", phone);
+                        return true;
+
+                    case R.id.ringing_id:
+                        sendSmsRequest("ringing", getString(R.string.ring_default_command), phone);
                         return true;
 
                     case R.id.del_id:

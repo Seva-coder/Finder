@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -25,11 +26,16 @@ public class RingingService extends Service {
     StopRingingReceiver mStopRingingReceiver;
     AudioHelper aHelp;
 
+    Handler stopHandler;
+
     // some trusted number already requested ringing
     // and service won't stop after non trusted request
     boolean already_trusted_number = false;
 
     static final String ACTION_STOP = "ru.seva.finder.STOP_RINGING";
+
+    NotificationManager nManage;
+    private int id;
 
     public RingingService() {
     }
@@ -45,12 +51,21 @@ public class RingingService extends Service {
     class StopRingingReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            aHelp.stopRinging();
-            unregisterReceiver(mStopRingingReceiver);
-            stopSelf();
+            stopRinging.run();
         }
     }
 
+
+    private Runnable stopRinging = new Runnable() {
+        @Override
+        public void run() {
+            aHelp.stopRinging();
+            unregisterReceiver(mStopRingingReceiver);
+            stopHandler.removeCallbacks(stopRinging);
+            nManage.cancel(id);
+            stopSelf();
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -90,8 +105,8 @@ public class RingingService extends Service {
                     .setContentIntent(pStopIntent)
                     .setOngoing(true);
             Notification notification = builder.build();
-            NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            int id = sPref.getInt("notification_id", 2);
+            nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            id = sPref.getInt("notification_id", 2);
             nManage.notify(id, notification);
             sPref.edit().putInt("notification_id", id+1).apply();
 
@@ -100,6 +115,10 @@ public class RingingService extends Service {
 
             aHelp = new AudioHelper(getApplicationContext(), sPref);
             aHelp.startRinging();
+
+            stopHandler = new Handler();
+            //stop ringing when nobody stops it
+            stopHandler.postDelayed(stopRinging, Long.valueOf(sPref.getString("ringing_duration", "60")) * 1000);
         } else if (!cursor_check.moveToFirst() && !already_trusted_number) {
             //number not trusted and no trusted processing now - stop service
             cursor_check.close();

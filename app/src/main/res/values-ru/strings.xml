@@ -14,7 +14,7 @@
     <string name="wifi_description">Команда для получения координат по данным сетей WIFI (и ответа)</string>
     <string name="title_activity_maps">Карта</string>
     <string name="api_error">Ошибка работы google API</string>
-    <string name="parsing_error">ошибка парсинга JSON-ответа API</string>
+    <string name="parsing_error">нет интернета или ошибка ответа API</string>
     <string name="no_map_app">К сожалению у вас нечем открыть карту, установите какое-нибудь гео-приложение</string>
     <string name="btn_hist_text">История</string>
     <string name="history_description">История поисков:</string>
@@ -145,8 +145,11 @@
     <string name="location_enable_grant_descr">Для этого требуется добавление прав через ADB. См. https://github.com/Seva-coder/Finder.</string>
     <string name="add_from_contacts_button">Из контактов</string>
 
-    <string name="ringing_description">Команда для "звонка", даже в случае выключенного звука</string>
-    <string name="ringing_title">Включить звонок по этой команде</string>
+    <string name="ringing_description">Включить звонок по этой команде, даже в случае выключенного звука</string>
+    <string name="ringing_title">Команда для "звонка"</string>
     <string name="notification_ringing_title">Поиск "звонком"</string>
     <string name="notification_ringing_text">Для отключения нажмите на уведомление</string>
+    <string name="ringing_duration_title">Длительность "звонка"</string>
+    <string name="ringing_duration_description">в секундах</string>
+    <string name="menu_start_ringing">Включить звонок</string>
 </resources>

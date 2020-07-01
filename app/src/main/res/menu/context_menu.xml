@@ -5,6 +5,8 @@
         android:title="@string/wifi_request" />
     <item android:id="@+id/gps_id"
         android:title="@string/gps_request" />
+    <item android:id="@+id/ringing_id"
+        android:title="@string/menu_start_ringing" />
     <item android:id="@+id/del_id"
         android:title="@string/del_number" />
 

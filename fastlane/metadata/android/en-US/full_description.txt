@@ -8,9 +8,9 @@ An important feature is the fact that the application only responds to numbers f
 
 It is also possible to send your coordinates manually to any number from "trusted list".
 
-App can ring by request from trusted numbers. It disable "don't disturb mode", set 90% volume and play ringtone. To stop click on notification. Volume remain on original value.
+App can ring by request from trusted numbers. It disable "don't disturb mode", set 90% volume and play ringtone. To stop ringtone click on the notification, or it stops automatically after time from settings. Volume remain on original value.
 
-MIUI users (and possibly some other OSes) need to apply additional system settings to make the aplication operate reliably. This is described in detail in the built-in help.
+MIUI users (and possibly some other OSes) need to apply additional system settings to make the application operate reliably. This is described in detail in the built-in help.
 
 If the tracker function is  enabled, the device sends its coordinates to one of the trusted numbers with a set period. On the other device incoming SMS are parsed and a track is displayed on the map. Tracks can be exported in GPX format to be used in other navigation applications (the only difference from standard is local time instead UTC).
 

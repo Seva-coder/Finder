@@ -157,6 +157,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             Preference sound = findPreference("disable_sound");
             Preference tracking_sound = findPreference("disable_tracking_sound");
             Preference ringing = findPreference("ringing");
+            Preference ringing_duration = findPreference("ringing_duration");
 
             sPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
             gps.setOnPreferenceChangeListener(gpsCommandCheck);
@@ -169,6 +170,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             gps_time.setOnPreferenceChangeListener(emptyCheck);
             accuracy.setOnPreferenceChangeListener(emptyCheck);
             remote.setOnPreferenceChangeListener(emptyCheck);
+            ringing_duration.setOnPreferenceChangeListener(emptyCheck);
 
             sound.setOnPreferenceChangeListener(audioCheck);
             tracking_sound.setOnPreferenceChangeListener(audioCheck);

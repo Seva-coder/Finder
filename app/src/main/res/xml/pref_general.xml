@@ -23,7 +23,16 @@
             android:inputType="text"
             android:key="ringing"
             android:summary="@string/ringing_description"
-            android:title="@string/ringing_title" />
+            android:title="@string/ringing_title"
+            android:dependency="answer" />
+
+        <EditTextPreference
+            android:defaultValue="60"
+            android:inputType="number"
+            android:key="ringing_duration"
+            android:summary="@string/ringing_duration_description"
+            android:title="@string/ringing_duration_title"
+            android:dependency="answer" />
 
         <CheckBoxPreference
             android:title="@string/answer_to_requests"
