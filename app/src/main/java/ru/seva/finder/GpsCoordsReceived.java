@@ -72,7 +72,7 @@ public class GpsCoordsReceived extends IntentService {
         dBase baseConnect = new dBase(getApplicationContext());
         SQLiteDatabase db = baseConnect.getWritableDatabase();
 
-        DateFormat df = new SimpleDateFormat("MMM d, HH:mm");
+        DateFormat df = new SimpleDateFormat("MMM d, HH:mm");  //TODO: take timestamp from SMS
         date = df.format(Calendar.getInstance().getTime());
         MainActivity.write_to_hist(db, phone, lat, lon, acc, date, bat_value, altitude, speed, direction);
         String name;

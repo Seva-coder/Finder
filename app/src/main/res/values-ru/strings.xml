@@ -62,7 +62,7 @@
     <string name="menu_wifi_send">Отправить данные сетей</string>
     <string name="coordinates_will_be_sent">Координнаты (по GPS) будут отправлены на номер %1$s</string>
     <string name="nets_will_be_sent">Данные сетей будут отправлены на номер %1$s</string>
-    <string name="no_gps_or_rights">GPS выключен/недостаточно прав! Координаты НЕ будут отправлены!</string>
+    <string name="no_gps_or_rights">GPS выключен! Координаты НЕ будут отправлены!</string>
     <string name="no_rights_for_wifi_sending">Недостаточно прав, данные НЕ отправлены!</string>
     <string name="permissions_obtained">разрешения получены</string>
     <string name="no_permits_received">Нет необходимых разрешений!</string>
@@ -135,7 +135,7 @@
     <string name="tracking_sms_open">Трекинговое SMS обработано!</string>
     <string name="wrong_values">Неверное значение! не сохранено</string>
     <string name="sound_perm_fail">Разрешение не получено</string>
-    <string name="enable_sound">Включите доступ к функции \'Не беспокоить\' для Finder</string>
+    <string name="enable_sound">Включите доступ к функции \'Не беспокоить\' для Finder (нужен для функции \'звонка\')</string>
     <string name="single_coord_chan">Одиночные точки</string>
     <string name="single_coord_chan_description">Используется для уведомлений о запрсах/ответах координат.</string>
     <string name="tracking_chan">Трекинг</string>
@@ -152,4 +152,6 @@
     <string name="ringing_duration_title">Длительность "звонка"</string>
     <string name="ringing_duration_description">в секундах</string>
     <string name="menu_start_ringing">Включить звонок</string>
+    <string name="no_mute_permission_warning">Функция звонка не будет работать, если телефон в режиме \'Не беспокоить\'</string>
+    <string name="enable_background_miui">Добавьте Finder в группу \'Нет ограничений\' и разрешите местоположение в фоне</string>
 </resources>

@@ -3,7 +3,9 @@ package ru.seva.finder;
 import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,7 +37,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -50,13 +51,18 @@ import java.util.regex.Pattern;
 
 
 public class MainActivity extends AppCompatActivity {
-    private Button remember_btn;
     private TabHost tabHost;
 
     public static boolean activityRunning = false;  //we have only one instance, it's ok
     public final static String COMMON_NOTIF_CHANNEL = "common_channel";
     public final static String TRACKING_NOTIF_CHANNEL = "tracking_channel";
-    public final static int REQUEST_CODE_CONTACTS = 1;
+    private final static int REQUEST_CODE_CONTACTS = 1;
+    private final static int REQUEST_CODE_AFTER_DISTURB_MENU = 2;
+    private static final int REQUEST_CODE_LACKING_PERMISSIONS_RESPONSE = 3;
+    private static final int REQUEST_CODE_LACKING_PERMISSIONS_TRACKING =4;
+    private static final int REQUEST_CODE_LACKING_PERMISSIONS_REQUEST = 5;
+    private static final int REQUEST_CODE_LACKING_PERMISSIONS_SEND_MY_COORD = 6;
+    private static final int REQUEST_CODE_LACKING_PERMISSIONS_SEND_MY_NETS = 7;
     private SharedPreferences sPref;
 
     private Cursor cursor;
@@ -64,48 +70,61 @@ public class MainActivity extends AppCompatActivity {
     private SQLiteDatabase db;
     private SimpleCursorAdapter adapter;
     private SimpleCursorAdapter adapter_answ;
-    private String[] allDangPerm;
+    private String[] permsForRequest, permsForRequestOreo, permsForResponse, permsForResponseOreo;
 
     private EditText field_name, field_phone;
+    private NotificationManager nManage;
+
+    private Intent mSavedGpsIntent, mSavedWifiIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        remember_btn = findViewById(R.id.button);
         ListView list = findViewById(R.id.lvSendTo);
         ListView list_receive = findViewById(R.id.lvReceiveFrom);
         activityRunning = true;
-        String[] allDangPermNormal = new String[]{
+
+        nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        permsForRequest= new String[]{
                 Manifest.permission.SEND_SMS,
                 Manifest.permission.RECEIVE_SMS,
-                Manifest.permission.READ_SMS,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
         };
 
         //because bug in android Oreo (to send SMS READ_PHONE_STATE permission is needed) https://issuetracker.google.com/issues/66979952
-        String[] allDangPermOreo = new String[]{
+        permsForRequestOreo = new String[]{
                 Manifest.permission.SEND_SMS,
                 Manifest.permission.RECEIVE_SMS,
-                Manifest.permission.READ_SMS,
+                Manifest.permission.READ_PHONE_STATE
+        };
+
+        permsForResponse = new String[]{
+                Manifest.permission.SEND_SMS,
+                Manifest.permission.RECEIVE_SMS,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.CHANGE_WIFI_STATE
+        };
+
+        permsForResponseOreo = new String[]{
+                Manifest.permission.SEND_SMS,
+                Manifest.permission.RECEIVE_SMS,
                 Manifest.permission.READ_PHONE_STATE,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.CHANGE_WIFI_STATE
         };
 
-        if (Build.VERSION.SDK_INT == 26) {
-            allDangPerm = allDangPermOreo;  //READ_PHONE_STATE added to workaround known bug (only in android 8.0)
-        } else {
-            allDangPerm = allDangPermNormal;
-        }
 
         sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        //checking permissions needed for answer, if it enabled
+        if (sPref.getBoolean("answer", false)) {
+            requestPermsForResponse();
+        }
+
 
         dBase baseConnect = new dBase(this);
         db = baseConnect.getWritableDatabase();
@@ -162,21 +181,6 @@ public class MainActivity extends AppCompatActivity {
         //local receiver for progress bar stopping
         LocalBroadcastManager.getInstance(this).registerReceiver(PGbar, new IntentFilter("disable_bar"));
 
-        //permission check
-        if (Build.VERSION.SDK_INT >= 23 && hasPermitions()) {
-            remember_btn.setEnabled(true);
-        } else if (Build.VERSION.SDK_INT >= 23 && !hasPermitions()) {
-            ArrayList<String> lacking = new ArrayList<>();
-            for (String prem : allDangPerm) {
-                if (ContextCompat.checkSelfPermission(this, prem) == PackageManager.PERMISSION_DENIED) {
-                    lacking.add(prem);
-                }
-            }
-            ActivityCompat.requestPermissions(MainActivity.this, lacking.toArray(new String[0]), 1);
-        } else if (Build.VERSION.SDK_INT < 23) {
-            //we consider that the rights have already been granted
-            remember_btn.setEnabled(true);
-        }
 
         //offer to read the help at the first app start and create channels for notifications
         if (sPref.getBoolean("first_start", true)) {
@@ -216,6 +220,79 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    /**
+     * calls before adding number to list for requests, when not enough permissions
+     */
+    private void requestPermsForRequest() {
+        ArrayList<String> lacking = new ArrayList<>();
+
+        if (Build.VERSION.SDK_INT == 26 && !hasPermissions(permsForRequestOreo)) {
+            for (String perm : permsForRequestOreo) { //READ_PHONE_STATE added to workaround known bug (only in android 8.0)
+                if (ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_DENIED) {
+                    lacking.add(perm);
+                }
+            }
+        } else if (Build.VERSION.SDK_INT >= 23 && !hasPermissions(permsForRequest)) {
+            for (String perm : permsForRequest) {
+                if (ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_DENIED) {
+                    lacking.add(perm);
+                }
+            }
+        }
+
+        if (lacking.size() != 0) {
+            ActivityCompat.requestPermissions(MainActivity.this, lacking.toArray(new String[0]), REQUEST_CODE_LACKING_PERMISSIONS_REQUEST);
+        }
+    }
+
+
+    /**
+     * calls at start when "respond to answers" enabled, and before adding new number to response ("trusted list")
+     */
+    private void requestPermsForResponse() {
+        //"dangerous" permission check
+        ArrayList<String> lacking = new ArrayList<>();
+
+        if (Build.VERSION.SDK_INT == 26 && !hasPermissions(permsForResponseOreo)) {
+            for (String perm : permsForResponseOreo) { //READ_PHONE_STATE added to workaround known bug (only in android 8.0)
+                if (ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_DENIED) {
+                    lacking.add(perm);
+                }
+            }
+        } else if (Build.VERSION.SDK_INT >= 23 && !hasPermissions(permsForResponse)) {
+            for (String perm : permsForResponse) {
+                if (ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_DENIED) {
+                    lacking.add(perm);
+                }
+            }
+        }
+
+        if (lacking.size() != 0) {
+            ActivityCompat.requestPermissions(MainActivity.this, lacking.toArray(new String[0]), REQUEST_CODE_LACKING_PERMISSIONS_RESPONSE);
+        } else {
+            //now check muting permission
+            if (Build.VERSION.SDK_INT >= 23 && !nManage.isNotificationPolicyAccessGranted()) {  //request for muting permission
+                Intent dont_disturb_intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+                Toast.makeText(this, R.string.enable_sound, Toast.LENGTH_LONG).show();
+                startActivityForResult(dont_disturb_intent, REQUEST_CODE_AFTER_DISTURB_MENU);
+            }
+        }
+
+
+
+        //add Finder to exclusion list on MIUI  //TODO: call only once
+        try {
+            Intent miui_intent = new Intent();
+            miui_intent.setComponent(new ComponentName("com.miui.powerkeeper", "com.miui.powerkeeper.ui.HiddenAppsConfigActivity"));
+            miui_intent.putExtra("package_name", getPackageName());
+            miui_intent.putExtra("package_label", getText(R.string.app_name));
+            startActivity(miui_intent);
+            Toast.makeText(this, R.string.enable_background_miui, Toast.LENGTH_LONG).show();
+        } catch (ActivityNotFoundException anfe) {
+        }
+    }
+
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         boolean rules = true;
 
@@ -223,17 +300,41 @@ public class MainActivity extends AppCompatActivity {
             rules = rules && (rul == PackageManager.PERMISSION_GRANTED);
         }
 
-        if (requestCode == 1 && rules) {
-            Toast.makeText(MainActivity.this, R.string.permissions_obtained, Toast.LENGTH_SHORT).show();
-            remember_btn.setEnabled(true);  //unlock adding button in case of getting permissions
+        if (rules) {
+            switch (requestCode) {
+                case REQUEST_CODE_LACKING_PERMISSIONS_RESPONSE:
+                    Toast.makeText(MainActivity.this, R.string.permissions_obtained, Toast.LENGTH_SHORT).show();
+                    //request for muting permission
+                    NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    if (Build.VERSION.SDK_INT >= 23 && !nManage.isNotificationPolicyAccessGranted()) {
+                        Intent dont_disturb_intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+                        Toast.makeText(this, R.string.enable_sound, Toast.LENGTH_LONG).show();
+                        startActivityForResult(dont_disturb_intent, REQUEST_CODE_AFTER_DISTURB_MENU);
+                    }
+                    break;
+
+                case REQUEST_CODE_LACKING_PERMISSIONS_SEND_MY_COORD:
+                    sendMyGpsCoord();
+                    break;
+
+                case REQUEST_CODE_LACKING_PERMISSIONS_SEND_MY_NETS:
+                    sendMyNets();
+                    break;
+
+                case REQUEST_CODE_LACKING_PERMISSIONS_TRACKING:
+                case REQUEST_CODE_LACKING_PERMISSIONS_REQUEST:
+                    default:
+                    Toast.makeText(MainActivity.this, R.string.permissions_obtained, Toast.LENGTH_SHORT).show();
+                    break;
+            }
         } else {
             Toast.makeText(MainActivity.this, R.string.no_permits_received, Toast.LENGTH_SHORT).show();
         }
     }
 
-    private boolean hasPermitions() {
+    private boolean hasPermissions(String[] perms) {
         boolean answer = true;
-        for (String perm : allDangPerm) {
+        for (String perm : perms) {
             if (ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_DENIED) {
                 answer = false;
                 break;
@@ -304,7 +405,7 @@ public class MainActivity extends AppCompatActivity {
                                         intent.putExtra("tracking_accuracy", tracking_accuracy);
                                         intent.putExtra("phone", phone);
                                         intent.putExtra("name", name);
-                                        startService(intent);
+                                        startService(intent);  //TODO: make foreground
 
                                         Toast.makeText(v.getContext(), R.string.tracking_started, Toast.LENGTH_LONG).show();
                                     }
@@ -321,12 +422,29 @@ public class MainActivity extends AppCompatActivity {
                         if (Tracking.tracking_running) {
                             Toast.makeText(v.getContext(), R.string.tracking_already_running, Toast.LENGTH_LONG).show();
                         } else {
-                            //show menu with inactive start button in case of missing settings. sms_number is just an example, all settings are created simultaneously. Button will be activated later in listener
-                            dialog.show();
-                            if (sPref.contains("tracking_sms_max_number")) {
-                                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                            String[] trackingPermOreo = new String[] {Manifest.permission.SEND_SMS,
+                                                                    Manifest.permission.READ_PHONE_STATE,
+                                                                    Manifest.permission.ACCESS_FINE_LOCATION};  //READ_PHONE_STATE added to workaround known bug (only in android 8.0)
+
+                            String[] trackingNorm = new String[] {Manifest.permission.SEND_SMS,
+                                                                Manifest.permission.ACCESS_FINE_LOCATION};
+
+                            String[] permTracking;
+                            if (Build.VERSION.SDK_INT == 26) {
+                                permTracking = trackingPermOreo;
                             } else {
-                                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                                permTracking = trackingNorm;
+                            }
+                            //show menu with inactive start button in case of missing settings. sms_number is just an example, all settings are created simultaneously. Button will be activated later in listener
+                            if (hasPermissions(permTracking)) {
+                                dialog.show();
+                                if (sPref.contains("tracking_sms_max_number")) {
+                                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                                } else {
+                                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                                }
+                            } else {
+                                requirePermissions(permTracking, REQUEST_CODE_LACKING_PERMISSIONS_TRACKING);
                             }
                         }
 
@@ -368,25 +486,54 @@ public class MainActivity extends AppCompatActivity {
                         return true;
 
                     case R.id.gps_send:
-                        Intent gps_intent = new Intent(getApplicationContext(), GpsSearch.class);
-                        gps_intent.putExtra("phone_number", phone);
+                        mSavedGpsIntent = new Intent(getApplicationContext(), GpsSearch.class);
+                        mSavedGpsIntent.putExtra("phone_number", phone);
                         LocationManager locMan = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-                        if ((Build.VERSION.SDK_INT >= 23 && hasPermitions() && locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) ||
-                                locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                            getApplicationContext().startService(gps_intent);
-                            Toast.makeText(v.getContext(), getString(R.string.coordinates_will_be_sent, phone), Toast.LENGTH_LONG).show();
+                        String[] sendGpsPerm;
+                        if (Build.VERSION.SDK_INT == 26) {
+                            sendGpsPerm = new String[] {Manifest.permission.SEND_SMS,
+                                                        Manifest.permission.READ_PHONE_STATE,
+                                                        Manifest.permission.ACCESS_FINE_LOCATION};
                         } else {
+                            sendGpsPerm = new String[] {Manifest.permission.SEND_SMS,
+                                                        Manifest.permission.ACCESS_FINE_LOCATION};
+                        }
+
+                        if (!sPref.getBoolean("location_enable", false) && !locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                             Toast.makeText(v.getContext(), R.string.no_gps_or_rights, Toast.LENGTH_LONG).show();
+                            return true;
+                        }
+
+                        if (
+                                (Build.VERSION.SDK_INT >= 23 && hasPermissions(sendGpsPerm)) || (Build.VERSION.SDK_INT < 23)
+                        ) {
+                            sendMyGpsCoord();
+                        } else {
+                            requirePermissions(sendGpsPerm, REQUEST_CODE_LACKING_PERMISSIONS_SEND_MY_COORD);
                         }
                         return true;
                     case R.id.wifi_send:
-                        if ((Build.VERSION.SDK_INT >= 23 && hasPermitions()) || Build.VERSION.SDK_INT < 23) {
-                            Intent wifi_intent = new Intent(getApplicationContext(), WifiSearch.class);
-                            wifi_intent.putExtra("phone_number", phone);
-                            getApplicationContext().startService(wifi_intent);
-                            Toast.makeText(v.getContext(), getString(R.string.nets_will_be_sent, phone), Toast.LENGTH_LONG).show();
+                        mSavedWifiIntent = new Intent(getApplicationContext(), WifiSearch.class);
+                        mSavedWifiIntent.putExtra("phone_number", phone);
+                        String[] wifiPerm;
+                        if (Build.VERSION.SDK_INT == 26) {
+                            wifiPerm = new String[] {
+                                    Manifest.permission.SEND_SMS,
+                                    Manifest.permission.READ_PHONE_STATE,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                                    Manifest.permission.ACCESS_FINE_LOCATION
+                            };
                         } else {
-                            Toast.makeText(v.getContext(), R.string.no_rights_for_wifi_sending, Toast.LENGTH_LONG).show();
+                            wifiPerm = new String[] {
+                                    Manifest.permission.SEND_SMS,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                                    Manifest.permission.ACCESS_FINE_LOCATION
+                            };
+                        }
+                        if ((Build.VERSION.SDK_INT >= 23 && hasPermissions(wifiPerm)) || Build.VERSION.SDK_INT < 23) {
+                            sendMyNets();
+                        } else {
+                            requirePermissions(wifiPerm, REQUEST_CODE_LACKING_PERMISSIONS_SEND_MY_NETS);
                         }
                         return true;
                     case R.id.delete:
@@ -399,6 +546,42 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         menu.show();
+    }
+
+
+    /**
+     * starts standard service for sending current wifi- and cell nets
+     * It get intent from class variable, because can be called from onRequestPermissionsResult too
+     */
+    private void sendMyNets() {
+        getApplicationContext().startService(mSavedWifiIntent);  //TODO: make foreground
+        Toast.makeText(this, getString(R.string.nets_will_be_sent, mSavedWifiIntent.getStringExtra("phone_number")), Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * starts standard service for sending current coordinates
+     * It get intent from class variable, because can be called from onRequestPermissionsResult too
+     */
+    private void sendMyGpsCoord() {
+        getApplicationContext().startService(mSavedGpsIntent);  //TODO: make foreground
+        Toast.makeText(this, getString(R.string.coordinates_will_be_sent, mSavedGpsIntent.getStringExtra("phone_number")), Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * request permissions, if they are not granted
+     * @param requiredPerm
+     * @param requestCode
+     */
+    private void requirePermissions(@NonNull String[] requiredPerm, int requestCode) {
+        //request missing permissions for tracking
+        ArrayList<String> lacking = new ArrayList<>();
+        if (requiredPerm.length == 0) return;
+        for (String permission : requiredPerm) {
+            if (ContextCompat.checkSelfPermission(getApplicationContext(), permission) == PackageManager.PERMISSION_DENIED) {
+                lacking.add(permission);
+            }
+        }
+        ActivityCompat.requestPermissions(MainActivity.this, lacking.toArray(new String[0]), requestCode);
     }
 
     //progress bar disabling
@@ -565,7 +748,41 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void rem_btn_clicked(View view) {
+    /**
+     * check corresponding permissions before show menu to add number (to response/request)
+     */
+    public void add_number_btn(View view) {
+        String[] permsResponseCurrent, permsRequestCurrent;
+        if (Build.VERSION.SDK_INT == 26) {
+            permsResponseCurrent = permsForResponseOreo;
+            permsRequestCurrent = permsForRequestOreo;
+        } else {
+            permsResponseCurrent = permsForResponse;
+            permsRequestCurrent = permsForRequest;
+        }
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (tabHost.getCurrentTab() == 0) {
+                //request tab (left)
+                if (hasPermissions(permsRequestCurrent)) {
+                    rem_btn_clicked(view);
+                } else {
+                    requestPermsForRequest();
+                }
+            } else {
+                //response tab (right)
+                if (hasPermissions(permsResponseCurrent) && nManage.isNotificationPolicyAccessGranted()) {
+                    rem_btn_clicked(view);
+                } else {
+                    requestPermsForResponse();
+                }
+            }
+        } else {
+            rem_btn_clicked(view);
+        }
+    }
+
+    private void rem_btn_clicked(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         final View v = inflater.inflate(R.layout.add_menu, null);
@@ -591,7 +808,7 @@ public class MainActivity extends AppCompatActivity {
                                 sPref.edit().putBoolean("answer", true).apply();  //enabling "Respond to requests" mode
                                 Toast.makeText(MainActivity.this, R.string.check_settings, Toast.LENGTH_SHORT).show();
                             }
-                            if (Build.VERSION.SDK_INT >= 23) {
+                            if (Build.VERSION.SDK_INT >= 23) { //TODO: add message about auto enebling gps
                                 Toast.makeText(MainActivity.this, R.string.wifi_gps_warning, Toast.LENGTH_LONG).show();
                             }
                         }
@@ -673,6 +890,11 @@ public class MainActivity extends AppCompatActivity {
                     field_name.setText(name);
                     field_phone.setText(number.replaceAll("\\s+|-+|[()]+", ""));
                 }
+            }
+        } else if (requestCode == REQUEST_CODE_AFTER_DISTURB_MENU) {
+            NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= 23 && !nManage.isNotificationPolicyAccessGranted()) {
+                Toast.makeText(this, R.string.no_mute_permission_warning, Toast.LENGTH_LONG).show();
             }
         }
     }

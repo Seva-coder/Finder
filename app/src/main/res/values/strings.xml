@@ -65,7 +65,7 @@
     <string name="menu_wifi_send">Send network data</string>
     <string name="coordinates_will_be_sent">Coordinates (using GPS) will be sent to %1$s</string>
     <string name="nets_will_be_sent">Network data will be sent to %1$s</string>
-    <string name="no_gps_or_rights">GPS disabled/permission not granted! Location will not be sent!</string>
+    <string name="no_gps_or_rights">GPS disabled! Location will NOT be sent!</string>
     <string name="no_rights_for_wifi_sending">Required WiFi permissions not granted, data will not be sent!</string>
     <string name="permissions_obtained">Permissions - OK</string>
     <string name="no_permits_received">Required permissions have not been granted!</string>
@@ -138,7 +138,7 @@
     <string name="tracking_sms_open">Tracking SMS processed!</string>
     <string name="wrong_values">Wrong value!  (Not saved!)</string>
     <string name="sound_perm_fail">Permission not granted, feature disabled</string>
-    <string name="enable_sound">Please, enable \'Dont disturb permission\' for Finder</string>
+    <string name="enable_sound">Please, enable \'Dont disturb permission\' for Finder (need for \'ring\' feature)</string>
     <string name="single_coord_chan">Single coordinates</string>
     <string name="single_coord_chan_description">Used for notification about requests/responses with coordinates</string>
     <string name="tracking_chan">Tracking</string>
@@ -160,4 +160,6 @@
     <string name="ringing_duration_title">Ringing duration</string>
     <string name="ringing_duration_description">in seconds, how long app will play ringtone</string>
     <string name="menu_start_ringing">Start ringing</string>
+    <string name="no_mute_permission_warning">Ringing will not work, if device is in disturb mode</string>
+    <string name="enable_background_miui">Please, enable \'No restrictions\' and \'allow background location\' for Finder</string>
 </resources>

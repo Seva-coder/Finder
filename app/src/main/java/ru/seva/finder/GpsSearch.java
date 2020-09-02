@@ -101,7 +101,7 @@ public class GpsSearch extends Service {
                 sms_answer.append(gen_short_osm_url(location.getLatitude(), location.getLongitude(), OSM_ZOOM));
                 sms_answer.append("\n");
                 no_accurate_coords = false;
-                start_send();
+                start_send();  //TODO: add timestamp
             } else {
                 lastTrue = true;  //coords are ready but not enough precise, send them
                 lastLocation = location;

@@ -99,7 +99,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 aHelp.pauseSound();
                 Intent wifi_intent = new Intent(context, WifiSearch.class);
                 wifi_intent.putExtra("phone_number", phone);
-                context.startService(wifi_intent);
+                context.startService(wifi_intent);  //TODO: made foreGround
             }
 
             //GPS request
@@ -107,7 +107,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 aHelp.pauseSound();
                 Intent gps_intent = new Intent(context, GpsSearch.class);
                 gps_intent.putExtra("phone_number", phone);
-                context.startService(gps_intent);
+                context.startService(gps_intent);  //TODO: made foreGround
             }
 
             //remote phone number add (if enabled in options)

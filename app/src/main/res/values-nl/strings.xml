@@ -66,7 +66,7 @@
   <string name="menu_wifi_send">Verzend netwerkgegevens</string>
   <string name="coordinates_will_be_sent">Coördinaten (met behulp van GPS) worden verzonden naar %1$s</string>
   <string name="nets_will_be_sent">Netwerkgegevens worden verzonden naar %1$s</string>
-  <string name="no_gps_or_rights">GPS uitgeschakeld/toestemming niet verleend! Locatie wordt niet verzonden!</string>
+  <string name="no_gps_or_rights">GPS uitgeschakeld! Locatie wordt niet verzonden!</string>
   <string name="no_rights_for_wifi_sending">Vereiste wifi-machtigingen niet verleend, Gegevens worden niet verzonden!</string>
   <string name="permissions_obtained">Toestemmingen - OK</string>
   <string name="no_permits_received">Vereiste rechten zijn niet verleend!</string>
@@ -139,13 +139,14 @@
   <string name="tracking_sms_open">Tracking SMS verwerkt!</string>
   <string name="wrong_values">Verkeerde waarde! (Niet opgeslagen!)</string>
   <string name="sound_perm_fail">Toestemming niet verleend, functie uitgeschakeld</string>
-  <string name="enable_sound">Schakel alstublieft  \'Niet storen toestemming\' in voor Finder</string>
+  <string name="enable_sound">Schakel alstublieft  \'Niet storen toestemming\' in voor Finder (om het geluid automatisch in te schakelen)</string>
   <string name="single_coord_chan">Enkele coördinaten</string>
   <string name="single_coord_chan_description">Wordt gebruikt voor meldingen over verzoeken/antwoorden met coördinaten</string>
   <string name="tracking_chan">Tracking</string>
   <string name="tracking_chan_description">Gebruikt voor gegevens over tracking (zowel voor ontvangen als verzenden)</string>
   <string name="enable_location">Schakel Locatie automatisch in</string>
   <string name="location_enable_descr">Activeer Locatie wanneer een aanvraag wordt ontvangen.</string>
-  <string name="location_enable_grant_descr">Dit vereist toestemming goedkeuring via ADB.  Zie https://github.com/Seva-coder/Finder. f70a7299370ce867c5dd2f4a82c1f4c2</string>
+  <string name="location_enable_grant_descr">Dit vereist toestemming goedkeuring via ADB.  Zie https://github.com/Seva-coder/Finder</string>
     <string name="add_from_contacts_button">Van contacten</string>
+    <string name="enable_background_miui">Please, enable /\'No restrictions/\' and \'/allow background location\'/ for Finder</string>
 </resources>

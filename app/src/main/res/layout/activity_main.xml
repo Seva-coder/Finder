@@ -23,9 +23,8 @@
                 android:id="@+id/button"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:onClick="rem_btn_clicked"
+                android:onClick="add_number_btn"
                 android:text="@string/remember_int_on"
-                android:enabled="false"
                 android:layout_span="2"/>
 
             <Button

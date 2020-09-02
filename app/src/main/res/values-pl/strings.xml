@@ -62,7 +62,7 @@
     <string name="menu_wifi_send">Wyślij dane sieci</string>
     <string name="coordinates_will_be_sent">Koordynaty GPS zostaną wysłane do %1$s</string>
     <string name="nets_will_be_sent">Dane sieci zostaną wysłane do %1$s</string>
-    <string name="no_gps_or_rights">GPS wyłączony/brak pozwoleń! Lokalizacja nie zostanie wysłana!</string>
+    <string name="no_gps_or_rights">GPS wyłączony! Lokalizacja nie zostanie wysłana!</string>
     <string name="no_rights_for_wifi_sending">Brak wymaganych pozwoleń WiFi. Dane nie zostaną wysłane!</string>
     <string name="permissions_obtained">Pozwolenia - OK</string>
     <string name="no_permits_received">Wymagane pozwolenia nie zostały przyznane!</string>
@@ -135,7 +135,7 @@
     <string name="tracking_sms_open">Przetworzono SMS z zapytaniem!</string>
     <string name="wrong_values">Niepoprawna wartość! Nie zapisano!</string>
     <string name="sound_perm_fail">Uprawnienie nie zostało przyznane, funkcja wyłączona</string>
-    <string name="enable_sound">Włącz uprawnienie zmiany trybu \'Nie przeszkadzać\' dla Findera</string>
+    <string name="enable_sound">Włącz uprawnienie zmiany trybu \'Nie przeszkadzać\' dla Findera (aby automatycznie włączyć dźwięk)</string>
     <string name="single_coord_chan">Pojedyncze współrzędne</string>
     <string name="single_coord_chan_description">Używane dla powiadomień o zapytaniach/odpowiedziach z współrzędnymi</string>
     <string name="tracking_chan">Śledzenie</string>
@@ -144,4 +144,5 @@
     <string name="location_enable_descr">Włączaj usługi lokalizacyjne gdy otrzymane jest zapytanie.</string>
     <string name="location_enable_grant_descr">Wymaga to nadania uprawnień przez ADB. Zobacz: https://github.com/Seva-coder/Finder.</string>
     <string name="add_from_contacts_button">Dodaj z kontaktów</string>
+    <string name="enable_background_miui">Please, enable /\'No restrictions/\' and \'/allow background location\'/ for Finder</string>
 </resources> 
