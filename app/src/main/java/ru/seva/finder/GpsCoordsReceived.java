@@ -12,7 +12,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +24,6 @@ public class GpsCoordsReceived extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String date;
         Double lat=0d, lon=0d, altitude = null;
         Float speed = null, direction = null;
         Integer acc = null;
@@ -69,11 +68,20 @@ public class GpsCoordsReceived extends IntentService {
             bat_value = bat_matcher.group(1);
         }
 
+        Pattern time = Pattern.compile("ts:(\\d+)");
+        Matcher time_matcher = time.matcher(message);
+        long time_unix_millis;
+        if (time_matcher.find()) {
+            time_unix_millis = Long.valueOf(time_matcher.group(1));
+        } else {
+            time_unix_millis = System.currentTimeMillis();
+        }
+
         dBase baseConnect = new dBase(getApplicationContext());
         SQLiteDatabase db = baseConnect.getWritableDatabase();
 
-        DateFormat df = new SimpleDateFormat("MMM d, HH:mm");  //TODO: take timestamp from SMS
-        date = df.format(Calendar.getInstance().getTime());
+        DateFormat df = new SimpleDateFormat("MMM d, HH:mm:ss, yyyy");
+        String date = df.format(new Date(time_unix_millis));
         MainActivity.write_to_hist(db, phone, lat, lon, acc, date, bat_value, altitude, speed, direction);
         String name;
         //get phone name for notification, if it exists

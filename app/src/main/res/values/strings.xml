@@ -97,7 +97,7 @@
     <string name="del_number">Delete phone number</string>
     <string name="help_title">Help</string>
     <string name="check_settings">Check settings! Responding is enabled!</string>
-    <string name="wifi_gps_warning">For locating by WiFi nets on Android 6 and newer, GPS must be enabled too! Unfortunately, it is a limitation of newer Android versions</string>
+    <string name="wifi_gps_warning">For locating by WiFi nets on Android 6 and newer, GPS must be enabled too! or setup auto activating GPS</string>
     <string name="name_hint_text">Name of new number</string>
     <string name="name_text">Name:</string>
     <string name="phone_text">New phone number:</string>

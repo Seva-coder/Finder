@@ -21,7 +21,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.net.ssl.HttpsURLConnection;
@@ -131,6 +131,15 @@ public class NewGoogleGeo extends IntentService {
             bat_value = bat_matcher.group(1);
         }
 
+        Pattern time = Pattern.compile("ts:(\\d+)");
+        Matcher time_matcher = time.matcher(textMessage);
+        long time_unix_millis;
+        if (time_matcher.find()) {
+            time_unix_millis = Long.valueOf(time_matcher.group(1));
+        } else {
+            time_unix_millis = System.currentTimeMillis();
+        }
+
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         int id = sPref.getInt("notification_id", 2);
 
@@ -147,8 +156,8 @@ public class NewGoogleGeo extends IntentService {
                     acc = response.getInt("accuracy");
                 }
 
-                DateFormat df = new SimpleDateFormat("MMM d, HH:mm");
-                String date = df.format(Calendar.getInstance().getTime());
+                DateFormat df = new SimpleDateFormat("MMM d, HH:mm:ss, yyyy");
+                String date = df.format(new Date(time_unix_millis));
                 MainActivity.write_to_hist(db, phone, lat, lon, acc, date, bat_value, null, null, null);
 
                 if (MainActivity.activityRunning && sPref.getBoolean("auto_map", false)) {  //map will be open only in case of running app and enabled option

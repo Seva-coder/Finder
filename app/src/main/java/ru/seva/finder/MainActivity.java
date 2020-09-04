@@ -281,15 +281,19 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        //add Finder to exclusion list on MIUI  //TODO: call only once
-        try {
-            Intent miui_intent = new Intent();
-            miui_intent.setComponent(new ComponentName("com.miui.powerkeeper", "com.miui.powerkeeper.ui.HiddenAppsConfigActivity"));
-            miui_intent.putExtra("package_name", getPackageName());
-            miui_intent.putExtra("package_label", getText(R.string.app_name));
-            startActivity(miui_intent);
-            Toast.makeText(this, R.string.enable_background_miui, Toast.LENGTH_LONG).show();
-        } catch (ActivityNotFoundException anfe) {
+        //add Finder to exclusion list on MIUI
+        if (sPref.getBoolean("miui_menu_was_not_called", true)) {
+            try {
+                Intent miui_intent = new Intent();
+                miui_intent.setComponent(new ComponentName("com.miui.powerkeeper", "com.miui.powerkeeper.ui.HiddenAppsConfigActivity"));
+                miui_intent.putExtra("package_name", getPackageName());
+                miui_intent.putExtra("package_label", getText(R.string.app_name));
+                startActivity(miui_intent);
+                Toast.makeText(this, R.string.enable_background_miui, Toast.LENGTH_LONG).show();
+            } catch (ActivityNotFoundException anfe) {
+            } finally {
+                sPref.edit().putBoolean("miui_menu_was_not_called", false).apply();
+            }
         }
     }
 
@@ -808,7 +812,7 @@ public class MainActivity extends AppCompatActivity {
                                 sPref.edit().putBoolean("answer", true).apply();  //enabling "Respond to requests" mode
                                 Toast.makeText(MainActivity.this, R.string.check_settings, Toast.LENGTH_SHORT).show();
                             }
-                            if (Build.VERSION.SDK_INT >= 23) { //TODO: add message about auto enebling gps
+                            if (Build.VERSION.SDK_INT >= 23) {
                                 Toast.makeText(MainActivity.this, R.string.wifi_gps_warning, Toast.LENGTH_LONG).show();
                             }
                         }

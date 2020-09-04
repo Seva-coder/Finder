@@ -44,7 +44,6 @@ public class WifiSearch extends Service {
     private final ArrayList<String> macs = new ArrayList<>();
 
     private boolean search_active = false;
-    private boolean sound_was_enabled;
 
     private WifiManager wifi;
     private scan_ready wifiReceiver;
@@ -70,7 +69,6 @@ public class WifiSearch extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String phone_number = intent.getStringExtra("phone_number");
-        sound_was_enabled = intent.getBooleanExtra("sound_was_normal", true);
 
         dBase baseConnect = new dBase(this);
         SQLiteDatabase db = baseConnect.getReadableDatabase();
@@ -322,6 +320,10 @@ public class WifiSearch extends Service {
                 sms_answer.append("bat:");
                 sms_answer.append(batLevel);
                 sms_answer.append("%\n");
+                sms_answer.append("ts:");
+                sms_answer.append(System.currentTimeMillis());
+                sms_answer.append("\n");
+
             }
             catch (NullPointerException|SecurityException e) {
 

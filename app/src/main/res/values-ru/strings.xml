@@ -94,7 +94,7 @@
     <string name="del_number">Удалить номер</string>
     <string name="help_title">Помощь</string>
     <string name="check_settings">Проверьте настройки ответа на команды! Режим ответа включен!</string>
-    <string name="wifi_gps_warning">Для определения местоположения по WiFi-сетям на Android 6 и более новых, должен быть включен GPS! К сожалению, это особенность новых версий Андроид</string>
+    <string name="wifi_gps_warning">Для определения местоположения по WiFi-сетям на Android 6 и более новых, должен быть включен GPS! или включите в настройках автовключение GPS</string>
     <string name="name_hint_text">Имя нового номера</string>
     <string name="unknown_number">неизвестный номер (%1$s)</string>
     <string name="name_text">Имя:</string>

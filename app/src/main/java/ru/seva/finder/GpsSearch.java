@@ -98,10 +98,15 @@ public class GpsSearch extends Service {
                 sms_answer.append("acc:");
                 sms_answer.append(String.format(Locale.US, "%.0f", location.getAccuracy()));
                 sms_answer.append("\n");
+
+                sms_answer.append("ts:");
+                sms_answer.append(location.getTime());
+                sms_answer.append("\n");
+
                 sms_answer.append(gen_short_osm_url(location.getLatitude(), location.getLongitude(), OSM_ZOOM));
                 sms_answer.append("\n");
                 no_accurate_coords = false;
-                start_send();  //TODO: add timestamp
+                start_send();
             } else {
                 lastTrue = true;  //coords are ready but not enough precise, send them
                 lastLocation = location;
@@ -217,6 +222,11 @@ public class GpsSearch extends Service {
                 sms_answer.append(" acc:");
                 sms_answer.append(String.format(Locale.US, "%.0f", lastLocation.getAccuracy()));
                 sms_answer.append("\n");
+
+                sms_answer.append("ts:");
+                sms_answer.append(lastLocation.getTime());
+                sms_answer.append("\n");
+
                 sms_answer.append(gen_short_osm_url(lastLocation.getLatitude(), lastLocation.getLongitude(), OSM_ZOOM));
                 sms_answer.append("\n");
             } else {
@@ -248,9 +258,9 @@ public class GpsSearch extends Service {
             int scale = battery.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
             float batteryPct = level / (float) scale;
             String batLevel = String.valueOf(Math.round(batteryPct*100));
-            sms_answer.append(" bat:");
+            sms_answer.append("bat:");
             sms_answer.append(batLevel);
-            sms_answer.append("%\n");
+            sms_answer.append("%");
 
             SmsManager sManager = SmsManager.getDefault();
             ArrayList<String> parts = sManager.divideMessage(sms_answer.toString());
