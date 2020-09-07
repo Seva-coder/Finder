@@ -57,6 +57,9 @@ public class WifiSearch extends Service {
 
     private final ArrayList<String> phones = new ArrayList<>();
 
+    private Notification notification;
+    private int id;
+
 
     @Override
     public void onCreate() {
@@ -110,10 +113,10 @@ public class WifiSearch extends Service {
                     .setContentTitle(getString(R.string.wifi_processed))
                     .setContentText(getString(R.string.from, name))
                     .setAutoCancel(true);
-            Notification notification = builder.build();
-            NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            int id = sPref.getInt("notification_id", 2);
-            nManage.notify(id, notification);
+
+            notification = builder.build();  //will be used also at service stop
+            id = sPref.getInt("notification_id", 2);
+            startForeground(id, notification);
             sPref.edit().putInt("notification_id", id+1).apply();
         } else {
             if(!search_active) {  //stop service in case of wrong number
@@ -361,7 +364,9 @@ public class WifiSearch extends Service {
                 }
             }
         }
-
+        stopForeground(true);
+        NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        nManage.notify(id, notification);  //now notification stay after service stop
     }
 
     @Override

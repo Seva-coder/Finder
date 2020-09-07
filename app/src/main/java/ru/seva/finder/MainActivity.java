@@ -409,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
                                         intent.putExtra("tracking_accuracy", tracking_accuracy);
                                         intent.putExtra("phone", phone);
                                         intent.putExtra("name", name);
-                                        startService(intent);  //TODO: make foreground
+                                        startService(intent);
 
                                         Toast.makeText(v.getContext(), R.string.tracking_started, Toast.LENGTH_LONG).show();
                                     }
@@ -558,7 +558,7 @@ public class MainActivity extends AppCompatActivity {
      * It get intent from class variable, because can be called from onRequestPermissionsResult too
      */
     private void sendMyNets() {
-        getApplicationContext().startService(mSavedWifiIntent);  //TODO: make foreground
+        getApplicationContext().startService(mSavedWifiIntent);
         Toast.makeText(this, getString(R.string.nets_will_be_sent, mSavedWifiIntent.getStringExtra("phone_number")), Toast.LENGTH_LONG).show();
     }
 
@@ -567,7 +567,7 @@ public class MainActivity extends AppCompatActivity {
      * It get intent from class variable, because can be called from onRequestPermissionsResult too
      */
     private void sendMyGpsCoord() {
-        getApplicationContext().startService(mSavedGpsIntent);  //TODO: make foreground
+        getApplicationContext().startService(mSavedGpsIntent);
         Toast.makeText(this, getString(R.string.coordinates_will_be_sent, mSavedGpsIntent.getStringExtra("phone_number")), Toast.LENGTH_LONG).show();
     }
 

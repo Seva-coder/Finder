@@ -35,7 +35,6 @@ public class RingingService extends Service {
     static final String ACTION_STOP = "ru.seva.finder.STOP_RINGING";
 
     NotificationManager nManage;
-    private int id;
 
     public RingingService() {
     }
@@ -62,7 +61,7 @@ public class RingingService extends Service {
             aHelp.stopRinging();
             unregisterReceiver(mStopRingingReceiver);
             stopHandler.removeCallbacks(stopRinging);
-            nManage.cancel(id);
+            stopForeground(true);
             stopSelf();
         }
     };
@@ -102,13 +101,12 @@ public class RingingService extends Service {
                     .setContentTitle(getString(R.string.notification_ringing_title))
                     .setContentText(getString(R.string.notification_ringing_text))
                     .setAutoCancel(true)
-                    .setContentIntent(pStopIntent)
-                    .setOngoing(true);
+                    .setContentIntent(pStopIntent);
             Notification notification = builder.build();
             nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            id = sPref.getInt("notification_id", 2);
-            nManage.notify(id, notification);
-            sPref.edit().putInt("notification_id", id+1).apply();
+            int id = sPref.getInt("notification_id", 2);
+            startForeground(id, notification);
+            sPref.edit().putInt("notification_id", id + 1).apply();
 
             mStopRingingReceiver = new StopRingingReceiver();
             registerReceiver(mStopRingingReceiver, filterStop);

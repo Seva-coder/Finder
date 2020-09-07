@@ -1,18 +1,25 @@
 package ru.seva.finder;
 
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -114,6 +121,10 @@ public class MapsActivity extends AppCompatActivity {
 
         //receiver to map updating
         LocalBroadcastManager.getInstance(this).registerReceiver(updMap, new IntentFilter("update_map"));
+
+        if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }
     }
 
     public void onResume() {
@@ -169,4 +180,11 @@ public class MapsActivity extends AppCompatActivity {
             trackRedraw();
         }
     };
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+            Toast.makeText(this, R.string.no_permits_received, Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }

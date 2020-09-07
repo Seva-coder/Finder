@@ -55,6 +55,9 @@ public class GpsSearch extends Service {
     //there was a problem on andr. 4 emulator, were after "removeUpdates" method new "accurate" location cause
     // doubling sms text (2 location was received with pause 10 ms, "removeUpdates" may be too slow)
 
+    private Notification notification;  //declared here to recreate it after stopping service (stopping foreground service kills notif.)
+    private int id;
+
     public GpsSearch() {
     }
 
@@ -161,10 +164,9 @@ public class GpsSearch extends Service {
                     .setContentTitle(getString(R.string.gps_processed))
                     .setContentText(getString(R.string.from, name))
                     .setAutoCancel(true);
-            Notification notification = builder.build();
-            NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            int id = sPref.getInt("notification_id", 2);
-            nManage.notify(id, notification);
+            notification = builder.build();  //will be used also at service stop
+            id = sPref.getInt("notification_id", 2);
+            startForeground(id, notification);
             sPref.edit().putInt("notification_id", id+1).apply();
 
             // Activate location if it's not enabled
@@ -190,7 +192,7 @@ public class GpsSearch extends Service {
             }
 
         } else {
-            if (phones.size() == 0) {  //if number not added, and list was empty - stop
+            if (phones.size() == 0) {  //if number not trusted, and list was empty - stop
                 h.removeCallbacks(stopper);
                 locMan.removeUpdates(locListen);
                 cursor_check.close();
@@ -268,7 +270,9 @@ public class GpsSearch extends Service {
                 sManager.sendMultipartTextMessage(number, null, parts, null,null);
             }
         }
-
+        stopForeground(true);
+        NotificationManager nManage = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        nManage.notify(id, notification);  //now notification stay after service stop
         stopSelf();
     }
 

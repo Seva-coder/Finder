@@ -6,7 +6,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.Telephony;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,12 +32,19 @@ public class NewReadSms extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_read_sms);
 
-        ListView list = findViewById(R.id.lvSms);
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) {
+
+        if ((Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) ||
+                Build.VERSION.SDK_INT < 23) {
             cursor = getContentResolver().query(Uri.parse("content://sms/inbox"), null, null, null, null);
         } else {
-            Toast.makeText(NewReadSms.this, R.string.no_sms_rights, Toast.LENGTH_LONG).show();
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_SMS}, 1);
         }
+        initActivity();
+    }
+
+    private void initActivity() {
+        ListView list = findViewById(R.id.lvSms);
+
         String[] mWordListColumns = {
                 Telephony.Sms.ADDRESS,  //this activity will be started only on 19 api and later
                 Telephony.Sms.DATE
@@ -128,4 +138,14 @@ public class NewReadSms extends AppCompatActivity {
             cursor.close();
         }
     }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+            Toast.makeText(this, R.string.no_sms_rights, Toast.LENGTH_LONG).show();
+        } else {
+            cursor = getContentResolver().query(Uri.parse("content://sms/inbox"), null, null, null, null);
+            initActivity();
+        }
+    }
+
 }
