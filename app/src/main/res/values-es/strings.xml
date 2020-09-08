@@ -39,7 +39,7 @@
   <string name="sms_open">Abrir SMS</string>
   <string name="wifi_sms_processing">Procesando solicitud WiFi</string>
   <string name="gps_sms_processing">Procesando solicitud GPS</string>
-  <string name="not_valid_sms">proceso de SMS fallido, mensaje no llevaría coordinadas</string>
+  <string name="not_valid_sms">proceso de SMS fallido, mensaje no llevaría coordenadas</string>
   <string name="no_sms_accsess">Error de acceso SMS</string>
   <string name="insert_sms_text">Pege el texto de un SMS para obtener ubicación:</string>
   <string name="parse_sms">Obtener SMS</string>
@@ -48,12 +48,12 @@
   <string name="show_ext_map">"Abrir con una aplicación de terceros "</string>
   <string name="del_point">Borrar una entrada de localización del historial</string>
   <string name="gps_not_enabled">GPS desactivado en respuesta del dispositivo, pruebe solicitud WiFi</string>
-  <string name="no_coord_bad_signal">Coordinadas no disponibles, posiblemente la señal GPS está debil</string>
+  <string name="no_coord_bad_signal">Coordenadas no disponibles, posiblemente la señal GPS está debil</string>
   <string name="request_sent">Solcitud enviada, esperando respuesta…</string>
   <string name="delete_text">Eliminar número telefónico</string>
-  <string name="error_getting_coordinats">No se pudo obtener coordinadas</string>
+  <string name="error_getting_coordinats">No se pudo obtener coordenadas</string>
   <string name="message_with_coord">Mensaje con localización</string>
-  <string name="coords_received">Detectar coordinadas de \"%1$s\"</string>
+  <string name="coords_received">Detectar coordenadas de \"%1$s\"</string>
   <string name="gps_processed">¡Solicitud GPS procesada!</string>
   <string name="from">desde \"%1$s\"</string>
   <string name="wifi_processed">¡Solicitud Wifi procesada!</string>
