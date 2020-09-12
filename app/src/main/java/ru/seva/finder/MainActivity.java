@@ -577,7 +577,7 @@ public class MainActivity extends AppCompatActivity {
      * @param requestCode
      */
     private void requirePermissions(@NonNull String[] requiredPerm, int requestCode) {
-        //request missing permissions for tracking
+        //request missing permissions
         ArrayList<String> lacking = new ArrayList<>();
         if (requiredPerm.length == 0) return;
         for (String permission : requiredPerm) {
@@ -585,6 +585,7 @@ public class MainActivity extends AppCompatActivity {
                 lacking.add(permission);
             }
         }
+        if (lacking.size() == 0) return;
         ActivityCompat.requestPermissions(MainActivity.this, lacking.toArray(new String[0]), requestCode);
     }
 

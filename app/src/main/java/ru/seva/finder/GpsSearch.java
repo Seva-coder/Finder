@@ -187,7 +187,7 @@ public class GpsSearch extends Service {
             //on new API no permission or GPS disabled
             if ((Build.VERSION.SDK_INT >=23 && getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) ||
                     !locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                sms_answer.append("gps not enabled");
+                sms_answer.append("gps not enabled\n");
                 start_send();
             }
 
@@ -232,7 +232,7 @@ public class GpsSearch extends Service {
                 sms_answer.append(gen_short_osm_url(lastLocation.getLatitude(), lastLocation.getLongitude(), OSM_ZOOM));
                 sms_answer.append("\n");
             } else {
-                sms_answer.append("unable get location");
+                sms_answer.append("unable get location\n");
             }
             start_send();
         }

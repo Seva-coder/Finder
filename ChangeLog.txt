@@ -1,3 +1,9 @@
+v2.4
+- for gps- and wifi requests added timestamp to SMS
+- permissions requests only when they really need (now all permissions are not requested during the start)
+- services for searching now are "foreground" (should increase reliability)
+- fixes in Spanish translation
+
 v2.3
 - new feature: ringing by request, even if sound muted (only from trusted numbers)
 

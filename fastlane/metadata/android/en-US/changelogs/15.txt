@@ -1,0 +1,5 @@
+v2.4
+- for gps- and wifi requests added timestamp to SMS
+- permissions requests only when they really need (now all permissions are not requested during the start)
+- services for searching now are "foreground" (should increase reliability)
+- fixes in Spanish translation

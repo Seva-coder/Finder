@@ -121,11 +121,10 @@ public class MapsActivity extends AppCompatActivity {
 
         //receiver to map updating
         LocalBroadcastManager.getInstance(this).registerReceiver(updMap, new IntentFilter("update_map"));
-
-        if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        if (Build.VERSION.SDK_INT >= 23) {
+            requirePermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
-    }
+        }
 
     public void onResume() {
         super.onResume();
@@ -143,6 +142,19 @@ public class MapsActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    private void requirePermissions(@NonNull String[] requiredPerm, int requestCode) {
+        //request missing permissions
+        ArrayList<String> lacking = new ArrayList<>();
+        if (requiredPerm.length == 0) return;
+        for (String permission : requiredPerm) {
+            if (ContextCompat.checkSelfPermission(getApplicationContext(), permission) == PackageManager.PERMISSION_DENIED) {
+                lacking.add(permission);
+            }
+        }
+
+        if (lacking.size() == 0) return;
+        ActivityCompat.requestPermissions(MapsActivity.this, lacking.toArray(new String[0]), requestCode);
+    }
 
     private void trackRedraw() {
         Cursor query =  db.query("tracking_table", new String[] {"_id", "lat", "lon", "speed", "date"}, "track_id = ?", new String[] {String.valueOf(track_id)}, null, null, "_id ASC");
@@ -182,8 +194,11 @@ public class MapsActivity extends AppCompatActivity {
     };
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-            Toast.makeText(this, R.string.no_permits_received, Toast.LENGTH_SHORT).show();
+        for (int perm : grantResults) {
+            if (perm == PackageManager.PERMISSION_DENIED) {
+                Toast.makeText(this, R.string.no_permits_received, Toast.LENGTH_SHORT).show();
+                break;
+            }
         }
     }
 
