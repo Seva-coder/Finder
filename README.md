@@ -1,6 +1,6 @@
 # Finder — smartphone search
 
-<i>Application for remote mobile phone searching via SMS requests.</i>
+<i>Search for a lost mobile phone using SMS commands.</i>
 ------------
 <a href="https://f-droid.org/packages/ru.seva.finder">
     <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
@@ -11,7 +11,13 @@
 Functionality
 -------------
 
-The main function of Finder is to send the location of the smartphone it's installed on when requested. It also has a "tracker" feature (it can’t be activated remotely, only manually). When it's activated, the app periodically sends coordinates to a set number. The application is designed to search for missing people or stolen phones. SMS messages are used for communication because an Internet connection may not be available. It has two ways of determining the device's coordinates: using GPS (must be enabled in system settings!), and using mobile networks and WiFi info. In the second case, the response SMS will include MAC addresses of WiFi access points, and to determine the location it is necessary to have this application and a connection the Internet on the requesting phone (not needed on the remote [responding] side). This method can help in the case of trying to find a phone in a building / dense arrangement of buildings in the city.
+Finder sends the location of a lost/stolen phone, via SMS, to another phone to help you find the lost/stolen phone. 
+
+Finder also has a "tracker" feature (opt-in only; cannot be remotely airframe be pop p⁰t be activated remotely, only manually). When it's activated, the app periodically sends coordinates to a preset number. Effectively sending coordinates like dropping breadcrumbs. This can be a proactive means of determining a phone's last known location before it may run out of power before being found.
+
+Finder is designed to search for missing people, stolen or lost phones, using SMS, because the phone may not have access to the internet. 
+
+Finder can use either GPS (AKA "Location", if enabled) or mobile and WiFi networks to get the phone's. In the second case, the response SMS will include MAC addresses of WiFi access points, and to determine the location it is necessary to have this application and a connection the Internet on the requesting phone (not needed on the remote [responding] side). This method can help in the case of trying to find a phone in a building / dense arrangement of buildings in the city.
 
 <b>Important!</b> On Android 6.0 and newer for the Wifi networks searching feature, GPS must be enabled! (beforehand). GPS will not be used during network scanning, but nevertheless, newer versions of Android require it to be turned on (otherwise the system returns an empty list of networks).
 
